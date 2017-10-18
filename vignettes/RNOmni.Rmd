@@ -11,16 +11,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-<style>
-body {
-text-align: justify}
-</style>
-
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.width=1.5*3, fig.height=1.5*2, fig.align="center", fig.path='Figs/',echo=T, warning=F, message=F, cache=T);
 ```
 ## Example Data
-Simulated data is available for $10^{3}$ subjects. Covariates include `Age` and `Sex`. Structure adjustments include the first two principal components, `pc1` and `pc2`, of the centered and scaled subject by locus genotype matrix. Genotypes at $10^{2}$ loci on chromosome one are included. Minor allele frequency for each locus falls in the range $[0.110, 0.360]$. Two independent phenotypes are available. `YN` has normally distributed residuals, while the log of `YL` has normally distributed residuals. 
+Simulated data is available for $10^{3}$ subjects. Covariates include `Age` and `Sex`. Structure adjustments include the first two principal components, `pc1` and `pc2`, of the centered and scaled subject by locus genotype matrix. Genotypes at $10^{2}$ loci on chromosome one are included. Sample minor allele frequency for each locus falls in the range $[0.110, 0.360]$. Two independent phenotypes are available. `YN` has normally distributed residuals, while the log of `YL` has normally distributed residuals. 
 ```{r A01, include=T}
 library(RNOmni);
 ## Example data

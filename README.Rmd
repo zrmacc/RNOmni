@@ -1,0 +1,10 @@
+---
+title: "README"
+author: "Zachary McCaw"
+date: "10/17/2017"
+output: github_document
+--- 
+
+# Package Vignette
+```{r,child='vignettes/RNOmni.Rmd'}
+```
