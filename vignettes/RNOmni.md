@@ -1,18 +1,32 @@
 # Rank Normal Omnibus Association Test
 Zachary McCaw  
-Updated: 10/17/18  
+Updated: 10/26/18  
 
 
 
 ## Contents
 
-* [Example Data](#example-data)
-* [Genetic Association Testing](#genetic-association-testing)
-* [Run Time](#run-time)
-* [Missingness](#missingness)
+* [Motivating Example](#motivating-example)
+* [Rank Normal Omnibus Test](#omnibus-association-test)
+* [Additional Association Tests](#additional-association-tests)
+* [Comparison of Association Tests](#comparison-of-association-tests)
+* [Additional Details](#additional-details)
 
-## Example Data
-Simulated data is available for $10^{3}$ subjects. Covariates include `Age` and `Sex`. Structure adjustments include the first two principal components, `pc1` and `pc2`, of the centered and scaled subject by locus genotype matrix. Genotypes at $10^{2}$ loci on chromosome one are included. Sample minor allele frequency for each locus falls in the range $[0.110, 0.360]$. Two independent phenotypes are available. `YN` has normally distributed residuals, while the log of `YL` has normally distributed residuals. 
+## Motivating Example
+Motivation for investigating the rank based inverse normal transformation (INT) came from the study of obstructive sleep apnea (OSA). The gold standard measurement for diagnosing OSA is the apnea hypopnea index (AHI), a continuous, positively skewed trait with a distribution that resembles $\chi^{2}$. The residuals obtained by regressing AHI on genotype and covariates are often non-normal, and application of standard association tests leads to an excess of false positive associations, i.e. inflated type I error. To counteract departures from normality, INT transformation of AHI prior to genetic association testing has been proposed. As demonstrated in the following figure, INT of a continuous measurement causes the distribution of that measurement in the sample to appear normal. 
+
+
+```r
+# Chi-1 data
+y = rchisq(n=1000,df=1);
+# Rank-normalize
+z = RNOmni::rankNormal(y);
+```
+<img src="Figs/A01-1.png" style="display: block; margin: auto;" />
+
+#### Simulated Data
+Within `RNOmni`, simulated data is available for $10^{3}$ subjects. Covariates include `Age` and `Sex`. Structure adjustments include the first two principal components, `pc1` and `pc2`, of the centered and scaled subject by locus genotype matrix. Genotypes at $10^{3}$ loci on chromosome one are also included. All loci are common, with sample minor allele frequency falling in the range $[0.230, 0.403]$. Two independent phenotypes were generated under the null hypothesis of no genotypic effect. `YN` has normally distributed residuals, while $`YT3$ has heavy tailed residuals from a $t_{3}$ distribution. The residual distributions were scaled to have unit variance. 
+
 
 ```r
 library(RNOmni);
@@ -26,7 +40,7 @@ S = RNOmni::S;
 round(head(S),digits=2);
 cat("\n");
 cat("Genotype Matrix\n");
-G = RNOmni::Geno;
+G = RNOmni::G;
 G[1:6,1:6];
 cat("\n");
 cat("Sample Minor Allele Frequency\n");
@@ -39,22 +53,22 @@ round(head(Y),digits=2);
 
 ```
 ## Covariates
-##        Age Sex
-## [1,] 50.75   0
-## [2,] 46.92   1
-## [3,] 52.81   0
-## [4,] 48.42   0
-## [5,] 48.05   1
-## [6,] 47.75   1
+##          a s
+## [1,] 48.33 0
+## [2,] 45.02 1
+## [3,] 52.74 1
+## [4,] 50.27 0
+## [5,] 50.91 1
+## [6,] 48.08 1
 ## 
 ## Structure Adjustments
-##        pc1    pc2
-## [1,] -1.90 -11.54
-## [2,]  5.43   1.75
-## [3,] 16.76   3.23
-## [4,] 19.29 -13.15
-## [5,]  2.92  -1.49
-## [6,] 10.92   7.55
+##        pc1   pc2
+## [1,] -1.90 11.54
+## [2,]  5.43 -1.75
+## [3,] 16.76 -3.23
+## [4,] 19.29 13.15
+## [5,]  2.92  1.49
+## [6,] 10.92 -7.55
 ## 
 ## Genotype Matrix
 ##      s1 s2 s3 s4 s5 s6
@@ -67,22 +81,99 @@ round(head(Y),digits=2);
 ## 
 ## Sample Minor Allele Frequency
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   0.110   0.185   0.215   0.219   0.250   0.360 
+##  0.2295  0.3050  0.3225  0.3217  0.3390  0.4030 
 ## 
 ## Phenotypes
-##        YN    YL
-## [1,] 2.42 27.29
-## [2,] 4.15 42.35
-## [3,] 2.65 64.34
-## [4,] 3.13  7.97
-## [5,] 5.08 97.49
-## [6,] 2.14 17.84
+##        YN  YT3
+## [1,] 2.68 2.32
+## [2,] 3.42 4.43
+## [3,] 3.80 4.95
+## [4,] 4.44 3.47
+## [5,] 3.79 4.39
+## [6,] 3.78 3.54
 ```
 
-## Genetic Association Testing
+## Rank Normal Omnibus Test
+`RNOmni` implements an adaptive test of association between the loci in $G$ and the phenotype $y$, while adjusting for covariates $X$ and population structure $S$. Internally, `RNOmni` conducts two association tests, `DINT` and `PIINT`, described below, then calculates an omnibus statistic based on whichever approach provides more evidence against the null hypothesis. Synthesizing two complementary, INT-based approaches, affords the omnibus test robustness to the distribution of phenotypic residuals. In the absence of a genotypic effect, `RNOmni` routinely controls the type I error. In the presence of a genotypic effect, `RNOmni` provides power comparable to the better of `DINT` and `PIINT`. 
+
+Estimation of a $p$-value for the omnibus statistic requires an estimate of the correlation $\rho$ between the test statistics provided by `DINT` and `PIINT`. When the sample size and number of loci are both relatively large, a computationally efficient estimate of $\rho$ is obtained by averaging across loci. If either the sample size or the number of loci is relatively small, bootstrap can provide a locus-specific estimates of $\rho$. 
+
+The output of `RNOmni` is a numeric matrix of $p$-values, with rows corresponding to the rows of $G$. The columns are the $p$-values from the `DINT`, the `PIINT`, and the omnibus tests, respectively. Note that, without additional adjustment for multiple testing, taking the minimum $p$-value across each row would not result in a valid test of association. 
+
+```r
+cat("Omnibus Test, Normal Phenotype, Average Correaltion Method\n");
+p1.omni.avg = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="AvgCorr");
+round(head(p1.omni.avg),digits=3);
+cat("\n");
+cat("Omnibus Test, Normal Phenotype, Bootstrap Correaltion Method\n");
+set.seed(100);
+p1.omni.boot = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12);
+round(head(p1.omni.boot),digits=3);
+cat("\n");
+cat("Omnibus Test, T3 Phenotype, Average Correaltion Method\n");
+p2.omni.avg = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="AvgCorr");
+round(head(p2.omni.avg),digits=3);
+cat("\n");
+cat("Omnibus Test, T3 Phenotype, Bootstrap Correaltion Method\n");
+p2.omni.boot = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12);
+round(head(p2.omni.boot),digits=3);
+cat("\n");
+```
+
+```
+## Omnibus Test, Normal Phenotype, Average Correaltion Method
+##       DINT PIINT RNOmni
+## [1,] 0.626 0.653  0.698
+## [2,] 0.727 0.764  0.789
+## [3,] 0.165 0.167  0.212
+## [4,] 0.866 0.910  0.907
+## [5,] 0.469 0.509  0.544
+## [6,] 0.584 0.568  0.642
+## 
+## Omnibus Test, Normal Phenotype, Bootstrap Correaltion Method
+##       DINT PIINT RNOmni
+## [1,] 0.626 0.653  0.654
+## [2,] 0.727 0.764  0.752
+## [3,] 0.165 0.167  0.184
+## [4,] 0.866 0.910  0.885
+## [5,] 0.469 0.509  0.502
+## [6,] 0.584 0.568  0.595
+## 
+## Omnibus Test, T3 Phenotype, Average Correaltion Method
+##       DINT PIINT RNOmni
+## [1,] 0.751 0.690  0.736
+## [2,] 0.540 0.531  0.583
+## [3,] 0.201 0.249  0.238
+## [4,] 0.192 0.197  0.228
+## [5,] 0.329 0.332  0.376
+## [6,] 0.462 0.431  0.482
+## 
+## Omnibus Test, T3 Phenotype, Bootstrap Correaltion Method
+##       DINT PIINT RNOmni
+## [1,] 0.751 0.690  0.728
+## [2,] 0.540 0.531  0.573
+## [3,] 0.201 0.249  0.231
+## [4,] 0.192 0.197  0.220
+## [5,] 0.329 0.332  0.363
+## [6,] 0.462 0.431  0.473
+```
+Since the phenotype was simulated under the null hypothesis of no genotypic effect, the expected false positive rate at $\alpha$ level $0.05$ is $5\%$. For both the normal and heavy tailed $t_{3}$ phenotypes, the $95\%$ confidence interval for the type I error includes the expected value of $0.05$. As shown in the [comparison of association tests](#comparison-of-association-tests), naively applying the [basic association test](#basic-association-test) leads to an excess of false positive associations in the latter case. 
+
+
+```
+## Type I Error of Rank Normal Omnibus Test:
+##   Phenotype    Method  Size     L     U
+## 1    Normal   AvgCorr 0.038 0.026 0.050
+## 2    Normal Bootstrap 0.052 0.038 0.066
+## 3        T3   AvgCorr 0.057 0.042 0.072
+## 4        T3 Bootstrap 0.062 0.047 0.077
+```
+
+## Additional Association Tests
+In addition to the omnibus test, three genetic association tests are implemented as part of `RNOmni`. These are the basic association test `BAT`, the direct INT method `DINT`, and the partially indirect INT method `PIINT`.
 
 #### Basic Association Test
-`BAT` regresses the untransformed phenotype $y$ on genotype $g$, covariates $X$, and adjustments for substructure $S$. The Wald statistic is used to calculate a $p$-value assessing the null hypothesis of no genotypic effect. The output is a numeric vector, with one $p$-value per locus in $G$.
+`BAT` regresses the untransformed phenotype $y$ on genotype at each locus in $G$, adjusting for covariates $X$ and population structure $S$. A $p$-value assessing the null hypothesis of no genotypic effect is estimated using the Wald statistic. The output is a numeric vector, with one $p$-value per row of $G$.
 
 ```r
 # Basic Association Test
@@ -91,10 +182,12 @@ round(head(p1.bat),digits=3);
 ```
 
 ```
-## [1] 0.654 0.407 0.770 0.555 0.877 0.722
+## [1] 0.679 0.737 0.165 0.901 0.477 0.568
 ```
+
 #### Direct Inverse Normal Transformation
-`DINT` directly applies the rank-based inverse normal transformation (INT) to the phenotype $y$. The transformed phenotype $\text{INT}(y)$ is regressed on genotype $g$, covariates $X$, and adjustments for population structure $S$. The Wald statistic is used to calculate a $p$-value assessing the null hypothesis of no genotypic effect. The output is a numeric vector, with one $p$-value per locus in $G$.
+`DINT` regresses the transformed phenotype $\text{INT}(y)$ on genotype at each locus in $G$, adjusting for covariates $X$ and population structure $S$. A $p$-value assessing the null hypothesis of no genotypic effect is estimated via the Wald statistic. The output is a numeric vector, with one $p$-value per row of $G$.
+
 
 ```r
 # Direct INT Test
@@ -103,11 +196,12 @@ round(head(p1.dint),digits=3);
 ```
 
 ```
-## [1] 0.632 0.380 0.740 0.568 0.845 0.739
+## [1] 0.626 0.727 0.165 0.866 0.469 0.584
 ```
 
 #### Partially Indirect Inverse Normal Transformation
-`PIINT` implements a two-stage, INT-based association test. In the first stage, the phenotype $y$ is regressed on covariates $X$ to obtain residuals $e$. In the second stage, the transformed residuals $\text{INT}(e)$ are regressed on genotype $g$ and adjustments for population structure $S$. The Wald statistic is used to calculate a $p$-value assessing the null hypothesis of no genotypic effect. The output is a numeric vector, with one $p$-value per locus in $G$. 
+`PIINT` implements a two-stage association test. In the first stage, the untransformed phenotype $y$ is regressed on covariates $X$ to obtain residuals $e$. In the second stage, the transformed residuals $\text{INT}(e)$ are regressed on genotype at each locus in $G$, adjusting for population structure $S$. A $p$-value assessing the null hypothesis of no genotypic effect is estimated via the Wald statistic. The output is a numeric vector, with one $p$-value per row of $G$.
+
 
 ```r
 # Partially Indirect INT Test
@@ -116,131 +210,50 @@ round(head(p1.piint),digits=3);
 ```
 
 ```
-## [1] 0.674 0.389 0.731 0.543 0.852 0.709
+## [1] 0.653 0.764 0.167 0.910 0.509 0.568
 ```
 
-#### Omnibus Inverse Normal Transformation Method
-`RNOmni` implements an adaptive, INT-based association test. In the omnibus test, `DINT` and `PIINT` are each applied, then an omnibus statistic is calculated based on whichever approach provides more evidence against the null. Estimation of a $p$-value for the omnibus statistic requires an estimate of the correlation $\rho$ between the test statistics provided by `DINT` and `PIINT`. When the sample size and number of loci are both relatively large, an efficient estimate of $\rho$ is obtained by averaging across loci. When the sample size or number of loci are smaller, bootstrap can be used to provide a locus-specific estimate of $\rho$. 
+In naming `PIINT`, "indirect" refers to the fact that residuals are formed prior to INT, rather than directly transforming the phenotype. "Partially" refers to the fact that residuals are formed w.r.t. covariates $X$, but not structure adjustments $S$. Performance of a fully indirect association test, in which $y$ is regressed on both $X$ and $S$ during residual formation, was investigated. The fully indirect association test did not consistently provide valid inference. 
 
-```r
-cat("Omnibus Test, Average Correaltion Method\n");
-p1.omni.avg = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="AvgCorr");
-round(head(p1.omni.avg),digits=3);
-cat("\n");
-cat("Omnibus Test, Bootstrap Correaltion Method\n");
-p1.omni.boot = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12);
-round(head(p1.omni.boot),digits=3);
-cat("\n");
-```
+## Comparison of Association Tests
+The following figure depicts the estimated type I error for association tests against the normal and $t_{3}$ phenotypes at $\alpha$ level $0.05$. Point estimates are obtained by averaging an indicator of rejection, and the error bars provide $95\%$ confidence intervals. Although all methods perform comparable against the normal phenotype, the false positive rate is inflated when the basic association approach is applied in the presence of heavy tailed $t_{3}$ residuals. This problem is exacerbated when considering increasingly small $\alpha$ levels.  
 
-```
-## Omnibus Test, Average Correaltion Method
-##       DINT PIINT RNOmni
-## [1,] 0.632 0.674  0.759
-## [2,] 0.380 0.389  0.508
-## [3,] 0.740 0.731  0.842
-## [4,] 0.568 0.543  0.677
-## [5,] 0.845 0.852  0.923
-## [6,] 0.739 0.709  0.824
-## 
-## Omnibus Test, Bootstrap Correaltion Method
-##       DINT PIINT RNOmni
-## [1,] 0.632 0.674  0.676
-## [2,] 0.380 0.389  0.400
-## [3,] 0.740 0.731  0.749
-## [4,] 0.568 0.543  0.585
-## [5,] 0.845 0.852  0.858
-## [6,] 0.739 0.709  0.732
-```
 
-#### Comparison of p-values
-The following table compares the estimated $p$-values for the normal phenotype obtained by each association test. Note that for the normal phenotype, all approaches provided valid inference in simulation.
+<img src="Figs/C05-1.png" style="display: block; margin: auto;" />
 
-```r
-cat("Normal Phenotype, Combined Results\n");
-P = cbind("BAT"=p1.bat,"DINT"=p1.dint,"PIINT"=p1.piint,
-          "Omni.Avg"=p1.omni.avg[,"RNOmni"],"Omni.Boot"=p1.omni.boot[,"RNOmni"]);
-show(round(head(P),digits=4));
-cat("\n");
-cat("Empirical Size\n");
-apply((P<=0.05),MARGIN=2,FUN=mean);
-```
+## Additional Details
 
-```
-## Normal Phenotype, Combined Results
-##         BAT   DINT  PIINT Omni.Avg Omni.Boot
-## [1,] 0.6536 0.6323 0.6745   0.7595    0.6761
-## [2,] 0.4070 0.3799 0.3890   0.5084    0.3995
-## [3,] 0.7697 0.7400 0.7315   0.8418    0.7493
-## [4,] 0.5547 0.5683 0.5427   0.6770    0.5847
-## [5,] 0.8766 0.8454 0.8520   0.9234    0.8579
-## [6,] 0.7219 0.7391 0.7092   0.8242    0.7325
-## 
-## Empirical Size
-##       BAT      DINT     PIINT  Omni.Avg Omni.Boot 
-##      0.02      0.02      0.02      0.02      0.02
-```
-
-The following table compares the estimated $p$-values for the log-normal phenotype obtained by each association test. Note that the basic association test did not consistently control the type I error in simulation. 
-
-```r
-# Estimate p-values
-p2.bat = RNOmni::BAT(y=Y[,2],G=G,X=X,S=S);
-p2.omni.avg = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="AvgCorr");
-p2.omni.boot = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12);
-cat("Log Normal Phenotype, Combined Results\n");
-P2 = cbind("BAT"=p2.bat,"DINT"=p2.omni.avg[,"DINT"],"PIINT"=p2.omni.avg[,"PIINT"],
-          "Omni.Avg"=p2.omni.avg[,"RNOmni"],"Omni.Boot"=p2.omni.boot[,"RNOmni"]);
-show(round(head(P2),digits=4));
-cat("\n");
-cat("Empirical Size\n");
-apply((P2<=0.05),MARGIN=2,FUN=mean);
-```
-
-```
-## Log Normal Phenotype, Combined Results
-##         BAT   DINT  PIINT Omni.Avg Omni.Boot
-## [1,] 0.8343 0.3242 0.8252   0.4798    0.4200
-## [2,] 0.3922 0.5092 0.4808   0.6552    0.6007
-## [3,] 0.6859 0.8284 0.5796   0.7504    0.6897
-## [4,] 0.5644 0.6298 0.6206   0.7863    0.7460
-## [5,] 0.8994 0.7919 0.8406   0.9129    0.8754
-## [6,] 0.1769 0.2082 0.4896   0.3292    0.2777
-## 
-## Empirical Size
-##       BAT      DINT     PIINT  Omni.Avg Omni.Boot 
-##      0.01      0.03      0.01      0.01      0.01
-```
-
-## Run Time
-During package development, the `BAT`, `DINT`, and `PIINT` each took a median of $\sim 25$ ms to perform $10^2$ association tests for $10^3$ subjects. `RNOmni` using average correlation, which interval performs both `DINT` and `PIINT`, required a median of $\sim 65$ ms. Using bootstrap to calculate position specific correlations increased the run time of `RNOmni` by a factor of $10$. 
+#### Run time
+During package development, the `BAT`, `DINT`, and `PIINT` each took a median of $25$ to $30$ ms to perform $10^2$ association tests for $10^3$ subjects. `RNOmni` using average correlation, which internally performs both `DINT` and `PIINT`, required a median of $65$ to $70$ ms. Using bootstrap to calculate position specific correlations increased the run time of `RNOmni` by a factor of $9$ to $10$. 
 
 
 ```r
-library(RNOmni);
-microbenchmark::microbenchmark(BAT(y=Y[,1],G=G,X=X,S=S),DINT(y=Y[,1],G=G,X=X,S=S),PIINT(y=Y[,1],G=G,X=X,S=S),
-                               RNOmni(y=Y[,1],G=G,X=X,S=S,method="AvgCorr"),
-                               RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12));
+# Subset to 100 loci
+H = G[1:100,];
+# Time performance
+microbenchmark::microbenchmark(BAT(y=Y[,1],G=H,X=X,S=S),DINT(y=Y[,1],G=H,X=X,S=S),PIINT(y=Y[,1],G=H,X=X,S=S),
+                               RNOmni(y=Y[,1],G=H,X=X,S=S,method="AvgCorr"),
+                               RNOmni(y=Y[,1],G=H,X=X,S=S,method="Bootstrap",B=100,cores=12));
 ```
 
 ```
 ## Unit: milliseconds
 ##                                                                                     expr
-##                                                     BAT(y = Y[, 1], G = G, X = X, S = S)
-##                                                    DINT(y = Y[, 1], G = G, X = X, S = S)
-##                                                   PIINT(y = Y[, 1], G = G, X = X, S = S)
-##                              RNOmni(y = Y[, 1], G = G, X = X, S = S, method = "AvgCorr")
-##  RNOmni(y = Y[, 1], G = G, X = X, S = S, method = "Bootstrap",      B = 100, cores = 12)
-##        min        lq      mean    median        uq      max neval
-##   12.53513  13.58272  22.33492  14.04694  15.53754 174.9711   100
-##   12.73102  13.53048  16.50133  14.16752  15.48039 156.9364   100
-##   10.88675  11.72506  19.35793  12.59122  15.09683 172.4945   100
-##   39.85082  41.92245  52.14607  43.66620  49.87676 201.3037   100
-##  400.11306 421.55207 527.18372 575.44465 587.81182 604.1654   100
+##                                                     BAT(y = Y[, 1], G = H, X = X, S = S)
+##                                                    DINT(y = Y[, 1], G = H, X = X, S = S)
+##                                                   PIINT(y = Y[, 1], G = H, X = X, S = S)
+##                              RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "AvgCorr")
+##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "Bootstrap",      B = 100, cores = 12)
+##        min        lq      mean    median        uq       max neval
+##   20.16037  21.60809  26.70111  23.73721  29.30621 167.38823   100
+##   19.60821  21.78682  24.10772  22.94809  24.88765  40.36385   100
+##   17.29464  18.79033  28.43313  20.41884  22.47966 176.51611   100
+##   53.29824  56.80954  63.90264  59.09620  63.87308 223.69207   100
+##  524.11878 537.48926 590.89165 549.00813 694.46526 756.33465   100
 ```
 
-## Missingness
-Observations missing either the phenotype $y$ or the the substructure adjustments $S$ are excluded. 
+#### Missingness
+Observations missing either the phenotype $y$ or the the structure adjustments $S$ are excluded. 
 Missing covariates $X$ are imputed to the median of the observed values. An observation missing genotype information $G$ is excluded from association testing only at those loci were genotype is unobserved. 
 
 
@@ -249,37 +262,34 @@ Missing covariates $X$ are imputed to the median of the observed values. An obse
 y.m = Y[,1];
 y.m[sample(length(y.m),size=10,replace=F)] = NA;
 G.m = G;
-G.m[sample(length(G.m),size=1000,replace=F)] = NA;
+G.m[sample(length(G.m),size=10000,replace=F)] = NA;
 X.m = X;
 X.m[sample(length(X.m),size=100,replace=F)] = NA;
 S.m = S;
 S.m[sample(length(S.m),size=10,replace=F)] = NA;
 # Association Testing after Missingness
-p1.bat.m = RNOmni::BAT(y=y.m,G=G.m,X=X.m,S=S.m);
-p1.dint.m = RNOmni::DINT(y=y.m,G=G.m,X=X.m,S=S.m);
-p1.piint.m = RNOmni::PIINT(y=y.m,G=G.m,X=X.m,S=S.m);
-p1.omni.avg.m = RNOmni::RNOmni(y=y.m,G=G.m,X=X.m,S=S.m);
-p1.omni.boot.m = RNOmni::RNOmni(y=y.m,G=G.m,X=X.m,S=S.m,method="Bootstrap",B=100);
+pm.bat = RNOmni::BAT(y=y.m,G=G.m,X=X.m,S=S.m);
+pm.dint = RNOmni::DINT(y=y.m,G=G.m,X=X.m,S=S.m);
+pm.piint = RNOmni::PIINT(y=y.m,G=G.m,X=X.m,S=S.m);
+pm.omni.avg = RNOmni::RNOmni(y=y.m,G=G.m,X=X.m,S=S.m);
+pm.omni.boot = RNOmni::RNOmni(y=y.m,G=G.m,X=X.m,S=S.m,method="Bootstrap",B=100);
 ```
-
-Tabulation of $p$-values in the presence of missingness:
+Below, size estimates for the normal phenotype in the absence and presence of missingness are tabulated:
 
 ```
 ## Normal Phenotype in the Absence of Missingness, Combined Results
-##         BAT   DINT  PIINT Omni.Avg Omni.Boot
-## [1,] 0.6536 0.6323 0.6745   0.7595    0.6761
-## [2,] 0.4070 0.3799 0.3890   0.5084    0.3995
-## [3,] 0.7697 0.7400 0.7315   0.8418    0.7493
-## [4,] 0.5547 0.5683 0.5427   0.6770    0.5847
-## [5,] 0.8766 0.8454 0.8520   0.9234    0.8579
-## [6,] 0.7219 0.7391 0.7092   0.8242    0.7325
+##         Method  Size     L     U
+## 1          BAT 0.052 0.038 0.066
+## 2         DINT 0.061 0.046 0.076
+## 3        PIINT 0.056 0.041 0.071
+## 4 Omni.AvgCorr 0.038 0.026 0.050
+## 5    Omni.Boot 0.052 0.038 0.066
 ## 
 ## Normal Phenotype in the Presence of Missingness, Combined Results
-##         BAT   DINT  PIINT Omni.Avg Omni.Boot
-## [1,] 0.8007 0.7776 0.8432   0.8460    0.8026
-## [2,] 0.4564 0.4317 0.4385   0.5226    0.4549
-## [3,] 0.8130 0.7840 0.7742   0.8431    0.7942
-## [4,] 0.7602 0.7808 0.7401   0.8147    0.7650
-## [5,] 0.9620 0.9973 0.9722   0.9862    0.9781
-## [6,] 0.7568 0.7749 0.7366   0.8117    0.7528
+##      Method  Size     L     U
+## 1       BAT 0.036 0.024 0.048
+## 2      DINT 0.045 0.032 0.058
+## 3     PIINT 0.039 0.027 0.051
+## 4  Omni.Avg 0.023 0.014 0.032
+## 5 Omni.Boot 0.034 0.023 0.045
 ```

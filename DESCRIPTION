@@ -1,6 +1,7 @@
 Package: RNOmni
 Title: Omnibus Test for Genetic Association Analysis using the Rank Normal Transformation
 Version: 0.0.0.9000
+Date: 2017-10-26
 Authors@R: person("Zachary","McCaw",email="zmccaw@g.harvard.edu",role=c("aut","cre"))
 Description: This package implements genetic association tests that employ the rank based inverse normal transformation (INT). In simulation, these methods consistently provided valid inference against continuous phenotypes with skewed and heavy tailed residual distributions. The primary innovation of this package is an INT-based omnibus test which is both valid and well powered when the distribution of phenotypic residuals is unknown.  
 Depends: R (>= 3.2.2)
