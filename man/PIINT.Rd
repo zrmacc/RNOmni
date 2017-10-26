@@ -4,7 +4,7 @@
 \alias{PIINT}
 \title{Partially Indirect-INT}
 \usage{
-PIINT(y, G, X, S, c = 3/8)
+PIINT(y, G, X, S, M = T, c = 3/8)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -14,6 +14,8 @@ PIINT(y, G, X, S, c = 3/8)
 \item{X}{Obs by feature covariate matrix.}
 
 \item{S}{Obs by feature structure matrix.}
+
+\item{M}{Apply missingness filter?}
 
 \item{c}{Offset applied during rank-normalization.}
 }

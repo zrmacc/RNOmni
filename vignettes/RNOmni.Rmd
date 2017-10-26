@@ -1,7 +1,7 @@
 ---
 title: "Rank Normal Omnibus Association Test"
 author: "Zachary McCaw"
-date: "Updated: 10/17/17"
+date: "Updated: 10/17/18"
 output: 
   rmarkdown::html_vignette:
     keep_md: yes
@@ -12,41 +12,56 @@ vignette: >
 ---
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.width=1.5*3, fig.height=1.5*2, fig.align="center", fig.path='Figs/',echo=T, warning=F, message=F, cache=T);
+knitr::opts_chunk$set(fig.width=1.5*3, fig.height=1.5*2, fig.align="center", fig.path='Figs/',echo=T, warning=F, message=F, cache=T, results='hold');
 ```
+
+## Contents
+
+* [Example Data](#example-data)
+* [Genetic Association Testing](#genetic-association-testing)
+* [Run Time](#run-time)
+* [Missingness](#missingness)
+
 ## Example Data
 Simulated data is available for $10^{3}$ subjects. Covariates include `Age` and `Sex`. Structure adjustments include the first two principal components, `pc1` and `pc2`, of the centered and scaled subject by locus genotype matrix. Genotypes at $10^{2}$ loci on chromosome one are included. Sample minor allele frequency for each locus falls in the range $[0.110, 0.360]$. Two independent phenotypes are available. `YN` has normally distributed residuals, while the log of `YL` has normally distributed residuals. 
 ```{r A01, include=T}
 library(RNOmni);
 ## Example data
-# Covariates
 X = RNOmni::X;
-# Structure adjustments
+cat("Covariates\n");
+round(head(X),digits=2);
+cat("\n");
+cat("Structure Adjustments\n");
 S = RNOmni::S;
-# Genotypes
+round(head(S),digits=2);
+cat("\n");
+cat("Genotype Matrix\n");
 G = RNOmni::Geno;
-# Summarize minor allele frequency
-cat("Summary of Minor Allele ")
+G[1:6,1:6];
+cat("\n");
+cat("Sample Minor Allele Frequency\n");
 summary(apply(G,MARGIN=2,FUN=mean)/2);
-# Phenotypes
+cat("\n");
+cat("Phenotypes\n");
 Y = RNOmni::Y;
+round(head(Y),digits=2);
 ```
 
 ## Genetic Association Testing
 
 #### Basic Association Test
-`BAT` regresses the untransformed genotype $g$, covariates $X$, and adjustments for substructure $S$. The Wald statistic is used to calculate a $p$-value assessing the null hypothesis of no genotypic effect. The output is a numeric vector, with one $p$-value per locus in $G$.
+`BAT` regresses the untransformed phenotype $y$ on genotype $g$, covariates $X$, and adjustments for substructure $S$. The Wald statistic is used to calculate a $p$-value assessing the null hypothesis of no genotypic effect. The output is a numeric vector, with one $p$-value per locus in $G$.
 ```{r B01, include=T}
 # Basic Association Test
 p1.bat = RNOmni::BAT(y=Y[,1],G=G,X=X,S=S);
-microbenchmark::microbenchmark(RNOmni::BAT(y=Y[,1],G=G,X=X,S=S));
+round(head(p1.bat),digits=3);
 ```
 #### Direct Inverse Normal Transformation
 `DINT` directly applies the rank-based inverse normal transformation (INT) to the phenotype $y$. The transformed phenotype $\text{INT}(y)$ is regressed on genotype $g$, covariates $X$, and adjustments for population structure $S$. The Wald statistic is used to calculate a $p$-value assessing the null hypothesis of no genotypic effect. The output is a numeric vector, with one $p$-value per locus in $G$.
 ```{r B02, include=T}
 # Direct INT Test
 p1.dint = RNOmni::DINT(y=Y[,1],G=G,X=X,S=S);
-microbenchmark::microbenchmark(RNOmni::DINT(y=Y[,1],G=G,X=X,S=S));
+round(head(p1.dint),digits=3);
 ```
 
 #### Partially Indirect Inverse Normal Transformation
@@ -54,44 +69,89 @@ microbenchmark::microbenchmark(RNOmni::DINT(y=Y[,1],G=G,X=X,S=S));
 ```{r B03, include=T}
 # Partially Indirect INT Test
 p1.piint = RNOmni::PIINT(y=Y[,1],G=G,X=X,S=S);
-microbenchmark::microbenchmark(RNOmni::PIINT(y=Y[,1],G=G,X=X,S=S));
+round(head(p1.piint),digits=3);
 ```
 
 #### Omnibus Inverse Normal Transformation Method
 `RNOmni` implements an adaptive, INT-based association test. In the omnibus test, `DINT` and `PIINT` are each applied, then an omnibus statistic is calculated based on whichever approach provides more evidence against the null. Estimation of a $p$-value for the omnibus statistic requires an estimate of the correlation $\rho$ between the test statistics provided by `DINT` and `PIINT`. When the sample size and number of loci are both relatively large, an efficient estimate of $\rho$ is obtained by averaging across loci. When the sample size or number of loci are smaller, bootstrap can be used to provide a locus-specific estimate of $\rho$. 
 ```{r B04, include=T}
-# Omnibus Test using Average Correlation
+cat("Omnibus Test, Average Correaltion Method\n");
 p1.omni.avg = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="AvgCorr");
-microbenchmark::microbenchmark(RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="AvgCorr"));
-# Omnibus Test using Bootstrap Correlation
+round(head(p1.omni.avg),digits=3);
+cat("\n");
+cat("Omnibus Test, Bootstrap Correaltion Method\n");
 p1.omni.boot = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12);
-microbenchmark::microbenchmark(RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12));
+round(head(p1.omni.boot),digits=3);
+cat("\n");
 ```
 
-## Comparison of p-values
-#### Normal Phenotype
+#### Comparison of p-values
 The following table compares the estimated $p$-values for the normal phenotype obtained by each association test. Note that for the normal phenotype, all approaches provided valid inference in simulation.
 ```{r C01, include=T}
-# Combined Results
+cat("Normal Phenotype, Combined Results\n");
 P = cbind("BAT"=p1.bat,"DINT"=p1.dint,"PIINT"=p1.piint,
           "Omni.Avg"=p1.omni.avg[,"RNOmni"],"Omni.Boot"=p1.omni.boot[,"RNOmni"]);
 show(round(head(P),digits=4));
-# Empirical size
-cat("Empirical size")
+cat("\n");
+cat("Empirical Size\n");
 apply((P<=0.05),MARGIN=2,FUN=mean);
 ```
-#### Log-Normal Phenotype
+
 The following table compares the estimated $p$-values for the log-normal phenotype obtained by each association test. Note that the basic association test did not consistently control the type I error in simulation. 
 ```{r C02, include=T}
 # Estimate p-values
 p2.bat = RNOmni::BAT(y=Y[,2],G=G,X=X,S=S);
 p2.omni.avg = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="AvgCorr");
 p2.omni.boot = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12);
-# Combined Results
+cat("Log Normal Phenotype, Combined Results\n");
 P2 = cbind("BAT"=p2.bat,"DINT"=p2.omni.avg[,"DINT"],"PIINT"=p2.omni.avg[,"PIINT"],
           "Omni.Avg"=p2.omni.avg[,"RNOmni"],"Omni.Boot"=p2.omni.boot[,"RNOmni"]);
 show(round(head(P2),digits=4));
-# Empirical size
-cat("Empirical size")
+cat("\n");
+cat("Empirical Size\n");
 apply((P2<=0.05),MARGIN=2,FUN=mean);
+```
+
+## Run Time
+During package development, the `BAT`, `DINT`, and `PIINT` each took a median of $\sim 25$ ms to perform $10^2$ association tests for $10^3$ subjects. `RNOmni` using average correlation, which interval performs both `DINT` and `PIINT`, required a median of $\sim 65$ ms. Using bootstrap to calculate position specific correlations increased the run time of `RNOmni` by a factor of $10$. 
+
+```{r D01, include=T}
+library(RNOmni);
+microbenchmark::microbenchmark(BAT(y=Y[,1],G=G,X=X,S=S),DINT(y=Y[,1],G=G,X=X,S=S),PIINT(y=Y[,1],G=G,X=X,S=S),
+                               RNOmni(y=Y[,1],G=G,X=X,S=S,method="AvgCorr"),
+                               RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12));
+```
+
+## Missingness
+Observations missing either the phenotype $y$ or the the substructure adjustments $S$ are excluded. 
+Missing covariates $X$ are imputed to the median of the observed values. An observation missing genotype information $G$ is excluded from association testing only at those loci were genotype is unobserved. 
+
+```{r E01, include=T}
+# Introduce Missingness
+y.m = Y[,1];
+y.m[sample(length(y.m),size=10,replace=F)] = NA;
+G.m = G;
+G.m[sample(length(G.m),size=1000,replace=F)] = NA;
+X.m = X;
+X.m[sample(length(X.m),size=100,replace=F)] = NA;
+S.m = S;
+S.m[sample(length(S.m),size=10,replace=F)] = NA;
+# Association Testing after Missingness
+p1.bat.m = RNOmni::BAT(y=y.m,G=G.m,X=X.m,S=S.m);
+p1.dint.m = RNOmni::DINT(y=y.m,G=G.m,X=X.m,S=S.m);
+p1.piint.m = RNOmni::PIINT(y=y.m,G=G.m,X=X.m,S=S.m);
+p1.omni.avg.m = RNOmni::RNOmni(y=y.m,G=G.m,X=X.m,S=S.m);
+p1.omni.boot.m = RNOmni::RNOmni(y=y.m,G=G.m,X=X.m,S=S.m,method="Bootstrap",B=100);
+```
+
+Tabulation of $p$-values in the presence of missingness:
+```{r E02, include=T, echo=F}
+cat("Normal Phenotype in the Absence of Missingness, Combined Results\n");
+show(round(head(P),digits=4));
+cat("\n");
+cat("Normal Phenotype in the Presence of Missingness, Combined Results\n");
+P.m = cbind("BAT"=p1.bat.m,"DINT"=p1.dint.m,"PIINT"=p1.piint.m,
+          "Omni.Avg"=p1.omni.avg.m[,"RNOmni"],"Omni.Boot"=p1.omni.boot.m[,"RNOmni"]);
+show(round(head(P.m),digits=4));
+cat("\n");
 ```

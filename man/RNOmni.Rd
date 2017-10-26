@@ -4,8 +4,8 @@
 \alias{RNOmni}
 \title{Rank-Normal Omnibus Test}
 \usage{
-RNOmni(y, G, X, S, method = "AvgCorr", c = 3/8, B = 100, rho = F,
-  cores = 1)
+RNOmni(y, G, X, S, method = "AvgCorr", M = T, c = 3/8, B = 100,
+  rho = F, cores = 1)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -18,6 +18,8 @@ RNOmni(y, G, X, S, method = "AvgCorr", c = 3/8, B = 100, rho = F,
 
 \item{method}{Method used to estimate correlation for the omnibus test,
 either "AvgCorr" or "Bootstrap".}
+
+\item{M}{Apply missingness filter?}
 
 \item{c}{Offset applied during rank-normalization.}
 

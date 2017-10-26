@@ -20,6 +20,82 @@ rankNormal = function(u,c=3/8){
   return(Out);
 };
 
+#' Missingness Filter
+#' 
+#' Function to adjust for missing data.
+#' @param y Numeric phenotype vector
+#' @param G Snp by obs genotype matrix.
+#' @param X Obs by feature covariate matrix.
+#' @param S Obs by feature structure matrix.
+#' @importFrom stats median
+
+missFilter = function(y,G,X,S){
+  # Impute missing X
+  aux = function(col){
+    col[is.na(col)] = median(col[!is.na(col)]);
+    return(col);
+  }
+  X = apply(X,MARGIN=2,FUN=aux);
+  # Subjects with y or S missing
+  ind.1 = is.na(y);
+  ind.2 = apply(S,MARGIN=1,FUN=function(row){sum(is.na(row))>0});
+  keep = !(ind.1|ind.2);
+  # Filtering
+  y.out = y[keep];
+  G.out = G[,keep,drop=F];
+  X.out = X[keep,];
+  S.out = S[keep,];
+  if(sum(keep)<length(y)){warning(sprintf("%i observations remain after missingness filter.\n",sum(keep)));}
+  # Output
+  Out = list("y"=y.out,"G"=G.out,"X"=X.out,"S"=S.out);
+  return(Out);
+}
+
+#' Input Check
+#' 
+#' Function to ensure the dimensions of inputs to association methods agree.
+#' @param y Numeric phenotype vector.
+#' @param G Snp by obs genotype matrix.
+#' @param X Obs by feature covariate matrix.
+#' @param S Obs by feature structure matrix.
+inCheck = function(y,G,X,S){
+  # Check phenotype
+  flag.y = !(is.numeric(y)&is.vector(y));
+  if(flag.y){
+    warning("A numeric vector is required for y.");
+  }
+  n.y = length(y);
+  # Check genotype
+  flag.g = is.vector(G);
+  if(flag.g){
+    warning("A matrix is expected for G.");
+    G = matrix(G,nrow=1);
+  }
+  n.g = ncol(G);
+  # Check covariates
+  flag.x = is.vector(X);
+  if(flag.x){
+    warning("A matrix or data.frame is expected for X.");
+    X = data.frame(X);
+  }
+  n.x = nrow(X);
+  # Check structure matrix
+  flag.s = is.vector(S);
+  if(flag.s){
+    warning("A matrix or data.frame is expected for S.");
+    S = data.frame(S);
+  }
+  n.s = nrow(S);
+  # Dimensional consistency
+  flag.d = !all.equal(n.y,n.g,n.x,n.s);
+  if(flag.d){
+    warning("Dimensions of inputs are inconsistent. Ensure length(y)=ncol(G)=nrow(X)=nrow(S).")
+  }
+  # Output
+  Out = list("fail"=flag.y|flag.d,"G"=G,"X"=X,"S"=S);
+  return(Out);
+}
+
 #' Basic Association Test
 #' 
 #' Regression of phenotype on genotype, covariates, and structure.
@@ -27,11 +103,26 @@ rankNormal = function(u,c=3/8){
 #' @param G Snp by obs genotype matrix.
 #' @param X Obs by feature covariate matrix.
 #' @param S Obs by feature structure matrix.
+#' @param M Apply missingness filter?
 #' @importFrom RcppEigen fastLmPure 
 #' @importFrom stats coef model.matrix pt
 #' @export
 
-BAT = function(y,G,X,S){
+BAT = function(y,G,X,S,M=T){
+  # Check inputs
+  Input = inCheck(y,G,X,S);
+  if(Input$fail){stop("Input check failed.")};
+  G = Input$G;
+  X = Input$X;
+  S = Input$S;
+  # Missingness filter
+  if(M){
+    Miss = missFilter(y,G,X,S);
+    y = Miss[["y"]];
+    G = Miss[["G"]];
+    X = Miss[["X"]];
+    S = Miss[["S"]];
+  }
   # Design matrix
   D = cbind(X,S);
   D = model.matrix(~.,data=data.frame(D));
@@ -40,6 +131,10 @@ BAT = function(y,G,X,S){
   getP = function(g){
     # Add genotype
     Dg = cbind(D,g);
+    # Missing genotype
+    keep = !is.na(g);
+    y = y[keep];
+    Dg = Dg[keep,];
     # Regression
     M = RcppEigen::fastLmPure(X=Dg,y=y);
     # Wald statistic
@@ -61,12 +156,27 @@ BAT = function(y,G,X,S){
 #' @param G Snp by obs genotype matrix.
 #' @param X Obs by feature covariate matrix.
 #' @param S Obs by feature structure matrix. 
+#' @param M Apply missingness filter?
 #' @param c Offset applied during rank-normalization.
 #' @importFrom RcppEigen fastLmPure
 #' @importFrom stats coef model.matrix pt
 #' @export
 #' 
-DINT = function(y,G,X,S,c=3/8){
+DINT = function(y,G,X,S,M=T,c=3/8){
+  # Check inputs
+  Input = inCheck(y,G,X,S);
+  if(Input$fail){stop("Input check failed.")};
+  G = Input$G;
+  X = Input$X;
+  S = Input$S;
+  # Missingness filter
+  if(M){
+    Miss = missFilter(y,G,X,S);
+    y = Miss[["y"]];
+    G = Miss[["G"]];
+    X = Miss[["X"]];
+    S = Miss[["S"]];
+  }
   # Design matrix
   D = cbind(X,S);
   D = model.matrix(~.,data=data.frame(D));
@@ -77,6 +187,10 @@ DINT = function(y,G,X,S,c=3/8){
   getP = function(g){
     # Add genotype
     Dg = cbind(D,g);
+    # Missing genotype
+    keep = !is.na(g);
+    y = y[keep];
+    Dg = Dg[keep,];
     # Regression
     M = RcppEigen::fastLmPure(X=Dg,y=y);
     # Wald statistic
@@ -98,13 +212,28 @@ DINT = function(y,G,X,S,c=3/8){
 #' @param G Snp by obs genotype matrix.
 #' @param X Obs by feature covariate matrix.
 #' @param S Obs by feature structure matrix. 
+#' @param M Apply missingness filter?
 #' @param c Offset applied during rank-normalization.
 #' @importFrom RcppEigen fastLmPure
 #' @importFrom stats coef model.matrix pt resid
 #' @export
 #' 
-FIINT = function(y,G,X,S,c=3/8){
-  warning("This function was included for simulation purposes, and was not found to provide valid inference.");
+FIINT = function(y,G,X,S,M=T,c=3/8){
+  warning("This function was included for simulation purposes, and was not found to provide valid inference.\n");
+  # Check inputs
+  Input = inCheck(y,G,X,S);
+  if(Input$fail){stop("Input check failed.")};
+  G = Input$G;
+  X = Input$X;
+  S = Input$S;
+  # Missingness filter
+  if(M){
+    Miss = missFilter(y,G,X,S);
+    y = Miss[["y"]];
+    G = Miss[["G"]];
+    X = Miss[["X"]];
+    S = Miss[["S"]];
+  }
   # Design matrix
   D = cbind(X,S);
   D = model.matrix(~.,data=data.frame(D));
@@ -116,6 +245,10 @@ FIINT = function(y,G,X,S,c=3/8){
   getP = function(g){
     # Add genotype
     Dg = cbind(1,g);
+    # Missing genotype
+    keep = !is.na(g);
+    z = z[keep];
+    Dg = Dg[keep,];
     # Regression
     M = RcppEigen::fastLmPure(X=Dg,y=z);
     # Wald statistic
@@ -137,12 +270,27 @@ FIINT = function(y,G,X,S,c=3/8){
 #' @param G Snp by obs genotype matrix.
 #' @param X Obs by feature covariate matrix.
 #' @param S Obs by feature structure matrix. 
+#' @param M Apply missingness filter?
 #' @param c Offset applied during rank-normalization.
 #' @importFrom RcppEigen fastLmPure
 #' @importFrom stats coef model.matrix pt resid
 #' @export
 #' 
-PIINT = function(y,G,X,S,c=3/8){
+PIINT = function(y,G,X,S,M=T,c=3/8){
+  # Check inputs
+  Input = inCheck(y,G,X,S);
+  if(Input$fail){stop("Input check failed.")};
+  G = Input$G;
+  X = Input$X;
+  S = Input$S;
+  # Missingness filter
+  if(M){
+    Miss = missFilter(y,G,X,S);
+    y = Miss[["y"]];
+    G = Miss[["G"]];
+    X = Miss[["X"]];
+    S = Miss[["S"]];
+  }
   # Design matrix
   D = model.matrix(~.,data=data.frame(X));
   # Residuals
@@ -153,6 +301,10 @@ PIINT = function(y,G,X,S,c=3/8){
   getP = function(g){
     # Add genotype
     Dg = cbind(1,g,S);
+    # Missing genotype
+    keep = !is.na(g);
+    z = z[keep];
+    Dg = Dg[keep,];
     # Regression
     M = RcppEigen::fastLmPure(X=Dg,y=z);
     # Wald statistic
@@ -200,8 +352,9 @@ AvgCorr = function(P1,P2,eps=1e-3){
 #' @param cores Cores to use during bootstrapping if running in parallel.
 #' @importFrom abind abind
 #' @importFrom doMC registerDoMC
+#' @importFrom foreach "%dopar%" foreach
 #' @importFrom stats cor qnorm
-#' @import foreach
+
 
 BootCorr = function(y,G,X,S,B=100,cores=1){
   # Parallelize
@@ -209,8 +362,8 @@ BootCorr = function(y,G,X,S,B=100,cores=1){
   # Obs
   n = length(y);
   # Bind results into an array
-  acomb = function(...) {abind::abind(..., along=3)};
-  Rho = foreach(i=1:B,.combine="acomb",.multicombine=T,.inorder=F) %dopar% {
+  bind3 = function(...){abind::abind(...,along=3)};
+  Rho = foreach(i=1:B,.combine="bind3",.multicombine=T,.inorder=F) %dopar% {
     # Draw sample
     Draw = sample(x=n,replace=T);
     # Bootstrap frames
@@ -218,8 +371,8 @@ BootCorr = function(y,G,X,S,B=100,cores=1){
     Xb = X[Draw,];
     Sb = S[Draw,];
     # Calculate z-statistics
-    z1 = -qnorm(DINT(y=yb,G=G,X=Xb,S=Sb));
-    z2 = -qnorm(PIINT(y=yb,G=G,X=Xb,S=Sb));
+    z1 = -qnorm(DINT(y=yb,G=G,X=Xb,S=Sb,M=F));
+    z2 = -qnorm(PIINT(y=yb,G=G,X=Xb,S=Sb,M=F));
     return(cbind(z1,z2));
   }
   # Calculate correlation
@@ -265,6 +418,7 @@ Omni = function(Q){
 #' @param S Obs by feature structure matrix.
 #' @param method Method used to estimate correlation for the omnibus test,
 #'   either "AvgCorr" or "Bootstrap".
+#' @param M Apply missingness filter? 
 #' @param c Offset applied during rank-normalization.
 #' @param B Bootstrap samples for correlation estimation.
 #' @param rho Logical indicating whether to return the correlation parameter
@@ -272,24 +426,37 @@ Omni = function(Q){
 #' @param cores Cores to use during bootstrapping if running in parallel.
 #' @export
 
-RNOmni = function(y,G,X,S,method="AvgCorr",c=3/8,B=100,rho=F,cores=1){
-  ## Input checks
+RNOmni = function(y,G,X,S,method="AvgCorr",M=T,c=3/8,B=100,rho=F,cores=1){
+  ## Check inputs
+  Input = inCheck(y,G,X,S);
+  if(Input$fail){stop("Input check failed.")};
+  G = Input$G;
+  X = Input$X;
+  S = Input$S;
+  
+  ## Missingness Filter 
+   if(M){
+    Miss = missFilter(y,G,X,S);
+    y = Miss[["y"]];
+    G = Miss[["G"]];
+    X = Miss[["X"]];
+    S = Miss[["S"]];
+  };
+  
+  ## Additional input checks
   # Ties
-  if(sum(duplicated(y))>0){warning("Rank normal transformation is not adapted for data with ties.")}
+  if(sum(duplicated(y))>0){warning("Rank normal transformation is not adapted for data with ties.\n")}
   # Dimension
-  n = length(y);
-  flag = (ncol(G)==n)&(nrow(X)==n)&(nrow(S)==n);
-  if(!flag){stop("Dimensions of input data do not agree.")};
-  if(max(dim(G))>1e4){warning("Bootstrap correlation estimation will be time intensive for genotype matrices of this size")}
+  if(max(dim(G))>1e4){warning("Bootstrap correlation estimation will be time intensive for genotype matrices of this size.\n")}
   # Method selection
-  flag = (method %in% c("AvgCorr","Bootstrap"));
-  if(!flag){stop("Select 'AvgCorr' or 'Bootstrap' as the method for correlation estimation.")};
+  flag.m = (method %in% c("AvgCorr","Bootstrap"));
+  if(!flag.m){stop("Select 'AvgCorr' or 'Bootstrap' as the method for correlation estimation.")};
   
   ## Association testing
   # Calculate D-INT p-values
-  P1 = DINT(y=y,G=G,X=X,S=S,c=c);
+  P1 = suppressWarnings(DINT(y=y,G=G,X=X,S=S,M=F,c=c));
   # Calculate PI-INT p-values
-  P2 = PIINT(y=y,G=G,X=X,S=S,c=c);
+  P2 = suppressWarnings(PIINT(y=y,G=G,X=X,S=S,M=F,c=c));
   # Branch to average correlation or bootstrap method
   if(method=="AvgCorr"){
     R = AvgCorr(P1=P1,P2=P2);

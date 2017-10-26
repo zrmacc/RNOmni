@@ -4,7 +4,7 @@
 \alias{DINT}
 \title{Direct-INT}
 \usage{
-DINT(y, G, X, S, c = 3/8)
+DINT(y, G, X, S, M = T, c = 3/8)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -14,6 +14,8 @@ DINT(y, G, X, S, c = 3/8)
 \item{X}{Obs by feature covariate matrix.}
 
 \item{S}{Obs by feature structure matrix.}
+
+\item{M}{Apply missingness filter?}
 
 \item{c}{Offset applied during rank-normalization.}
 }

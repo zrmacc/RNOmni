@@ -4,7 +4,7 @@
 \alias{BAT}
 \title{Basic Association Test}
 \usage{
-BAT(y, G, X, S)
+BAT(y, G, X, S, M = T)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -14,6 +14,8 @@ BAT(y, G, X, S)
 \item{X}{Obs by feature covariate matrix.}
 
 \item{S}{Obs by feature structure matrix.}
+
+\item{M}{Apply missingness filter?}
 }
 \description{
 Regression of phenotype on genotype, covariates, and structure.
