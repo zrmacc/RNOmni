@@ -33,11 +33,12 @@ y = rchisq(n=1000,df=1);
 z = RNOmni::rankNormal(y);
 ```
 ```{r A01, echo=F, fig.width=2*3}
+library(ggplot2);
+library(reshape2);
 # Data frame
 df = data.frame("Original"=y,"INT"=z);
-df = reshape2::melt(df);
+df = suppressMessages(reshape2::melt(df));
 colnames(df) = c("Data","x");
-library(ggplot2);
 q = ggplot(data=df) + geom_density(aes(x=x,fill=Data),alpha=0.8);
 q = q + theme_bw() + scale_fill_manual(labels=c("Original","Rank Norm"),values=c("coral","royalblue"));
 q = q + xlab("Measurement") + ylab("Density");
@@ -84,7 +85,7 @@ round(head(p1.omni.avg),digits=3);
 cat("\n");
 cat("Omnibus Test, Normal Phenotype, Bootstrap Correaltion Method\n");
 set.seed(100);
-p1.omni.boot = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12);
+p1.omni.boot = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100,cores=2);
 round(head(p1.omni.boot),digits=3);
 cat("\n");
 cat("Omnibus Test, T3 Phenotype, Average Correaltion Method\n");
@@ -92,7 +93,7 @@ p2.omni.avg = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="AvgCorr");
 round(head(p2.omni.avg),digits=3);
 cat("\n");
 cat("Omnibus Test, T3 Phenotype, Bootstrap Correaltion Method\n");
-p2.omni.boot = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12);
+p2.omni.boot = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Bootstrap",B=100,cores=2);
 round(head(p2.omni.boot),digits=3);
 cat("\n");
 ```
@@ -195,9 +196,10 @@ During package development, the `BAT`, `DINT`, and `PIINT` each took a median of
 # Subset to 100 loci
 H = G[1:100,];
 # Time performance
-microbenchmark::microbenchmark(BAT(y=Y[,1],G=H,X=X,S=S),DINT(y=Y[,1],G=H,X=X,S=S),PIINT(y=Y[,1],G=H,X=X,S=S),
-                               RNOmni(y=Y[,1],G=H,X=X,S=S,method="AvgCorr"),
-                               RNOmni(y=Y[,1],G=H,X=X,S=S,method="Bootstrap",B=100,cores=12));
+library(microbenchmark);
+microbenchmark(BAT(y=Y[,1],G=H,X=X,S=S),DINT(y=Y[,1],G=H,X=X,S=S),PIINT(y=Y[,1],G=H,X=X,S=S),
+               RNOmni(y=Y[,1],G=H,X=X,S=S,method="AvgCorr"),
+               RNOmni(y=Y[,1],G=H,X=X,S=S,method="Bootstrap",B=100,cores=2),times=20);
 ```
 
 #### Missingness

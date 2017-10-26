@@ -117,7 +117,7 @@ round(head(p1.omni.avg),digits=3);
 cat("\n");
 cat("Omnibus Test, Normal Phenotype, Bootstrap Correaltion Method\n");
 set.seed(100);
-p1.omni.boot = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12);
+p1.omni.boot = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100,cores=2);
 round(head(p1.omni.boot),digits=3);
 cat("\n");
 cat("Omnibus Test, T3 Phenotype, Average Correaltion Method\n");
@@ -125,7 +125,7 @@ p2.omni.avg = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="AvgCorr");
 round(head(p2.omni.avg),digits=3);
 cat("\n");
 cat("Omnibus Test, T3 Phenotype, Bootstrap Correaltion Method\n");
-p2.omni.boot = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Bootstrap",B=100,cores=12);
+p2.omni.boot = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Bootstrap",B=100,cores=2);
 round(head(p2.omni.boot),digits=3);
 cat("\n");
 ```
@@ -141,12 +141,12 @@ cat("\n");
     ## 
     ## Omnibus Test, Normal Phenotype, Bootstrap Correaltion Method
     ##       DINT PIINT RNOmni
-    ## [1,] 0.626 0.653  0.654
-    ## [2,] 0.727 0.764  0.749
-    ## [3,] 0.165 0.167  0.187
-    ## [4,] 0.866 0.910  0.886
-    ## [5,] 0.469 0.509  0.504
-    ## [6,] 0.584 0.568  0.606
+    ## [1,] 0.626 0.653  0.665
+    ## [2,] 0.727 0.764  0.755
+    ## [3,] 0.165 0.167  0.188
+    ## [4,] 0.866 0.910  0.881
+    ## [5,] 0.469 0.509  0.493
+    ## [6,] 0.584 0.568  0.597
     ## 
     ## Omnibus Test, T3 Phenotype, Average Correaltion Method
     ##       DINT PIINT RNOmni
@@ -159,12 +159,12 @@ cat("\n");
     ## 
     ## Omnibus Test, T3 Phenotype, Bootstrap Correaltion Method
     ##       DINT PIINT RNOmni
-    ## [1,] 0.751 0.690  0.725
-    ## [2,] 0.540 0.531  0.569
-    ## [3,] 0.201 0.249  0.233
+    ## [1,] 0.751 0.690  0.718
+    ## [2,] 0.540 0.531  0.561
+    ## [3,] 0.201 0.249  0.238
     ## [4,] 0.192 0.197  0.220
-    ## [5,] 0.329 0.332  0.372
-    ## [6,] 0.462 0.431  0.471
+    ## [5,] 0.329 0.332  0.371
+    ## [6,] 0.462 0.431  0.470
 
 Since the phenotype was simulated under the null hypothesis of no genotypic effect, the expected false positive rate at *α* level 0.05 is 5%. For both the normal and heavy tailed *t*<sub>3</sub> phenotypes, the 95% confidence interval for the type I error includes the expected value of 0.05. As shown in the [comparison of association tests](#comparison-of-association-tests), naively applying the [basic association test](#basic-association-test) leads to an excess of false positive associations in the latter case.
 
@@ -173,7 +173,7 @@ Since the phenotype was simulated under the null hypothesis of no genotypic effe
     ## 1    Normal   AvgCorr 0.038 0.026 0.050
     ## 2    Normal Bootstrap 0.050 0.036 0.064
     ## 3        T3   AvgCorr 0.057 0.042 0.072
-    ## 4        T3 Bootstrap 0.064 0.049 0.079
+    ## 4        T3 Bootstrap 0.063 0.048 0.078
 
 Additional Association Tests
 ----------------------------
@@ -236,24 +236,25 @@ During package development, the `BAT`, `DINT`, and `PIINT` each took a median of
 # Subset to 100 loci
 H = G[1:100,];
 # Time performance
-microbenchmark::microbenchmark(BAT(y=Y[,1],G=H,X=X,S=S),DINT(y=Y[,1],G=H,X=X,S=S),PIINT(y=Y[,1],G=H,X=X,S=S),
-                               RNOmni(y=Y[,1],G=H,X=X,S=S,method="AvgCorr"),
-                               RNOmni(y=Y[,1],G=H,X=X,S=S,method="Bootstrap",B=100,cores=12));
+library(microbenchmark);
+microbenchmark(BAT(y=Y[,1],G=H,X=X,S=S),DINT(y=Y[,1],G=H,X=X,S=S),PIINT(y=Y[,1],G=H,X=X,S=S),
+               RNOmni(y=Y[,1],G=H,X=X,S=S,method="AvgCorr"),
+               RNOmni(y=Y[,1],G=H,X=X,S=S,method="Bootstrap",B=100,cores=2),times=20);
 ```
 
     ## Unit: milliseconds
-    ##                                                                                     expr
-    ##                                                     BAT(y = Y[, 1], G = H, X = X, S = S)
-    ##                                                    DINT(y = Y[, 1], G = H, X = X, S = S)
-    ##                                                   PIINT(y = Y[, 1], G = H, X = X, S = S)
-    ##                              RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "AvgCorr")
-    ##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "Bootstrap",      B = 100, cores = 12)
-    ##        min         lq       mean     median         uq       max neval
-    ##   20.66147   24.33218   33.30912   26.63031   29.83991  182.7083   100
-    ##   20.81972   24.43546   28.49130   25.99496   28.99056  173.1551   100
-    ##   18.15486   20.10238   27.64939   22.12817   24.80397  202.9361   100
-    ##   53.16711   58.76989   75.93382   61.62635   67.62411  222.1083   100
-    ##  995.92858 1055.87310 1297.53403 1128.01148 1646.59307 2153.7069   100
+    ##                                                                                    expr
+    ##                                                    BAT(y = Y[, 1], G = H, X = X, S = S)
+    ##                                                   DINT(y = Y[, 1], G = H, X = X, S = S)
+    ##                                                  PIINT(y = Y[, 1], G = H, X = X, S = S)
+    ##                             RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "AvgCorr")
+    ##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "Bootstrap",      B = 100, cores = 2)
+    ##         min         lq       mean     median         uq        max neval
+    ##    20.14108   25.11403   27.42454   27.14651   29.98316   35.30098    20
+    ##    20.45590   24.71669   27.26945   27.58835   29.59770   33.39802    20
+    ##    18.01498   21.36957   31.90894   23.46777   26.62305  187.59248    20
+    ##    54.12574   57.61815   61.75870   61.06375   66.54628   69.93016    20
+    ##  1769.44161 1820.38127 1978.26140 2071.08336 2091.65808 2149.34115    20
 
 #### Missingness
 
@@ -289,8 +290,8 @@ Below, size estimates for the normal phenotype in the absence and presence of mi
     ## 
     ## Normal Phenotype in the Presence of Missingness, Combined Results
     ##      Method  Size     L     U
-    ## 1       BAT 0.036 0.024 0.048
-    ## 2      DINT 0.045 0.032 0.058
-    ## 3     PIINT 0.039 0.027 0.051
-    ## 4  Omni.Avg 0.023 0.014 0.032
-    ## 5 Omni.Boot 0.035 0.023 0.047
+    ## 1       BAT 0.030 0.019 0.041
+    ## 2      DINT 0.036 0.024 0.048
+    ## 3     PIINT 0.033 0.022 0.044
+    ## 4  Omni.Avg 0.018 0.010 0.026
+    ## 5 Omni.Boot 0.026 0.016 0.036
