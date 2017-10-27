@@ -4,7 +4,7 @@
 \alias{BootCorr}
 \title{Bootstrap Correlation Estimate.}
 \usage{
-BootCorr(y, G, X, S, B = 100, cores = 1)
+BootCorr(y, G, X, S, B = 100, parallel)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -17,7 +17,7 @@ BootCorr(y, G, X, S, B = 100, cores = 1)
 
 \item{B}{Bootstrap samples for correlation estimation.}
 
-\item{cores}{Cores to use during bootstrapping if running in parallel.}
+\item{parallel}{Run bootstraps in parallel? Must register parallel backend first.}
 }
 \description{
 Use bootstrap to estimate correlation among Z statistics

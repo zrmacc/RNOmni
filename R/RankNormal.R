@@ -349,16 +349,15 @@ AvgCorr = function(P1,P2,eps=1e-3){
 #' @param X Obs by feature covariate matrix.
 #' @param S Obs by feature structure matrix.
 #' @param B Bootstrap samples for correlation estimation. 
-#' @param cores Cores to use during bootstrapping if running in parallel.
+#' @param parallel Run bootstraps in parallel? Must register parallel backend first.
 #' @importFrom abind abind
-#' @importFrom doMC registerDoMC
-#' @importFrom foreach "%dopar%" foreach
+#' @importFrom foreach "%dopar%" foreach registerDoSEQ
 #' @importFrom stats cor qnorm
 
 
-BootCorr = function(y,G,X,S,B=100,cores=1){
+BootCorr = function(y,G,X,S,B=100,parallel){
   # Parallelize
-  if(cores>1){doMC::registerDoMC(cores=cores)};
+  if(!parallel){foreach::registerDoSEQ()};
   # Obs
   n = length(y);
   # Bind results into an array
@@ -423,10 +422,10 @@ Omni = function(Q){
 #' @param B Bootstrap samples for correlation estimation.
 #' @param rho Logical indicating whether to return the correlation parameter
 #'   estimated during omnibus calculation. Defaults to FALSE.
-#' @param cores Cores to use during bootstrapping if running in parallel.
+#' @param parallel Run bootstraps in parallel? Must register parallel backend first.
 #' @export
 
-RNOmni = function(y,G,X,S,method="AvgCorr",M=T,c=3/8,B=100,rho=F,cores=1){
+RNOmni = function(y,G,X,S,method="AvgCorr",M=T,c=3/8,B=100,rho=F,parallel=F){
   ## Check inputs
   Input = inCheck(y,G,X,S);
   if(Input$fail){stop("Input check failed.")};
@@ -462,7 +461,7 @@ RNOmni = function(y,G,X,S,method="AvgCorr",M=T,c=3/8,B=100,rho=F,cores=1){
     R = AvgCorr(P1=P1,P2=P2);
   } else {
     # Obtain bootstrap correlation estimate
-    R = BootCorr(y=y,G=G,X=X,S=S,B=B,cores=cores);
+    R = BootCorr(y=y,G=G,X=X,S=S,B=B,parallel=parallel);
   }
   # Matrix containing P1, P2, and their estimted correlation;
   Q = cbind(P1,P2,R);

@@ -1,6 +1,6 @@
 # Rank Normal Omnibus Association Test
 Zachary McCaw  
-Updated: 10/26/18  
+Updated: 10/27/18  
 
 
 
@@ -102,7 +102,7 @@ In light green are the residuals from [direct INT](#direct-inverse-normal-transf
 ## Rank Normal Omnibus Test
 `RNOmni` implements an adaptive test of association between the loci in $G$ and the phenotype $y$, while adjusting for covariates $X$ and population structure $S$. Internally, `RNOmni` conducts two association tests, `DINT` and `PIINT`, described below, then calculates an omnibus statistic based on whichever approach provides more evidence against the null hypothesis. Synthesizing two complementary, INT-based approaches, affords the omnibus test robustness to the distribution of phenotypic residuals. In the absence of a genotypic effect, `RNOmni` routinely controls the type I error. In the presence of a genotypic effect, `RNOmni` provides power comparable to the better of `DINT` and `PIINT`. 
 
-Estimation of a $p$-value for the omnibus statistic requires an estimate of the correlation $\rho$ between the test statistics provided by `DINT` and `PIINT`. When the sample size and number of loci are both relatively large, a computationally efficient estimate of $\rho$ is obtained by averaging across loci. If either the sample size or the number of loci is relatively small, bootstrap can provide a locus-specific estimates of $\rho$. 
+Estimation of a $p$-value for the omnibus statistic requires an estimate of the correlation $\rho$ between the test statistics provided by `DINT` and `PIINT`. When the sample size and number of loci are both relatively large, a computationally efficient estimate of $\rho$ is obtained by averaging across loci. If either the sample size or the number of loci is relatively small, bootstrap can provide a locus-specific estimates of $\rho$. To accelerate the bootstrap, registered a parallel packend, e.g. `doMC::registerDoMC(cores=2)`, then pass the `parallel=T` option to `RNOmni`. 
 
 The output of `RNOmni` is a numeric matrix of $p$-values, with rows corresponding to the rows of $G$. The columns are the $p$-values from the `DINT`, the `PIINT`, and the omnibus tests, respectively. Note that, without additional adjustment for multiple testing, taking the minimum $p$-value across each row would not result in a valid test of association. 
 
@@ -113,7 +113,7 @@ round(head(p1.omni.avg),digits=3);
 cat("\n");
 cat("Omnibus Test, Normal Phenotype, Bootstrap Correaltion Method\n");
 set.seed(100);
-p1.omni.boot = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100,cores=2);
+p1.omni.boot = RNOmni::RNOmni(y=Y[,1],G=G,X=X,S=S,method="Bootstrap",B=100);
 round(head(p1.omni.boot),digits=3);
 cat("\n");
 cat("Omnibus Test, T3 Phenotype, Average Correaltion Method\n");
@@ -121,7 +121,7 @@ p2.omni.avg = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="AvgCorr");
 round(head(p2.omni.avg),digits=3);
 cat("\n");
 cat("Omnibus Test, T3 Phenotype, Bootstrap Correaltion Method\n");
-p2.omni.boot = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Bootstrap",B=100,cores=2);
+p2.omni.boot = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Bootstrap",B=100);
 round(head(p2.omni.boot),digits=3);
 cat("\n");
 ```
@@ -138,12 +138,12 @@ cat("\n");
 ## 
 ## Omnibus Test, Normal Phenotype, Bootstrap Correaltion Method
 ##       DINT PIINT RNOmni
-## [1,] 0.626 0.653  0.654
-## [2,] 0.727 0.764  0.751
-## [3,] 0.165 0.167  0.190
-## [4,] 0.866 0.910  0.889
-## [5,] 0.469 0.509  0.501
-## [6,] 0.584 0.568  0.611
+## [1,] 0.626 0.653  0.661
+## [2,] 0.727 0.764  0.757
+## [3,] 0.165 0.167  0.188
+## [4,] 0.866 0.910  0.884
+## [5,] 0.469 0.509  0.503
+## [6,] 0.584 0.568  0.598
 ## 
 ## Omnibus Test, T3 Phenotype, Average Correaltion Method
 ##       DINT PIINT RNOmni
@@ -156,12 +156,12 @@ cat("\n");
 ## 
 ## Omnibus Test, T3 Phenotype, Bootstrap Correaltion Method
 ##       DINT PIINT RNOmni
-## [1,] 0.751 0.690  0.737
-## [2,] 0.540 0.531  0.573
-## [3,] 0.201 0.249  0.221
-## [4,] 0.192 0.197  0.227
-## [5,] 0.329 0.332  0.364
-## [6,] 0.462 0.431  0.470
+## [1,] 0.751 0.690  0.718
+## [2,] 0.540 0.531  0.568
+## [3,] 0.201 0.249  0.233
+## [4,] 0.192 0.197  0.219
+## [5,] 0.329 0.332  0.359
+## [6,] 0.462 0.431  0.472
 ```
 Since the phenotype was simulated under the null hypothesis of no genotypic effect, the expected false positive rate at $\alpha$ level $0.05$ is $5\%$. For both the normal and heavy tailed $t_{3}$ phenotypes, the $95\%$ confidence interval for the type I error includes the expected value of $0.05$. As shown in the [comparison of association tests](#comparison-of-association-tests), naively applying the [basic association test](#basic-association-test) leads to an excess of false positive associations in the latter case. 
 
@@ -230,7 +230,7 @@ The following figure depicts the estimated type I error for association tests ag
 ## Additional Details
 
 #### Run time
-During package development, the `BAT`, `DINT`, and `PIINT` each took a median of $25$ to $30$ ms to perform $10^2$ association tests for $10^3$ subjects. `RNOmni` using average correlation, which internally performs both `DINT` and `PIINT`, required a median of $65$ to $70$ ms. Using bootstrap to calculate position specific correlations increased the run time of `RNOmni` by a factor of $9$ to $10$ while running $12$ cores in parallel. 
+During package development, the `BAT`, `DINT`, and `PIINT` each took a median of $25$ to $30$ ms to perform $10^2$ association tests for $10^3$ subjects. `RNOmni` using average correlation, which internally performs both `DINT` and `PIINT`, required a median of $65$ to $70$ ms. Using bootstrap to calculate position specific correlations increased the run time of `RNOmni` by a factor of $9$ to $10$ while running $12$ cores in parallel. Using `RNOmni` with the `parallel=T` option is advised if using the bootstrap approach. 
 
 
 ```r
@@ -239,24 +239,27 @@ H = G[1:100,];
 # Time performance
 library(microbenchmark);
 microbenchmark(BAT(y=Y[,1],G=H,X=X,S=S),DINT(y=Y[,1],G=H,X=X,S=S),PIINT(y=Y[,1],G=H,X=X,S=S),
-               RNOmni(y=Y[,1],G=H,X=X,S=S,method="AvgCorr"),
-               RNOmni(y=Y[,1],G=H,X=X,S=S,method="Bootstrap",B=100,cores=2),times=20);
+               RNOmni(y=Y[,1],G=H,X=X,S=S,method="AvgCorr"));
+microbenchmark(RNOmni(y=Y[,1],G=H,X=X,S=S,method="Bootstrap",B=100),times=10);
 ```
 
 ```
 ## Unit: milliseconds
-##                                                                                    expr
-##                                                    BAT(y = Y[, 1], G = H, X = X, S = S)
-##                                                   DINT(y = Y[, 1], G = H, X = X, S = S)
-##                                                  PIINT(y = Y[, 1], G = H, X = X, S = S)
-##                             RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "AvgCorr")
-##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "Bootstrap",      B = 100, cores = 2)
-##         min         lq       mean     median         uq        max neval
-##    21.27713   23.94356   26.56850   25.32869   27.97674   39.42114    20
-##    20.89839   23.42855   25.64156   24.94000   26.92981   32.47411    20
-##    16.50490   20.88528   22.97458   21.94572   25.05840   31.61570    20
-##    53.27491   58.21791   68.63692   61.29377   64.34072  206.10427    20
-##  1730.18290 1996.84415 1975.22051 2018.82246 2043.71713 2068.23488    20
+##                                                         expr      min
+##                         BAT(y = Y[, 1], G = H, X = X, S = S) 21.40669
+##                        DINT(y = Y[, 1], G = H, X = X, S = S) 21.89634
+##                       PIINT(y = Y[, 1], G = H, X = X, S = S) 18.70127
+##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "AvgCorr") 57.16463
+##        lq     mean   median       uq      max neval
+##  23.37066 26.49970 24.89899 25.82675 188.3917   100
+##  23.80037 26.50177 24.86587 25.96194 188.9738   100
+##  20.36414 23.11901 21.44712 22.80345 183.9723   100
+##  61.14118 65.02569 63.18766 66.12928 225.9110   100
+## Unit: seconds
+##                                                                         expr
+##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "Bootstrap",      B = 100)
+##       min      lq   mean   median       uq      max neval
+##  4.114643 4.13913 4.1983 4.167833 4.282667 4.348065    10
 ```
 
 #### Missingness

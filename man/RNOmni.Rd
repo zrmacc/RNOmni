@@ -5,7 +5,7 @@
 \title{Rank-Normal Omnibus Test}
 \usage{
 RNOmni(y, G, X, S, method = "AvgCorr", M = T, c = 3/8, B = 100,
-  rho = F, cores = 1)
+  rho = F, parallel = F)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -28,7 +28,7 @@ either "AvgCorr" or "Bootstrap".}
 \item{rho}{Logical indicating whether to return the correlation parameter
 estimated during omnibus calculation. Defaults to FALSE.}
 
-\item{cores}{Cores to use during bootstrapping if running in parallel.}
+\item{parallel}{Run bootstraps in parallel? Must register parallel backend first.}
 }
 \description{
 Omnibus association test that estimates p-values by direct and partially 

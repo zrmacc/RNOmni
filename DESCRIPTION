@@ -7,7 +7,6 @@ Description: Implementation of genetic association tests that utilize the rank b
 Depends: R (>= 3.2.2)
 Imports: abind,
     cowplot,
-    doMC,
     foreach,
     ggplot2,
     microbenchmark,
