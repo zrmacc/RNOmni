@@ -101,6 +101,14 @@ round(head(Y),digits=2);
     ## [5,] 3.79 4.39
     ## [6,] 3.78 3.54
 
+#### Normal QQ Plots for Phenotypic Residuals
+
+The following quantile-quantile (QQ) plots demonstrate the effect of INT on model residuals. In blue are the residuals for standard linear regression of the normal phenotype on covariates *X* and structure adjustments *S*. In dark green are the residual for standard linear regression of the *t*<sub>3</sub> phenotype on *X* and *S*. The heavier tails of the *t*<sub>3</sub> distribution are evidenced by the departures of the observed quantiles from their expectations away from the origin.
+
+In light green are the residuals from [direct INT](#direct-inverse-normal-transformation) (DINT) and [partially indirect INT](#partially-indirect-inverse-normal-transformation) (PIINT) of the *t*<sub>3</sub> phenotype. The validity of the INT-based association tests derives from the closer adherence of the observed quantiles to their expectations in these models. The omnibus test synthesizes the association statistics from the DINT and PIINT models.
+
+<img src="Figs/A03-1.png" style="display: block; margin: auto;" />
+
 Rank Normal Omnibus Test
 ------------------------
 
@@ -141,12 +149,12 @@ cat("\n");
     ## 
     ## Omnibus Test, Normal Phenotype, Bootstrap Correaltion Method
     ##       DINT PIINT RNOmni
-    ## [1,] 0.626 0.653  0.665
+    ## [1,] 0.626 0.653  0.655
     ## [2,] 0.727 0.764  0.755
     ## [3,] 0.165 0.167  0.188
-    ## [4,] 0.866 0.910  0.881
-    ## [5,] 0.469 0.509  0.493
-    ## [6,] 0.584 0.568  0.597
+    ## [4,] 0.866 0.910  0.891
+    ## [5,] 0.469 0.509  0.501
+    ## [6,] 0.584 0.568  0.601
     ## 
     ## Omnibus Test, T3 Phenotype, Average Correaltion Method
     ##       DINT PIINT RNOmni
@@ -159,12 +167,12 @@ cat("\n");
     ## 
     ## Omnibus Test, T3 Phenotype, Bootstrap Correaltion Method
     ##       DINT PIINT RNOmni
-    ## [1,] 0.751 0.690  0.718
-    ## [2,] 0.540 0.531  0.561
-    ## [3,] 0.201 0.249  0.238
-    ## [4,] 0.192 0.197  0.220
-    ## [5,] 0.329 0.332  0.371
-    ## [6,] 0.462 0.431  0.470
+    ## [1,] 0.751 0.690  0.725
+    ## [2,] 0.540 0.531  0.583
+    ## [3,] 0.201 0.249  0.230
+    ## [4,] 0.192 0.197  0.217
+    ## [5,] 0.329 0.332  0.373
+    ## [6,] 0.462 0.431  0.463
 
 Since the phenotype was simulated under the null hypothesis of no genotypic effect, the expected false positive rate at *α* level 0.05 is 5%. For both the normal and heavy tailed *t*<sub>3</sub> phenotypes, the 95% confidence interval for the type I error includes the expected value of 0.05. As shown in the [comparison of association tests](#comparison-of-association-tests), naively applying the [basic association test](#basic-association-test) leads to an excess of false positive associations in the latter case.
 
@@ -230,7 +238,7 @@ Additional Details
 
 #### Run time
 
-During package development, the `BAT`, `DINT`, and `PIINT` each took a median of 25 to 30 ms to perform 10<sup>2</sup> association tests for 10<sup>3</sup> subjects. `RNOmni` using average correlation, which internally performs both `DINT` and `PIINT`, required a median of 65 to 70 ms. Using bootstrap to calculate position specific correlations increased the run time of `RNOmni` by a factor of 9 to 10.
+During package development, the `BAT`, `DINT`, and `PIINT` each took a median of 25 to 30 ms to perform 10<sup>2</sup> association tests for 10<sup>3</sup> subjects. `RNOmni` using average correlation, which internally performs both `DINT` and `PIINT`, required a median of 65 to 70 ms. Using bootstrap to calculate position specific correlations increased the run time of `RNOmni` by a factor of 9 to 10 while running 12 cores in parallel.
 
 ``` r
 # Subset to 100 loci
@@ -250,11 +258,11 @@ microbenchmark(BAT(y=Y[,1],G=H,X=X,S=S),DINT(y=Y[,1],G=H,X=X,S=S),PIINT(y=Y[,1],
     ##                             RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "AvgCorr")
     ##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "Bootstrap",      B = 100, cores = 2)
     ##         min         lq       mean     median         uq        max neval
-    ##    20.14108   25.11403   27.42454   27.14651   29.98316   35.30098    20
-    ##    20.45590   24.71669   27.26945   27.58835   29.59770   33.39802    20
-    ##    18.01498   21.36957   31.90894   23.46777   26.62305  187.59248    20
-    ##    54.12574   57.61815   61.75870   61.06375   66.54628   69.93016    20
-    ##  1769.44161 1820.38127 1978.26140 2071.08336 2091.65808 2149.34115    20
+    ##    19.77203   25.35801   26.64222   26.15749   28.06369   33.04596    20
+    ##    19.75890   23.08335   25.71868   25.83974   26.95625   32.98168    20
+    ##    19.56909   21.02239   22.09583   22.08710   22.83483   27.35448    20
+    ##    53.08509   55.82554   68.32994   59.31667   64.68480  223.20701    20
+    ##  1741.45957 1759.35545 1898.66775 1859.86023 2038.23298 2097.04915    20
 
 #### Missingness
 
@@ -294,4 +302,4 @@ Below, size estimates for the normal phenotype in the absence and presence of mi
     ## 2      DINT 0.036 0.024 0.048
     ## 3     PIINT 0.033 0.022 0.044
     ## 4  Omni.Avg 0.018 0.010 0.026
-    ## 5 Omni.Boot 0.026 0.016 0.036
+    ## 5 Omni.Boot 0.028 0.018 0.038

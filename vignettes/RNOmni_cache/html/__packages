@@ -1,3 +1,5 @@
 base
 ggplot2
 RNOmni
+reshape2
+microbenchmark
