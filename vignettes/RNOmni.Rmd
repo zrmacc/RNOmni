@@ -222,11 +222,11 @@ Q2$U = Q2$y+2*sqrt(Q2$y*(1-Q2$y)/1000);
 ```{r C05, echo=F, fig.width=2*3, fig.height=2*1.5*2}
 ## Plotting
 Q1$Method = Q2$Method = factor(Q1$Method,levels=c("Omni.Boot","Omni.AvgCorr","PIINT","DINT","BAT"),ordered=T);
-q = ggplot(data=Q1) + geom_linerange(aes(x=Method,ymin=L,ymax=U)) + geom_point(aes(x=Method,y=y),color="coral",size=1.5);
+q = ggplot(data=Q1) + geom_linerange(aes(x=Method,ymin=L,ymax=U)) + geom_point(aes(x=Method,y=y),color="royalblue",size=1.5);
 q = q + geom_hline(yintercept=0.05,linetype="dashed",color="gray");
 q = q + theme_bw() + ylab("Type I Error") + coord_flip();
 q1 = q + ggtitle(expression(Estimated~Size~against~Normal~Phenotype~at~alpha==0.05));
-q = ggplot(data=Q2) + geom_linerange(aes(x=Method,ymin=L,ymax=U)) + geom_point(aes(x=Method,y=y),color="royalblue",size=1.5);
+q = ggplot(data=Q2) + geom_linerange(aes(x=Method,ymin=L,ymax=U)) + geom_point(aes(x=Method,y=y),color="seagreen",size=1.5);
 q = q + geom_hline(yintercept=0.05,linetype="dashed",color="gray");
 q = q + theme_bw() + ylab("Type I Error") + coord_flip();
 q2 = q + ggtitle(expression(Estimated~Size~against~t[3]~Phenotype~at~alpha==0.05));
