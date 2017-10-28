@@ -264,9 +264,9 @@ p1.piint =<span class="st"> </span>RNOmni::<span class="kw">PIINT</span>(<span c
 <h2>Additional Details</h2>
 <div id="definition-of-the-rank-based-inverse-normal-transformation" class="section level4">
 <h4>Definition of the Rank Based Inverse Normal Transformation</h4>
-<p>Suppose a continuous measurement is available for each of <span class="math inline">\(n\)</span> subjects. Let <span class="math inline">\(u_{i}\)</span> denote the measurement for the <span class="math inline">\(i\)</span>th subject, and let <span class="math inline">\(\text{rank}(u_{i})\)</span> denote the sample rank of <span class="math inline">\(u_{i}\)</span> when the measurements are placed in ascending order. The rank based inverse normal transformation is defined as: <span class="math display">\[
-\text{INT}(u_{i}) = \Phi^{-1}\left[\frac{\text{rank}(u_{i})-c}{n-2c+1}\right]
-\]</span> Here <span class="math inline">\(c\in(0,1/2)\)</span> is an offset introduced to avoid mapping the sample maximum to infinity. By default, the Blom offset of <span class="math inline">\(c=3/8\)</span> is adopted.</p>
+<p>Suppose a continuous measurement is available for each of <span class="math inline">\(n\)</span> subjects. Let <span class="math inline">\(u_{i}\)</span> denote the measurement for the <span class="math inline">\(i\)</span>th subject, and let <span class="math inline">\(\text{rank}(u_{i})\)</span> denote the sample rank of <span class="math inline">\(u_{i}\)</span> when the measurements are placed in ascending order. The rank based inverse normal transformation is defined as:</p>
+<p><span class="math display">\[\text{INT}(u_{i}) = \Phi^{-1}\left[\frac{\text{rank}(u_{i})-c}{n-2c+1}\right]\]</span></p>
+<p>Here <span class="math inline">\(c\in(0,1/2)\)</span> is an offset introduced to avoid mapping the sample maximum to infinity. By default, the Blom offset of <span class="math inline">\(c=3/8\)</span> is adopted.</p>
 </div>
 <div id="run-time" class="section level4">
 <h4>Run Time</h4>
