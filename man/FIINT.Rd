@@ -15,11 +15,27 @@ FIINT(y, G, X, S, M = T, c = 3/8)
 
 \item{S}{Obs by feature structure matrix.}
 
-\item{M}{Apply missingness filter?}
+\item{M}{Apply missingness filter? See \code{\link{missFilter}}.}
 
-\item{c}{Offset applied during rank-normalization.}
+\item{c}{Offset applied during rank-normalization. See
+\code{\link{rankNormal}}.}
+}
+\value{
+A numeric vector of p-values assessing the null hypothesis of no 
+  genotypic effect. P-values are estimated using the Wald statistic, and 
+  correspond to the rows of G.
 }
 \description{
-Two-stage regression. Regresses phenotype on covariates and structure
-to obtain residuals. Regresses transformed residuals on genotype.
+Two-stage regression procedure In the first stage, phenotype is regressed on 
+covariates and adjustments for population structure to obtain residuals. In 
+the second stage, INT-transformed residuals are regressed on genotype.
+}
+\details{
+Note that, in simulations, FIINT did not consistently provide valid
+inference. For a similar approach that did control the type I error, see
+\code{\link{PIINT}}.
+}
+\examples{
+# FIINT against normal phenotype 
+p = RNOmni::FIINT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 }

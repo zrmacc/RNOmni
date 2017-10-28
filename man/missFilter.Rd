@@ -16,5 +16,9 @@ missFilter(y, G, X, S)
 \item{S}{Obs by feature structure matrix.}
 }
 \description{
-Function to adjust for missing data.
+Function to adjust for missing data. Observations with phenotype or structure
+adjustments missing are removed. Missing covariates are imputed to the median
+of the observed values. An observation missing genotype information is
+excluded from association testing only at those loci where genotype is
+unobserved.
 }

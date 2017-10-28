@@ -15,11 +15,20 @@ DINT(y, G, X, S, M = T, c = 3/8)
 
 \item{S}{Obs by feature structure matrix.}
 
-\item{M}{Apply missingness filter?}
+\item{M}{Apply missingness filter? See \code{\link{missFilter}}.}
 
-\item{c}{Offset applied during rank-normalization.}
+\item{c}{Offset applied during rank-normalization. See \code{\link{rankNormal}}.}
+}
+\value{
+A numeric vector of p-values assessing the null hypothesis of no 
+  genotypic effect. P-values are estimated using the Wald statistic, and 
+  correspond to the rows of G.
 }
 \description{
-Rank-normalizes the phenotype, then regresses the transformed
-phenotype on genotype, covariates, and structure.
+Rank-normalizes the phenotype, then regresses the transformed phenotype on
+genotype, covariates, and adjustments for population structure.
+}
+\examples{
+# DINT against normal phenotype 
+p = RNOmni::DINT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 }

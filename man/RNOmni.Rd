@@ -16,23 +16,46 @@ RNOmni(y, G, X, S, method = "AvgCorr", M = T, c = 3/8, B = 100,
 
 \item{S}{Obs by feature structure matrix.}
 
-\item{method}{Method used to estimate correlation for the omnibus test,
+\item{method}{Method used to estimate correlation for the omnibus test, 
 either "AvgCorr" or "Bootstrap".}
 
-\item{M}{Apply missingness filter?}
+\item{M}{Apply missingness filter? See \code{\link{missFilter}}.}
 
-\item{c}{Offset applied during rank-normalization.}
+\item{c}{Offset applied during rank-normalization. See \code{\link{rankNormal}}.}
 
 \item{B}{Bootstrap samples for correlation estimation.}
 
-\item{rho}{Logical indicating whether to return the correlation parameter
+\item{rho}{Logical indicating whether to return the correlation parameter 
 estimated during omnibus calculation. Defaults to FALSE.}
 
-\item{parallel}{Run bootstraps in parallel? Must register parallel backend first.}
+\item{parallel}{Run bootstraps in parallel? Must register parallel backend
+first.}
+}
+\value{
+A numeric matrix with one row per locus, i.e. row, in the genotype
+  matrix, and three columns. The columns are p-values obtained by DINT,
+  PIINT, and the omnibus test.
 }
 \description{
-Omnibus association test that estimates p-values by direct and partially 
-indirect inverse normal transformation (INT), then synthesizes the results
-into a single test statistic, based on whichever approach provides more
-evidence against null hypothesis.
+Omnibus association test that synthesizes the \code{\link{DINT}} and
+\code{\link{PIINT}} approaches. In the omnibus test, both DINT and PIINT are
+applied. An omnibus statistic is calculated based on whichever approach
+provides more evidence against the null hypothesis of no genotypic effect.
+Details of the method are discussed below and in the vignette.
+}
+\details{
+Assignment of a p-value to the omnibus statistic requires an estimate of the
+correlation between the test statistics provided by DINT and PIINT. When the
+sample size and number of loci are both large, and efficient estimate of the
+correlation is obtained by averaging across loci (\code{method="AvgCorr"}).
+When either the sample size or the number of loci is small, bootstrap
+(\code{method="Bootstrap"}) allows for locus specific correlation estimates.
+If using the bootstrap approach, consider registering a parallel backend and
+setting \code{parallel=T}.
+}
+\examples{
+# Omnibus test against normal phenotype using the average correlation method 
+p = RNOmni::RNOmni(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S,method="AvgCorr");
+# Omnibus test against normal phenotype using the bootstrap correlation method
+p = RNOmni::RNOmni(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S,method="Bootstrap");
 }

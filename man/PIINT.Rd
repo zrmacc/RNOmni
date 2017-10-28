@@ -15,11 +15,21 @@ PIINT(y, G, X, S, M = T, c = 3/8)
 
 \item{S}{Obs by feature structure matrix.}
 
-\item{M}{Apply missingness filter?}
+\item{M}{Apply missingness filter? See \code{\link{missFilter}}.}
 
-\item{c}{Offset applied during rank-normalization.}
+\item{c}{Offset applied during rank-normalization. See \code{\link{rankNormal}}.}
+}
+\value{
+A numeric vector of p-values assessing the null hypothesis of no 
+  genotypic effect. P-values are estimated using the Wald statistic, and 
+  correspond to the rows of G.
 }
 \description{
-Two-stage regression. Regresses phenotype on covariates to obtain 
-residuals. Regresses transformed residuals on genotype and structure.
+Two-stage regression procedure. In the first stage, phenotype is regressed on
+covariates to obtain residuals. In the second stage, INT-transformed
+residuals are regressed on genotype and adjustments for population structure.
+}
+\examples{
+# PIINT against normal phenotype
+p = RNOmni::PIINT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 }

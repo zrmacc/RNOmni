@@ -15,8 +15,18 @@ BAT(y, G, X, S, M = T)
 
 \item{S}{Obs by feature structure matrix.}
 
-\item{M}{Apply missingness filter?}
+\item{M}{Apply missingness filter? See \code{\link{missFilter}}.}
+}
+\value{
+A numeric vector of p-values assessing the null hypothesis of no 
+  genotypic effect. P-values are estimated using the Wald statistic, and 
+  correspond to the rows of G.
 }
 \description{
-Regression of phenotype on genotype, covariates, and structure.
+Regression of the untransformed phenotype on genotype, covariates, and 
+adjustments for population structure.
+}
+\examples{
+# BAT against normal phenotype
+p = RNOmni::BAT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 }

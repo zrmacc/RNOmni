@@ -2,9 +2,7 @@
 title: "Rank Normal Omnibus Association Test"
 author: "Zachary McCaw"
 date: "Updated: 10/27/18"
-output: 
-  rmarkdown::html_vignette:
-    keep_md: yes
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -12,7 +10,7 @@ vignette: >
 ---
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.width=1.5*3, fig.height=1.5*2, fig.align="center", fig.path='Figs/',echo=T, warning=F, message=F, cache=T, results='hold');
+knitr::opts_chunk$set(fig.width=1.5*3, fig.height=1.5*2, fig.align="center",echo=T, warning=F, message=F, cache=T, results='hold');
 ```
 
 ## Contents
@@ -121,7 +119,7 @@ cowplot::plot_grid(plotlist=list(q1,q2,q3,q4),nrow=2);
 ## Rank Normal Omnibus Test
 `RNOmni` implements an adaptive test of association between the loci in $G$ and the phenotype $y$, while adjusting for covariates $X$ and population structure $S$. Internally, `RNOmni` conducts two association tests, `DINT` and `PIINT`, described below, then calculates an omnibus statistic based on whichever approach provides more evidence against the null hypothesis. Synthesizing two complementary, INT-based approaches, affords the omnibus test robustness to the distribution of phenotypic residuals. In the absence of a genotypic effect, `RNOmni` routinely controls the type I error. In the presence of a genotypic effect, `RNOmni` provides power comparable to the better of `DINT` and `PIINT`. 
 
-Estimation of a $p$-value for the omnibus statistic requires an estimate of the correlation $\rho$ between the test statistics provided by `DINT` and `PIINT`. When the sample size and number of loci are both relatively large, a computationally efficient estimate of $\rho$ is obtained by averaging across loci. If either the sample size or the number of loci is relatively small, bootstrap can provide a locus-specific estimates of $\rho$. To accelerate the bootstrap, registered a parallel packend, e.g. `doMC::registerDoMC(cores=2)`, then pass the `parallel=T` option to `RNOmni`. 
+Estimation of a $p$-value for the omnibus statistic requires an estimate of the correlation $\rho$ between the test statistics provided by `DINT` and `PIINT`. When the sample size and number of loci are both relatively large, a computationally efficient estimate of $\rho$ is obtained by averaging across loci. If either the sample size or the number of loci is relatively small, bootstrap can provide a locus-specific estimates of $\rho$. To accelerate the bootstrap, registered a parallel backend, e.g. `doMC::registerDoMC(cores=2)`, then pass the `parallel=T` option to `RNOmni`. 
 
 The output of `RNOmni` is a numeric matrix of $p$-values, with rows corresponding to the rows of $G$. The columns are the $p$-values from the `DINT`, the `PIINT`, and the omnibus tests, respectively. Note that, without additional adjustment for multiple testing, taking the minimum $p$-value across each row would not result in a valid test of association. 
 ```{r B01, include=T}
@@ -235,7 +233,14 @@ cowplot::plot_grid(plotlist=list(q1,q2),ncol=1);
 
 ## Additional Details
 
-#### Run time
+#### Definition of the Rank Based Inverse Normal Transformation
+Suppose a continuous measurement is available for each of $n$ subjects. Let $u_{i}$ denote the measurement for the $i$th subject, and let $\text{rank}(u_{i})$ denote the sample rank of $u_{i}$ when the measurements are placed in ascending order. The rank based inverse normal transformation is defined as:
+$$
+\text{INT}(u_{i}) = \Phi^{-1}\left[\frac{\text{rank}(u_{i})-c}{n-2c+1}\right]
+$$
+Here $c\in(0,1/2)$ is an offset introduced to avoid mapping the sample maximum to infinity. By default, the Blom offset of $c=3/8$ is adopted. 
+
+#### Run Time
 During package development, the `BAT`, `DINT`, and `PIINT` each took a median of $25$ to $30$ ms to perform $10^2$ association tests for $10^3$ subjects. `RNOmni` using average correlation, which internally performs both `DINT` and `PIINT`, required a median of $65$ to $70$ ms. Using bootstrap to calculate position specific correlations increased the run time of `RNOmni` by a factor of $9$ to $10$ while running $12$ cores in parallel. Using `RNOmni` with the `parallel=T` option is advised if using the bootstrap approach. 
 
 ```{r D01, include=T}

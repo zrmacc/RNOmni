@@ -1,6 +1,6 @@
 Package: RNOmni
 Title: Omnibus Test for Genetic Association Analysis using the Rank Normal Transformation
-Version: 0.1.0
+Version: 0.1.2
 Date: 2017-10-26
 Authors@R: person("Zachary","McCaw",email="zmccaw@g.harvard.edu",role=c("aut","cre"))
 Description: Implementation of genetic association tests that utilize the rank based inverse normal transformation (INT). The primary contribution is an omnibus test, which synthesizes two INT-based approaches, termed direct INT (DINT) and partially indirect INT (PIINT). In genome scale simulations, the omnibus test routinely provided valid inference against continuous phenotypes with skewed and heavy tailed residual distributions. Association testing against these same phenotypes via standard linear regression led to an excess of false positive associations. In addition to controlling the type I error, the omnibus approach provided power comparable to the more powerful of the component methods. 

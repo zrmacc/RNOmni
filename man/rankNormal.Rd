@@ -12,8 +12,18 @@ rankNormal(u, c = 3/8)
 \item{c}{Offset. Defaults to (3/8), correspond to the Blom transform.}
 }
 \value{
-Numeric vector.
+Numeric vector of rank normalized measurements.
 }
 \description{
-Applies the rank-normal transform to a numeric vector.
+Applies the rank based inverse normal transform (INT) to a numeric vector.
+INT is indicated for continuous phenotypes lacking ties. See the vignette for
+the mathematical definition of INT.
+}
+\examples{
+# Draw from chi-1 distribution
+y = rchisq(n=1000,df=1);
+# Rank normalize
+z = RNOmni::rankNormal(y);
+# Plot density of transformed measurement
+plot(density(z));
 }
