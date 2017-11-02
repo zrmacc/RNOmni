@@ -385,7 +385,7 @@ PIINT = function(y,G,X,S,M=T,c=3/8){
 
 #' Average Correlation Estimate.
 #' 
-#' Estimate correlation using the average of z1*z2 across loci.
+#' Estimate correlation using the average of qnorm(p1)*qnorm(p2) across loci, where 
 #' @param P1 Fist p-value.
 #' @param P2 Second p-value.
 #' @param eps Force correlation estimate to fall in (eps,1-eps);
