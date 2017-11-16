@@ -253,7 +253,7 @@ Additional Details
 
 Suppose a continuous measurement is available for each of *n* subjects. Let *u*<sub>*i*</sub> denote the measurement for the *i*th subject, and let rank(*u*<sub>*i*</sub>) denote the sample rank of *u*<sub>*i*</sub> when the measurements are placed in ascending order. The rank based inverse normal transformation is defined as:
 
-$$\\text{INT}(u\_{i}) = \\Phi^{-1}\\left\[\\frac{\\text{rank}(u\_{i})-c}{n-2c+1}\\right\]$$
+$$ \\text{INT}(u\_{i}) = \\Phi^{-1}\\left\[\\frac{\\text{rank}(u\_{i})-c}{n-2c+1}\\right\] $$
 
 Here *c* ∈ (0, 1/2) is an offset introduced to avoid mapping the sample maximum to infinity. By default, the Blom offset of *c* = 3/8 is adopted.
 

@@ -183,7 +183,7 @@ p2.omni.avg =<span class="st"> </span>RNOmni::<span class="kw">RNOmni</span>(<sp
 p2.omni.boot =<span class="st"> </span>RNOmni::<span class="kw">RNOmni</span>(<span class="dt">y=</span>Y[,<span class="dv">2</span>],<span class="dt">G=</span>G,<span class="dt">X=</span>X,<span class="dt">S=</span>S,<span class="dt">method=</span><span class="st">&quot;Bootstrap&quot;</span>,<span class="dt">keep.rho=</span>T,<span class="dt">B=</span><span class="dv">100</span>);
 <span class="kw">round</span>(<span class="kw">head</span>(p2.omni.boot),<span class="dt">digits=</span><span class="dv">3</span>);
 <span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>);
-<span class="kw">cat</span>(<span class="st">&quot;Replicate the Omnibus Test on the T3 Phenotype, Manually Specifying Correlation:</span><span class="ch">\n</span><span class="st">&quot;</span>);
+<span class="kw">cat</span>(<span class="st">&quot;Replicate the Omnibus Test on the T3 Phenotype, Manually Specifying Correlation</span><span class="ch">\n</span><span class="st">&quot;</span>);
 p2.omni.manual =<span class="st"> </span>RNOmni::<span class="kw">RNOmni</span>(<span class="dt">y=</span>Y[,<span class="dv">2</span>],<span class="dt">G=</span>G,<span class="dt">X=</span>X,<span class="dt">S=</span>S,<span class="dt">method=</span><span class="st">&quot;Manual&quot;</span>,<span class="dt">set.rho=</span>p2.omni.boot[,<span class="st">&quot;Corr&quot;</span>],<span class="dt">keep.rho=</span>T);
 <span class="kw">round</span>(<span class="kw">head</span>(p2.omni.manual),<span class="dt">digits=</span><span class="dv">3</span>);
 <span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>);</code></pre></div>
@@ -223,7 +223,7 @@ p2.omni.manual =<span class="st"> </span>RNOmni::<span class="kw">RNOmni</span>(
 ## [5,] 0.329 0.332  0.359 0.979
 ## [6,] 0.462 0.431  0.472 0.966
 ## 
-## Replicate the Omnibus Test on the T3 Phenotype, Manually Specifying Correlation:
+## Replicate the Omnibus Test on the T3 Phenotype, Manually Specifying Correlation
 ##       DINT PIINT RNOmni  Corr
 ## [1,] 0.751 0.690  0.718 0.980
 ## [2,] 0.540 0.531  0.568 0.972
@@ -278,7 +278,7 @@ p1.piint =<span class="st"> </span>RNOmni::<span class="kw">PIINT</span>(<span c
 <div id="definition-of-the-rank-based-inverse-normal-transformation" class="section level4">
 <h4>Definition of the Rank Based Inverse Normal Transformation</h4>
 <p>Suppose a continuous measurement is available for each of <span class="math inline">\(n\)</span> subjects. Let <span class="math inline">\(u_{i}\)</span> denote the measurement for the <span class="math inline">\(i\)</span>th subject, and let <span class="math inline">\(\text{rank}(u_{i})\)</span> denote the sample rank of <span class="math inline">\(u_{i}\)</span> when the measurements are placed in ascending order. The rank based inverse normal transformation is defined as:</p>
-<p><span class="math display">\[\text{INT}(u_{i}) = \Phi^{-1}\left[\frac{\text{rank}(u_{i})-c}{n-2c+1}\right]\]</span></p>
+<p><span class="math display">\[ \text{INT}(u_{i}) = \Phi^{-1}\left[\frac{\text{rank}(u_{i})-c}{n-2c+1}\right] \]</span></p>
 <p>Here <span class="math inline">\(c\in(0,1/2)\)</span> is an offset introduced to avoid mapping the sample maximum to infinity. By default, the Blom offset of <span class="math inline">\(c=3/8\)</span> is adopted.</p>
 </div>
 <div id="run-time" class="section level4">

@@ -240,7 +240,7 @@ cowplot::plot_grid(plotlist=list(q1,q2),ncol=1);
 #### Definition of the Rank Based Inverse Normal Transformation
 Suppose a continuous measurement is available for each of $n$ subjects. Let $u_{i}$ denote the measurement for the $i$th subject, and let $\text{rank}(u_{i})$ denote the sample rank of $u_{i}$ when the measurements are placed in ascending order. The rank based inverse normal transformation is defined as:
 
-$$\text{INT}(u_{i}) = \Phi^{-1}\left[\frac{\text{rank}(u_{i})-c}{n-2c+1}\right]$$
+$$ \text{INT}(u_{i}) = \Phi^{-1}\left[\frac{\text{rank}(u_{i})-c}{n-2c+1}\right] $$
 
 Here $c\in(0,1/2)$ is an offset introduced to avoid mapping the sample maximum to infinity. By default, the Blom offset of $c=3/8$ is adopted. 
 
