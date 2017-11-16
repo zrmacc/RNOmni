@@ -1,7 +1,7 @@
 README
 ================
 Zachary McCaw
-10/27/2017
+11/16/2017
 
 Purpose
 =======
@@ -112,9 +112,9 @@ In light green are the residuals from [direct INT](#direct-inverse-normal-transf
 Rank Normal Omnibus Test
 ------------------------
 
-`RNOmni` implements an adaptive test of association between the loci in *G* and the phenotype *y*, while adjusting for covariates *X* and population structure *S*. Internally, `RNOmni` conducts two association tests, `DINT` and `PIINT`, described below, then calculates an omnibus statistic based on whichever approach provides more evidence against the null hypothesis. Synthesizing two complementary, INT-based approaches, affords the omnibus test robustness to the distribution of phenotypic residuals. In the absence of a genotypic effect, `RNOmni` routinely controls the type I error. In the presence of a genotypic effect, `RNOmni` provides power comparable to the better of `DINT` and `PIINT`.
+`RNOmni` implements an adaptive test of association between the loci in *G* and the phenotype *y*, while adjusting for covariates *X* and population structure *S*. Internally, `RNOmni` conducts two association tests, `DINT` and `PIINT`, described below, then calculates an omnibus statistic based on whichever approach provides more evidence against the null hypothesis. Synthesizing two complementary, INT-based approaches, affords the omnibus test robustness to the distribution of phenotypic residuals. In the absence of a genotypic effect, `RNOmni` routinely controls the type I error. In the presence of a genotypic effect, `RNOmni` performs comparably to the more powerful of `DINT` and `PIINT`.
 
-Estimation of a *p*-value for the omnibus statistic requires an estimate of the correlation *ρ* between the test statistics provided by `DINT` and `PIINT`. When the sample size and number of loci are both relatively large, a computationally efficient estimate of *ρ* is obtained by averaging across loci. If either the sample size or the number of loci is relatively small, bootstrap can provide a locus-specific estimates of *ρ*. To accelerate the bootstrap, registered a parallel backend, e.g. `doMC::registerDoMC(cores=2)`, then pass the `parallel=T` option to `RNOmni`.
+Estimation of a *p*-value for the omnibus statistic requires an estimate of the correlation *ρ* between the test statistics provided by `DINT` and `PIINT`. When the sample size and number of loci are both relatively large, a computationally efficient estimate of *ρ* is obtained by averaging the product *z*<sub>DINT</sub> ⋅ *z*<sub>PIINT</sub> across loci. If either the sample size or the number of loci is relatively small, bootstrap can provide a locus-specific estimates of *ρ*. To accelerate the bootstrap, register a parallel backend, e.g. `doMC::registerDoMC(cores=2)`, then pass the `parallel=T` option to `RNOmni`. The user may also estimate *ρ* external to `RNOmni`, then manually specify the value of *ρ* for association testing.
 
 The output of `RNOmni` is a numeric matrix of *p*-values, with rows corresponding to the rows of *G*. The columns are the *p*-values from the `DINT`, the `PIINT`, and the omnibus tests, respectively. Note that, without additional adjustment for multiple testing, taking the minimum *p*-value across each row would not result in a valid test of association.
 
@@ -133,8 +133,12 @@ p2.omni.avg = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="AvgCorr");
 round(head(p2.omni.avg),digits=3);
 cat("\n");
 cat("Omnibus Test, T3 Phenotype, Bootstrap Correaltion Method\n");
-p2.omni.boot = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Bootstrap",B=100);
+p2.omni.boot = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Bootstrap",keep.rho=T,B=100);
 round(head(p2.omni.boot),digits=3);
+cat("\n");
+cat("Replicate the Omnibus Test on the T3 Phenotype, Manually Specifying Correlation\n");
+p2.omni.manual = RNOmni::RNOmni(y=Y[,2],G=G,X=X,S=S,method="Manual",set.rho=p2.omni.boot[,"Corr"],keep.rho=T);
+round(head(p2.omni.manual),digits=3);
 cat("\n");
 ```
 
@@ -166,13 +170,22 @@ cat("\n");
     ## [6,] 0.462 0.431  0.482
     ## 
     ## Omnibus Test, T3 Phenotype, Bootstrap Correaltion Method
-    ##       DINT PIINT RNOmni
-    ## [1,] 0.751 0.690  0.718
-    ## [2,] 0.540 0.531  0.568
-    ## [3,] 0.201 0.249  0.233
-    ## [4,] 0.192 0.197  0.219
-    ## [5,] 0.329 0.332  0.359
-    ## [6,] 0.462 0.431  0.472
+    ##       DINT PIINT RNOmni  Corr
+    ## [1,] 0.751 0.690  0.718 0.980
+    ## [2,] 0.540 0.531  0.568 0.972
+    ## [3,] 0.201 0.249  0.233 0.959
+    ## [4,] 0.192 0.197  0.219 0.969
+    ## [5,] 0.329 0.332  0.359 0.979
+    ## [6,] 0.462 0.431  0.472 0.966
+    ## 
+    ## Replicate the Omnibus Test on the T3 Phenotype, Manually Specifying Correlation
+    ##       DINT PIINT RNOmni  Corr
+    ## [1,] 0.751 0.690  0.718 0.980
+    ## [2,] 0.540 0.531  0.568 0.972
+    ## [3,] 0.201 0.249  0.233 0.959
+    ## [4,] 0.192 0.197  0.219 0.969
+    ## [5,] 0.329 0.332  0.359 0.979
+    ## [6,] 0.462 0.431  0.472 0.966
 
 Since the phenotype was simulated under the null hypothesis of no genotypic effect, the expected false positive rate at *α* level 0.05 is 5%. For both the normal and heavy tailed *t*<sub>3</sub> phenotypes, the 95% confidence interval for the type I error includes the expected value of 0.05. As shown in the [comparison of association tests](#comparison-of-association-tests), naively applying the [basic association test](#basic-association-test) leads to an excess of false positive associations in the latter case.
 
@@ -240,7 +253,7 @@ Additional Details
 
 Suppose a continuous measurement is available for each of *n* subjects. Let *u*<sub>*i*</sub> denote the measurement for the *i*th subject, and let rank(*u*<sub>*i*</sub>) denote the sample rank of *u*<sub>*i*</sub> when the measurements are placed in ascending order. The rank based inverse normal transformation is defined as:
 
-$\\text{INT}(u\_{i}) = \\Phi^{-1}\\left\[\\frac{\\text{rank}(u\_{i})-c}{n-2c+1}\\right\]$
+$$\\text{INT}(u\_{i}) = \\Phi^{-1}\\left\[\\frac{\\text{rank}(u\_{i})-c}{n-2c+1}\\right\]$$
 
 Here *c* ∈ (0, 1/2) is an offset introduced to avoid mapping the sample maximum to infinity. By default, the Blom offset of *c* = 3/8 is adopted.
 
@@ -260,20 +273,20 @@ microbenchmark(RNOmni(y=Y[,1],G=H,X=X,S=S,method="Bootstrap",B=100),times=10);
 
     ## Unit: milliseconds
     ##                                                         expr      min
-    ##                         BAT(y = Y[, 1], G = H, X = X, S = S) 18.68251
-    ##                        DINT(y = Y[, 1], G = H, X = X, S = S) 19.43229
-    ##                       PIINT(y = Y[, 1], G = H, X = X, S = S) 15.76591
-    ##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "AvgCorr") 51.84492
-    ##        lq     mean   median       uq      max neval
-    ##  22.01618 24.98256 23.91224 25.77803 142.1829   100
-    ##  22.26741 26.20156 23.75484 25.22815 141.3134   100
-    ##  19.03877 21.64572 20.63114 21.94608 146.7832   100
-    ##  55.11337 58.67953 57.26397 59.51201 176.8381   100
+    ##                         BAT(y = Y[, 1], G = H, X = X, S = S) 17.96491
+    ##                        DINT(y = Y[, 1], G = H, X = X, S = S) 17.76045
+    ##                       PIINT(y = Y[, 1], G = H, X = X, S = S) 15.46678
+    ##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "AvgCorr") 48.01992
+    ##        lq     mean   median       uq       max neval
+    ##  22.27174 26.00299 24.00365 25.36300 142.18326   100
+    ##  21.85159 23.31715 23.54904 24.74035  29.52304   100
+    ##  18.03483 20.65275 19.58615 21.12839 129.42009   100
+    ##  54.96253 60.38687 57.44540 59.16179 172.63686   100
     ## Unit: seconds
     ##                                                                         expr
     ##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "Bootstrap",      B = 100)
     ##       min       lq     mean   median       uq      max neval
-    ##  4.174787 4.217793 4.261159 4.259056 4.296104 4.369615    10
+    ##  3.986817 4.168794 4.194092 4.204828 4.246222 4.288396    10
 
 #### Missingness
 

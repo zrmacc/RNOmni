@@ -385,10 +385,12 @@ PIINT = function(y,G,X,S,M=T,c=3/8){
 
 #' Average Correlation Estimate.
 #' 
-#' Estimate correlation using the average of qnorm(p1)*qnorm(p2) across loci, where 
+#' Estimate correlation using the average of qnorm(p1)*qnorm(p2) across loci, where
+#' (p1,p2) are p-values obtained via two different association tests. 
+#' 
 #' @param P1 Fist p-value.
 #' @param P2 Second p-value.
-#' @param eps Force correlation estimate to fall in (eps,1-eps);
+#' @param eps Force correlation estimate to fall in the interval (eps,1-eps);
 #' @importFrom stats qnorm
 
 AvgCorr = function(P1,P2,eps=1e-3){
@@ -479,13 +481,14 @@ Omni = function(Q){
 #' Details of the method are discussed below and in the vignette.
 #' 
 #' Assignment of a p-value to the omnibus statistic requires an estimate of the
-#' correlation between the test statistics provided by DINT and PIINT. When the
+#' correlation between the test statistics estimated by DINT and PIINT. When the
 #' sample size and number of loci are both large, and efficient estimate of the
 #' correlation is obtained by averaging across loci (\code{method="AvgCorr"}).
 #' When either the sample size or the number of loci is small, bootstrap
 #' (\code{method="Bootstrap"}) allows for locus specific correlation estimates.
 #' If using the bootstrap approach, consider registering a parallel backend and
-#' setting \code{parallel=T}.
+#' setting \code{parallel=T}. To manually provide an estimate of the correlation
+#' between the test statistics, set (\code{method="Manual"}) and specify (\code{set.rho}).
 #' 
 #' @export
 #' 
@@ -494,17 +497,21 @@ Omni = function(Q){
 #' @param X Obs by feature covariate matrix.
 #' @param S Obs by feature structure matrix.
 #' @param method Method used to estimate correlation for the omnibus test, 
-#'   either "AvgCorr" or "Bootstrap".
+#'   either "AvgCorr", "Bootstrap", or "Manual".
 #' @param M Apply missingness filter? See \code{\link{missFilter}}.
-#' @param c Offset applied during rank-normalization. See \code{\link{rankNormal}}.
-#' @param B Bootstrap samples for correlation estimation.
-#' @param rho Logical indicating whether to return the correlation parameter 
+#' @param c Offset applied during rank-normalization. See
+#'   \code{\link{rankNormal}}.
+#' @param B If using \code{method=="Bootstrap"}, number of bootstrap samples for
+#'   correlation estimation.
+#' @param set.rho If using \code{method=="Manual"}, the fixed value of rho,
+#'   either a single value or a vector of length==nrow(G);
+#' @param keep.rho Logical indicating whether to return the correlation parameter 
 #'   estimated during omnibus calculation. Defaults to FALSE.
 #' @param parallel Run bootstraps in parallel? Must register parallel backend
-#'   first.
-#' @return A numeric matrix with one row per locus, i.e. row, in the genotype
-#'   matrix, and three columns. The columns are p-values obtained by DINT,
-#'   PIINT, and the omnibus test.
+#' first.
+#' @return A numeric matrix with three columsn and one row per locus, i.e. row,
+#'   in the genotype matrix, and three columns. The columns are p-values
+#'   obtained by DINT, PIINT, and the omnibus test.
 #'   
 #' @examples
 #' # Omnibus test against normal phenotype using the average correlation method 
@@ -512,7 +519,7 @@ Omni = function(Q){
 #' # Omnibus test against normal phenotype using the bootstrap correlation method
 #' p = RNOmni::RNOmni(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S,method="Bootstrap");
 
-RNOmni = function(y,G,X,S,method="AvgCorr",M=T,c=3/8,B=100,rho=F,parallel=F){
+RNOmni = function(y,G,X,S,method="AvgCorr",M=T,c=3/8,B=100,set.rho,keep.rho=F,parallel=F){
   ## Check inputs
   Input = inCheck(y,G,X,S);
   if(Input$fail){stop("Input check failed.")};
@@ -535,20 +542,25 @@ RNOmni = function(y,G,X,S,method="AvgCorr",M=T,c=3/8,B=100,rho=F,parallel=F){
   # Dimension
   if(max(dim(G))>1e4){warning("Bootstrap correlation estimation will be time intensive for genotype matrices of this size.\n")}
   # Method selection
-  flag.m = (method %in% c("AvgCorr","Bootstrap"));
-  if(!flag.m){stop("Select 'AvgCorr' or 'Bootstrap' as the method for correlation estimation.")};
+  flag.m = (method %in% c("AvgCorr","Bootstrap","Manual"));
+  if(!flag.m){stop("Select 'AvgCorr', 'Bootstrap', or 'Manual' as the method for correlation estimation.")};
   
   ## Association testing
   # Calculate D-INT p-values
   P1 = suppressWarnings(DINT(y=y,G=G,X=X,S=S,M=F,c=c));
   # Calculate PI-INT p-values
   P2 = suppressWarnings(PIINT(y=y,G=G,X=X,S=S,M=F,c=c));
-  # Branch to average correlation or bootstrap method
+  # Specify correlation between z(DINT) and z(PIINT)
   if(method=="AvgCorr"){
+    # Obtain correlation by averaging across loci
     R = AvgCorr(P1=P1,P2=P2);
-  } else {
+  } else if(method=="Bootstrap") {
     # Obtain bootstrap correlation estimate
     R = BootCorr(y=y,G=G,X=X,S=S,B=B,parallel=parallel);
+  } else {
+    # Manually specify correlation
+    if(missing(set.rho)){stop("Provide a value for rho if using method=='Manual'.")}
+    R = set.rho;
   }
   # Matrix containing P1, P2, and their estimted correlation;
   Q = cbind(P1,P2,R);
@@ -557,7 +569,7 @@ RNOmni = function(y,G,X,S,method="AvgCorr",M=T,c=3/8,B=100,rho=F,parallel=F){
   # Output
   Out = cbind(P1,P2,POmni);
   colnames(Out) = c("DINT","PIINT","RNOmni");
-  if(rho){
+  if(keep.rho){
     Out = cbind(Out,R);
     colnames(Out)[4] = "Corr";
   }

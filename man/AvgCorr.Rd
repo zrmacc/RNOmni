@@ -11,8 +11,9 @@ AvgCorr(P1, P2, eps = 0.001)
 
 \item{P2}{Second p-value.}
 
-\item{eps}{Force correlation estimate to fall in (eps,1-eps);}
+\item{eps}{Force correlation estimate to fall in the interval (eps,1-eps);}
 }
 \description{
-Estimate correlation using the average of z1*z2 across loci.
+Estimate correlation using the average of qnorm(p1)*qnorm(p2) across loci, where
+(p1,p2) are p-values obtained via two different association tests.
 }
