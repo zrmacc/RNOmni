@@ -109,7 +109,7 @@ G =<span class="st"> </span>RNOmni::G;
 G[<span class="dv">1</span>:<span class="dv">6</span>,<span class="dv">1</span>:<span class="dv">6</span>];
 <span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>);
 <span class="kw">cat</span>(<span class="st">&quot;Sample Minor Allele Frequency</span><span class="ch">\n</span><span class="st">&quot;</span>);
-<span class="kw">summary</span>(<span class="kw">apply</span>(G,<span class="dt">MARGIN=</span><span class="dv">2</span>,<span class="dt">FUN=</span>mean)/<span class="dv">2</span>);
+<span class="kw">summary</span>(<span class="kw">apply</span>(G,<span class="dt">MARGIN=</span><span class="dv">1</span>,<span class="dt">FUN=</span>mean)/<span class="dv">2</span>);
 <span class="kw">cat</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>);
 <span class="kw">cat</span>(<span class="st">&quot;Phenotypes</span><span class="ch">\n</span><span class="st">&quot;</span>);
 Y =<span class="st"> </span>RNOmni::Y;
@@ -133,17 +133,17 @@ Y =<span class="st"> </span>RNOmni::Y;
 ## [6,] 10.92 -7.55
 ## 
 ## Genotype Matrix
-##      s1 s2 s3 s4 s5 s6
-## [1,]  0  0  0  1  0  0
-## [2,]  1  0  2  0  1  0
-## [3,]  0  0  0  1  1  0
-## [4,]  0  0  2  2  1  1
-## [5,]  2  1  0  2  1  1
-## [6,]  0  0  0  0  0  0
+##    s1 s2 s3 s4 s5 s6
+## g1  0  0  0  1  0  0
+## g2  1  0  2  0  1  0
+## g3  0  0  0  1  1  0
+## g4  2  2  0  0  1  1
+## g5  2  1  0  2  1  1
+## g6  0  0  0  0  0  0
 ## 
 ## Sample Minor Allele Frequency
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##  0.2295  0.3050  0.3225  0.3217  0.3390  0.4030 
+## 0.05000 0.09388 0.14725 0.18591 0.24213 0.50000 
 ## 
 ## Phenotypes
 ##        YN  YT3

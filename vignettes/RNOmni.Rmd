@@ -63,7 +63,7 @@ G = RNOmni::G;
 G[1:6,1:6];
 cat("\n");
 cat("Sample Minor Allele Frequency\n");
-summary(apply(G,MARGIN=2,FUN=mean)/2);
+summary(apply(G,MARGIN=1,FUN=mean)/2);
 cat("\n");
 cat("Phenotypes\n");
 Y = RNOmni::Y;
