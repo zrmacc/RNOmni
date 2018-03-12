@@ -4,7 +4,7 @@
 \alias{RNOmni}
 \title{Rank-Normal Omnibus Test}
 \usage{
-RNOmni(y, G, X, S, method = "AvgCorr", M = T, c = 3/8, B = 100, set.rho,
+RNOmni(y, G, X, S, method = "AvgCorr", k = 3/8, B = 100, set.rho,
   keep.rho = F, parallel = F)
 }
 \arguments{
@@ -19,9 +19,7 @@ RNOmni(y, G, X, S, method = "AvgCorr", M = T, c = 3/8, B = 100, set.rho,
 \item{method}{Method used to estimate correlation for the omnibus test, 
 either "AvgCorr", "Bootstrap", or "Manual".}
 
-\item{M}{Apply missingness filter? See \code{\link{missFilter}}.}
-
-\item{c}{Offset applied during rank-normalization. See
+\item{k}{Offset applied during rank-normalization. See
 \code{\link{rankNormal}}.}
 
 \item{B}{If using \code{method=="Bootstrap"}, number of bootstrap samples for

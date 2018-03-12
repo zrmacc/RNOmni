@@ -1,14 +1,14 @@
 #' Rank-Normalize
 #' 
-#' Applies the rank based inverse normal transform (INT) to a numeric vector.
-#' INT is indicated for continuous phenotypes lacking ties. See the vignette for
-#' the mathematical definition of INT.
+#' Applies the rank based inverse normal transform (INT) to a numeric vector. 
+#' INT is indicated for continuous outcomes. See the vignette for the
+#' definition of INT.
 #' 
 #' @importFrom stats qnorm
 #' @export
 #' 
 #' @param u Numeric vector.
-#' @param c Offset. Defaults to (3/8), correspond to the Blom transform.
+#' @param k Offset. Defaults to (3/8), correspond to the Blom transform.
 #' @return Numeric vector of rank normalized measurements.
 #'   
 #' @examples 
@@ -19,56 +19,18 @@
 #' # Plot density of transformed measurement
 #' plot(density(z));
 
-rankNormal = function(u,c=3/8){
+rankNormal = function(u,k=3/8){
   # Observations
   n = length(u);
   # Ranks
   r = rank(u);
   # Offset
-  c = 3/8;
+  k = 3/8;
   # Apply transformation
-  Out = (r-c)/(n-2*c+1);
+  Out = (r-k)/(n-2*k+1);
   Out = qnorm(Out);
   return(Out);
 };
-
-#' Missingness Filter
-#' 
-#' Function to adjust for missing data. Observations with phenotype or structure
-#' adjustments missing are removed. Missing covariates are imputed to the median
-#' of the observed values. An observation missing genotype information is
-#' excluded from association testing only at those loci where genotype is
-#' unobserved.
-#' 
-#' @importFrom stats median
-#' 
-#' @param y Numeric phenotype vector
-#' @param G Snp by obs genotype matrix.
-#' @param X Obs by feature covariate matrix.
-#' @param S Obs by feature structure matrix.
-
-
-missFilter = function(y,G,X,S){
-  # Impute missing X
-  aux = function(col){
-    col[is.na(col)] = median(col[!is.na(col)]);
-    return(col);
-  }
-  X = apply(X,MARGIN=2,FUN=aux);
-  # Subjects with y or S missing
-  ind.1 = is.na(y);
-  ind.2 = apply(S,MARGIN=1,FUN=function(row){sum(is.na(row))>0});
-  keep = !(ind.1|ind.2);
-  # Filtering
-  y.out = y[keep];
-  G.out = G[,keep,drop=F];
-  X.out = X[keep,];
-  S.out = S[keep,];
-  if(sum(keep)<length(y)){warning(sprintf("%i observations remain after missingness filter.\n",sum(keep)));}
-  # Output
-  Out = list("y"=y.out,"G"=G.out,"X"=X.out,"S"=S.out);
-  return(Out);
-}
 
 #' Input Check
 #' 
@@ -80,40 +42,52 @@ missFilter = function(y,G,X,S){
 #' @param S Obs by feature structure matrix.
 
 inCheck = function(y,G,X,S){
-  # Check phenotype
+  ## Function to check row for missingness
+  aux = function(x){sum(is.na(x))==0};
+  ## Check phenotype
+  # Ensure continuous phenotype is supplied
   flag.y = !(is.numeric(y)&is.vector(y));
   if(flag.y){
     warning("A numeric vector is required for y.");
   }
   n.y = length(y);
-  # Check genotype
-  flag.g = is.vector(G);
-  if(flag.g){
-    warning("A matrix is expected for G.");
+  # Check for missing values
+  keep = !is.na(y);
+  ## Check genotype
+  # Change to matrix if vector is supplied
+  if(is.vector(G)){
     G = matrix(G,nrow=1);
   }
   n.g = ncol(G);
-  # Check covariates
-  flag.x = is.vector(X);
-  if(flag.x){
-    warning("A matrix or data.frame is expected for X.");
+  ## Check covariates
+  # Change to data.frame if vector is supplied
+  if(is.vector(X)){
     X = data.frame(X);
   }
   n.x = nrow(X);
-  # Check structure matrix
-  flag.s = is.vector(S);
-  if(flag.s){
-    warning("A matrix or data.frame is expected for S.");
+  # Check for missing values
+  if(sum(is.na(X))>0){
+    keep = keep&apply(X,MARGIN=1,FUN=aux);
+    warning("Covariate matrix contains missing values.");
+  }
+  ## Check structure matrix
+  # Change to data.frame if vector is supplied
+  if(is.vector(S)){
     S = data.frame(S);
   }
   n.s = nrow(S);
+  # Check for missing values
+  if(sum(is.na(S))>0){
+    keep = keep&apply(X=S,MARGIN=1,FUN=aux);
+    warning("Structure matrix contains missing values.");
+  }
   # Dimensional consistency
   flag.d = !all.equal(n.y,n.g,n.x,n.s);
   if(flag.d){
     warning("Dimensions of inputs are inconsistent. Ensure length(y)=ncol(G)=nrow(X)=nrow(S).")
   }
   # Output
-  Out = list("fail"=flag.y|flag.d,"G"=G,"X"=X,"S"=S);
+  Out = list("fail"=flag.y|flag.d,"y"=y[keep],"G"=G[,keep,drop=F],"X"=X[keep,,drop=F],"S"=S[keep,,drop=F]);
   return(Out);
 }
 
@@ -130,7 +104,6 @@ inCheck = function(y,G,X,S){
 #' @param G Snp by obs genotype matrix.
 #' @param X Obs by feature covariate matrix.
 #' @param S Obs by feature structure matrix.
-#' @param M Apply missingness filter? See \code{\link{missFilter}}.
 #' @return A numeric vector of p-values assessing the null hypothesis of no 
 #'   genotypic effect. P-values are estimated using the Wald statistic, and 
 #'   correspond to the rows of G. 
@@ -139,21 +112,14 @@ inCheck = function(y,G,X,S){
 #' # BAT against normal phenotype
 #' p = RNOmni::BAT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 
-BAT = function(y,G,X,S,M=T){
+BAT = function(y,G,X,S){
   # Check inputs
   Input = inCheck(y,G,X,S);
   if(Input$fail){stop("Input check failed.")};
+  y = Input$y;
   G = Input$G;
   X = Input$X;
   S = Input$S;
-  # Missingness filter
-  if(M){
-    Miss = missFilter(y,G,X,S);
-    y = Miss[["y"]];
-    G = Miss[["G"]];
-    X = Miss[["X"]];
-    S = Miss[["S"]];
-  }
   # Design matrix
   D = cbind(X,S);
   D = model.matrix(~.,data=data.frame(D));
@@ -192,8 +158,7 @@ BAT = function(y,G,X,S,M=T){
 #' @param G Snp by obs genotype matrix.
 #' @param X Obs by feature covariate matrix.
 #' @param S Obs by feature structure matrix. 
-#' @param M Apply missingness filter? See \code{\link{missFilter}}.
-#' @param c Offset applied during rank-normalization. See \code{\link{rankNormal}}.
+#' @param k Offset applied during rank-normalization. See \code{\link{rankNormal}}.
 #' @return A numeric vector of p-values assessing the null hypothesis of no 
 #'   genotypic effect. P-values are estimated using the Wald statistic, and 
 #'   correspond to the rows of G. 
@@ -202,27 +167,20 @@ BAT = function(y,G,X,S,M=T){
 #' # DINT against normal phenotype 
 #' p = RNOmni::DINT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 
-DINT = function(y,G,X,S,M=T,c=3/8){
+DINT = function(y,G,X,S,k=3/8){
   # Check inputs
   Input = inCheck(y,G,X,S);
   if(Input$fail){stop("Input check failed.")};
+  y = Input$y;
   G = Input$G;
   X = Input$X;
   S = Input$S;
-  # Missingness filter
-  if(M){
-    Miss = missFilter(y,G,X,S);
-    y = Miss[["y"]];
-    G = Miss[["G"]];
-    X = Miss[["X"]];
-    S = Miss[["S"]];
-  }
   # Design matrix
   D = cbind(X,S);
   D = model.matrix(~.,data=data.frame(D));
   q = ncol(D);
   # Transform phenotype
-  y = rankNormal(y,c=c);
+  y = rankNormal(y,k=k);
   # Function to implement regression and calculate wald p-value
   getP = function(g){
     # Add genotype
@@ -246,7 +204,7 @@ DINT = function(y,G,X,S,M=T,c=3/8){
 
 #' Fully Indirect-INT
 #' 
-#' Two-stage regression procedure In the first stage, phenotype is regressed on 
+#' Two-stage regression procedure. In the first stage, phenotype is regressed on 
 #' covariates and adjustments for population structure to obtain residuals. In 
 #' the second stage, INT-transformed residuals are regressed on genotype.
 #' 
@@ -262,8 +220,7 @@ DINT = function(y,G,X,S,M=T,c=3/8){
 #' @param G Snp by obs genotype matrix.
 #' @param X Obs by feature covariate matrix.
 #' @param S Obs by feature structure matrix.
-#' @param M Apply missingness filter? See \code{\link{missFilter}}.
-#' @param c Offset applied during rank-normalization. See
+#' @param k Offset applied during rank-normalization. See
 #'   \code{\link{rankNormal}}.
 #' @return A numeric vector of p-values assessing the null hypothesis of no 
 #'   genotypic effect. P-values are estimated using the Wald statistic, and 
@@ -273,29 +230,22 @@ DINT = function(y,G,X,S,M=T,c=3/8){
 #' # FIINT against normal phenotype 
 #' p = RNOmni::FIINT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 
-FIINT = function(y,G,X,S,M=T,c=3/8){
-  warning("This function was included for simulation purposes, and was not found to provide valid inference.\n");
+FIINT = function(y,G,X,S,k=3/8){
+  warning("This function was included for simulation purposes only.\n");
   # Check inputs
   Input = inCheck(y,G,X,S);
   if(Input$fail){stop("Input check failed.")};
+  y = Input$y;
   G = Input$G;
   X = Input$X;
   S = Input$S;
-  # Missingness filter
-  if(M){
-    Miss = missFilter(y,G,X,S);
-    y = Miss[["y"]];
-    G = Miss[["G"]];
-    X = Miss[["X"]];
-    S = Miss[["S"]];
-  }
   # Design matrix
   D = cbind(X,S);
   D = model.matrix(~.,data=data.frame(D));
   # Residuals
   e = resid(RcppEigen::fastLmPure(X=D,y=y));
   # Transform
-  z = rankNormal(e,c=c);
+  z = rankNormal(e,k=k);
   # Function to implement regression and calculate wald p-value
   getP = function(g){
     # Add genotype
@@ -331,8 +281,7 @@ FIINT = function(y,G,X,S,M=T,c=3/8){
 #' @param G Snp by obs genotype matrix.
 #' @param X Obs by feature covariate matrix.
 #' @param S Obs by feature structure matrix.
-#' @param M Apply missingness filter? See \code{\link{missFilter}}.
-#' @param c Offset applied during rank-normalization. See \code{\link{rankNormal}}.
+#' @param k Offset applied during rank-normalization. See \code{\link{rankNormal}}.
 #' @return A numeric vector of p-values assessing the null hypothesis of no 
 #'   genotypic effect. P-values are estimated using the Wald statistic, and 
 #'   correspond to the rows of G. 
@@ -341,31 +290,26 @@ FIINT = function(y,G,X,S,M=T,c=3/8){
 #' # PIINT against normal phenotype
 #' p = RNOmni::PIINT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 
-PIINT = function(y,G,X,S,M=T,c=3/8){
+PIINT = function(y,G,X,S,k=3/8){
   # Check inputs
   Input = inCheck(y,G,X,S);
   if(Input$fail){stop("Input check failed.")};
+  y = Input$y;
   G = Input$G;
   X = Input$X;
   S = Input$S;
-  # Missingness filter
-  if(M){
-    Miss = missFilter(y,G,X,S);
-    y = Miss[["y"]];
-    G = Miss[["G"]];
-    X = Miss[["X"]];
-    S = Miss[["S"]];
-  }
-  # Design matrix
-  D = model.matrix(~.,data=data.frame(X));
+  # Covariate design
+  Dx = model.matrix(~.,data=data.frame(X));
   # Residuals
-  e = resid(RcppEigen::fastLmPure(X=D,y=y));
+  e = resid(RcppEigen::fastLmPure(X=Dx,y=y));
   # Transform
-  z = rankNormal(e,c=c);
+  z = rankNormal(e,k=k);
+  # Structure design
+  Ds = model.matrix(~0+.,data=data.frame(S));
   # Function to implement regression and calculate wald p-value
   getP = function(g){
     # Add genotype
-    Dg = cbind(1,g,S);
+    Dg = cbind(1,g,Ds);
     # Missing genotype
     keep = !is.na(g);
     z = z[keep];
@@ -398,8 +342,10 @@ AvgCorr = function(P1,P2,eps=1e-3){
   # Convert to z-scores
   z1 = -qnorm(P1);
   z2 = -qnorm(P2);
+  # Restrict to probable nulls
+  keep = (abs(z1)<=2)&(abs(z2)<=2);
   # Estimated correlation
-  r = mean(z1*z2);
+  r = mean(z1[keep]*z2[keep]);
   r = min(r,1-eps);
   r = max(r,eps);
   # Output
@@ -421,7 +367,6 @@ AvgCorr = function(P1,P2,eps=1e-3){
 #' @importFrom foreach "%dopar%" foreach registerDoSEQ
 #' @importFrom stats cor qnorm
 
-
 BootCorr = function(y,G,X,S,B=100,parallel){
   # Parallelize
   if(!parallel){foreach::registerDoSEQ()};
@@ -437,8 +382,8 @@ BootCorr = function(y,G,X,S,B=100,parallel){
     Xb = X[Draw,];
     Sb = S[Draw,];
     # Calculate z-statistics
-    z1 = -qnorm(DINT(y=yb,G=G,X=Xb,S=Sb,M=F));
-    z2 = -qnorm(PIINT(y=yb,G=G,X=Xb,S=Sb,M=F));
+    z1 = -qnorm(DINT(y=yb,G=G,X=Xb,S=Sb));
+    z2 = -qnorm(PIINT(y=yb,G=G,X=Xb,S=Sb));
     return(cbind(z1,z2));
   }
   # Calculate correlation
@@ -455,6 +400,8 @@ BootCorr = function(y,G,X,S,B=100,parallel){
 #' estimated p-values, and rho is their correlation. 
 #' @importFrom stats qnorm
 #' @importFrom mvtnorm pmvnorm
+#' 
+#' @export
 
 # Calculate p for omnibus statistic
 Omni = function(Q){
@@ -498,8 +445,7 @@ Omni = function(Q){
 #' @param S Obs by feature structure matrix.
 #' @param method Method used to estimate correlation for the omnibus test, 
 #'   either "AvgCorr", "Bootstrap", or "Manual".
-#' @param M Apply missingness filter? See \code{\link{missFilter}}.
-#' @param c Offset applied during rank-normalization. See
+#' @param k Offset applied during rank-normalization. See
 #'   \code{\link{rankNormal}}.
 #' @param B If using \code{method=="Bootstrap"}, number of bootstrap samples for
 #'   correlation estimation.
@@ -519,26 +465,16 @@ Omni = function(Q){
 #' # Omnibus test against normal phenotype using the bootstrap correlation method
 #' p = RNOmni::RNOmni(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S,method="Bootstrap");
 
-RNOmni = function(y,G,X,S,method="AvgCorr",M=T,c=3/8,B=100,set.rho,keep.rho=F,parallel=F){
+RNOmni = function(y,G,X,S,method="AvgCorr",k=3/8,B=100,set.rho,keep.rho=F,parallel=F){
   ## Check inputs
   Input = inCheck(y,G,X,S);
   if(Input$fail){stop("Input check failed.")};
+  y = Input$y;
   G = Input$G;
   X = Input$X;
   S = Input$S;
   
-  ## Missingness Filter 
-   if(M){
-    Miss = missFilter(y,G,X,S);
-    y = Miss[["y"]];
-    G = Miss[["G"]];
-    X = Miss[["X"]];
-    S = Miss[["S"]];
-  };
-  
   ## Additional input checks
-  # Ties
-  if(sum(duplicated(y))>0){warning("Rank normal transformation is not adapted for data with ties.\n")}
   # Dimension
   if(max(dim(G))>1e4){warning("Bootstrap correlation estimation will be time intensive for genotype matrices of this size.\n")}
   # Method selection
@@ -547,9 +483,9 @@ RNOmni = function(y,G,X,S,method="AvgCorr",M=T,c=3/8,B=100,set.rho,keep.rho=F,pa
   
   ## Association testing
   # Calculate D-INT p-values
-  P1 = suppressWarnings(DINT(y=y,G=G,X=X,S=S,M=F,c=c));
+  P1 = suppressWarnings(DINT(y=y,G=G,X=X,S=S,k=k));
   # Calculate PI-INT p-values
-  P2 = suppressWarnings(PIINT(y=y,G=G,X=X,S=S,M=F,c=c));
+  P2 = suppressWarnings(PIINT(y=y,G=G,X=X,S=S,k=k));
   # Specify correlation between z(DINT) and z(PIINT)
   if(method=="AvgCorr"){
     # Obtain correlation by averaging across loci

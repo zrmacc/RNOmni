@@ -1,7 +1,7 @@
 README
 ================
 Zachary McCaw
-11/16/2017
+02/19/2018
 
 Purpose
 =======
@@ -12,7 +12,7 @@ Package Vignette
 ================
 
 Contents
---------
+========
 
 -   [Motivating Example](#motivating-example)
 -   [Rank Normal Omnibus Test](#omnibus-association-test)
@@ -21,9 +21,9 @@ Contents
 -   [Additional Details](#additional-details)
 
 Motivating Example
-------------------
+==================
 
-Motivation for investigating the rank based inverse normal transformation (INT) came from the study of obstructive sleep apnea (OSA). The gold standard measurement for diagnosing OSA is the apnea hypopnea index (AHI), a continuous, positively skewed trait with a distribution that resembles *χ*<sup>2</sup>. The residuals obtained by regressing AHI on genotype and covariates are often non-normal, and application of standard association tests leads to an excess of false positive associations, i.e. inflated type I error. To counteract departures from normality, INT transformation of AHI prior to genetic association testing has been proposed. As demonstrated in the following figure, INT of a continuous measurement causes the distribution of that measurement in the sample to appear normal.
+Our motivation for investigating the rank based inverse normal transformation (INT) came from the study of obstructive sleep apnea (OSA). The gold standard measurement for diagnosing OSA is the apnea hypopnea index (AHI), a continuous, positively skewed trait with a distribution that resembles *χ*<sup>2</sup>. The residuals obtained by regressing AHI on genotype and covariates are often non-normal, and application of standard association tests leads to an excess of false positive associations, i.e. inflated type I error. To counteract departures from normality, INT transformation of AHI prior to genetic association testing has been proposed. As demonstrated in the following figure, INT of a continuous measurement causes the distribution of that measurement to appear normal within the sample.
 
 ``` r
 # Chi-1 data
@@ -34,12 +34,12 @@ z = RNOmni::rankNormal(y);
 
 <img src="README_files/figure-markdown_github-ascii_identifiers/A01-1.png" style="display: block; margin: auto;" />
 
-#### Simulated Data
+Simulated Data
+--------------
 
 Within `RNOmni`, simulated data is available for 10<sup>3</sup> subjects. Covariates include `Age` and `Sex`. Structure adjustments include the first two principal components, `pc1` and `pc2`, of the centered and scaled subject by locus genotype matrix. Genotypes at 10<sup>3</sup> loci on chromosome one are also included. All loci are common, with sample minor allele frequency falling in the range \[0.05, 0.50\]. Two independent phenotypes were generated under the null hypothesis of no genotypic effect. `YN` has normally distributed residuals, while `YT3` has heavy tailed residuals from a *t*<sub>3</sub> distribution. The residual distributions were scaled to have unit variance.
 
 ``` r
-library(RNOmni);
 ## Example data
 X = RNOmni::X;
 cat("Covariates\n");
@@ -62,16 +62,16 @@ round(head(Y),digits=2);
 ```
 
     ## Covariates
-    ##          a s
-    ## [1,] 48.33 0
-    ## [2,] 45.02 1
-    ## [3,] 52.74 1
-    ## [4,] 50.27 0
-    ## [5,] 50.91 1
-    ## [6,] 48.08 1
+    ##        Age Sex
+    ## [1,] 48.33   0
+    ## [2,] 45.02   1
+    ## [3,] 52.74   1
+    ## [4,] 50.27   0
+    ## [5,] 50.91   1
+    ## [6,] 48.08   1
     ## 
     ## Structure Adjustments
-    ##        pc1   pc2
+    ##        PC1   PC2
     ## [1,] -1.90 11.54
     ## [2,]  5.43 -1.75
     ## [3,] 16.76 -3.23
@@ -101,7 +101,8 @@ round(head(Y),digits=2);
     ## [5,] 3.79 4.39
     ## [6,] 3.78 3.54
 
-#### Normal QQ Plots for Phenotypic Residuals
+Normal QQ Plots for Phenotypic Residuals
+----------------------------------------
 
 The following quantile-quantile (QQ) plots demonstrate the effect of INT on model residuals. In blue are the residuals for standard linear regression of the normal phenotype on covariates *X* and structure adjustments *S*. In dark green are the residual for standard linear regression of the *t*<sub>3</sub> phenotype on *X* and *S*. The heavier tails of the *t*<sub>3</sub> distribution are evidenced by the departures of the observed quantiles from their expectations away from the origin.
 
@@ -197,11 +198,12 @@ Since the phenotype was simulated under the null hypothesis of no genotypic effe
     ## 4        T3 Bootstrap 0.063 0.048 0.078
 
 Additional Association Tests
-----------------------------
+============================
 
 In addition to the omnibus test, three genetic association tests are implemented as part of `RNOmni`. These are the basic association test `BAT`, the direct INT method `DINT`, and the partially indirect INT method `PIINT`.
 
-#### Basic Association Test
+Basic Association Test
+----------------------
 
 `BAT` regresses the untransformed phenotype *y* on genotype at each locus in *G*, adjusting for covariates *X* and population structure *S*. A *p*-value assessing the null hypothesis of no genotypic effect is estimated using the Wald statistic. The output is a numeric vector, with one *p*-value per row of *G*.
 
@@ -214,7 +216,8 @@ round(head(p1.bat),digits=3);
     ##    g1    g2    g3    g4    g5    g6 
     ## 0.679 0.737 0.165 0.901 0.477 0.568
 
-#### Direct Inverse Normal Transformation
+Direct Inverse Normal Transformation
+------------------------------------
 
 `DINT` regresses the transformed phenotype INT(*y*) on genotype at each locus in *G*, adjusting for covariates *X* and population structure *S*. A *p*-value assessing the null hypothesis of no genotypic effect is estimated via the Wald statistic. The output is a numeric vector, with one *p*-value per row of *G*.
 
@@ -227,7 +230,8 @@ round(head(p1.dint),digits=3);
     ##    g1    g2    g3    g4    g5    g6 
     ## 0.626 0.727 0.165 0.866 0.469 0.584
 
-#### Partially Indirect Inverse Normal Transformation
+Partially Indirect Inverse Normal Transformation
+------------------------------------------------
 
 `PIINT` implements a two-stage association test. In the first stage, the untransformed phenotype *y* is regressed on covariates *X* to obtain residuals *e*. In the second stage, the transformed residuals INT(*e*) are regressed on genotype at each locus in *G*, adjusting for population structure *S*. A *p*-value assessing the null hypothesis of no genotypic effect is estimated via the Wald statistic. The output is a numeric vector, with one *p*-value per row of *G*.
 
@@ -243,92 +247,32 @@ round(head(p1.piint),digits=3);
 In naming `PIINT`, "indirect" refers to the fact that residuals are formed prior to INT, rather than directly transforming the phenotype. "Partially" refers to the fact that residuals are formed w.r.t. covariates *X*, but not structure adjustments *S*. Performance of a fully indirect association test, in which *y* is regressed on both *X* and *S* during residual formation, was investigated. The fully indirect association test did not consistently provide valid inference.
 
 Comparison of Association Tests
--------------------------------
+===============================
 
 The following figure depicts the estimated type I error for association tests against the normal and *t*<sub>3</sub> phenotypes at *α* level 0.05. Point estimates are obtained by averaging an indicator of rejection, and the error bars provide 95% confidence intervals. Although all methods perform comparable against the normal phenotype, the false positive rate is inflated when the basic association approach is applied in the presence of heavy tailed *t*<sub>3</sub> residuals. This problem is exacerbated when considering increasingly small *α* levels.
 
 <img src="README_files/figure-markdown_github-ascii_identifiers/C05-1.png" style="display: block; margin: auto;" />
 
-Additional Details
-------------------
+Additional Notes
+================
 
-#### Definition of the Rank Based Inverse Normal Transformation
+Definition of the Rank Based Inverse Normal Transformation
+----------------------------------------------------------
 
 Suppose a continuous measurement is available for each of *n* subjects. Let *u*<sub>*i*</sub> denote the measurement for the *i*th subject, and let rank(*u*<sub>*i*</sub>) denote the sample rank of *u*<sub>*i*</sub> when the measurements are placed in ascending order. The rank based inverse normal transformation is defined as:
 
 $$
-\\text{INT}(u\_{i}) = \\Phi^{-1}\\left\[\\frac{\\text{rank}(u\_{i})-c}{n-2c+1}\\right\] 
+\\text{INT}(u\_{i}) = \\Phi^{-1}\\left\[\\frac{\\text{rank}(u\_{i})-k}{n-2k+1}\\right\] 
 $$
 
-Here *c* ∈ (0, 1/2) is an offset introduced to avoid mapping the sample maximum to infinity. By default, the Blom offset of *c* = 3/8 is adopted.
+Here *k* ∈ (0, 1/2) is an offset introduced to avoid mapping the sample maximum to infinity. By default, the Blom offset of *k* = 3/8 is adopted.
 
-#### Run Time
+Run Time
+--------
 
-During package development, the `BAT`, `DINT`, and `PIINT` each took a median of 25 to 30 ms to perform 10<sup>2</sup> association tests for 10<sup>3</sup> subjects. `RNOmni` using average correlation, which internally performs both `DINT` and `PIINT`, required a median of 65 to 70 ms. Using bootstrap to calculate position specific correlations increased the run time of `RNOmni` by a factor of 9 to 10 while running 12 cores in parallel. Using `RNOmni` with the `parallel=T` option is advised if using the bootstrap approach.
+During package development, the `BAT`, `DINT`, and `PIINT` each took a median of between 19 to 21 ms to perform 10<sup>2</sup> association tests for 10<sup>3</sup> subjects. `RNOmni` using average correlation, which internally performs both `DINT` and `PIINT`, required a median of between 55 and 60 ms. Using bootstrap to calculate position specific correlations increased the run time of `RNOmni` by a factor of 9 to 10 while running 4 cores in parallel. Using `RNOmni` with the `parallel=T` option is advised if using the bootstrap approach.
 
-``` r
-# Subset to 100 loci
-H = G[1:100,];
-# Time performance
-library(microbenchmark);
-microbenchmark(BAT(y=Y[,1],G=H,X=X,S=S),DINT(y=Y[,1],G=H,X=X,S=S),PIINT(y=Y[,1],G=H,X=X,S=S),
-               RNOmni(y=Y[,1],G=H,X=X,S=S,method="AvgCorr"));
-microbenchmark(RNOmni(y=Y[,1],G=H,X=X,S=S,method="Bootstrap",B=100),times=10);
-```
+Missingness
+-----------
 
-    ## Unit: milliseconds
-    ##                                                         expr      min
-    ##                         BAT(y = Y[, 1], G = H, X = X, S = S) 19.48628
-    ##                        DINT(y = Y[, 1], G = H, X = X, S = S) 19.43933
-    ##                       PIINT(y = Y[, 1], G = H, X = X, S = S) 16.30840
-    ##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "AvgCorr") 49.11519
-    ##        lq     mean   median       uq       max neval
-    ##  21.44610 24.23822 24.19614 26.35263  32.80510   100
-    ##  21.94789 26.15128 24.74743 27.37416 156.41238   100
-    ##  17.99279 22.24372 19.94440 23.41549 161.05782   100
-    ##  56.02696 58.89163 59.28364 61.51094  66.42577   100
-    ## Unit: seconds
-    ##                                                                         expr
-    ##  RNOmni(y = Y[, 1], G = H, X = X, S = S, method = "Bootstrap",      B = 100)
-    ##       min       lq     mean   median       uq      max neval
-    ##  4.062214 4.105315 4.159442 4.170018 4.204752 4.237462    10
-
-#### Missingness
-
-Observations missing either the phenotype *y* or the the structure adjustments *S* are excluded. Missing covariates *X* are imputed to the median of the observed values. An observation missing genotype information *G* is excluded from association testing only at those loci were genotype is unobserved.
-
-``` r
-# Introduce Missingness
-y.m = Y[,1];
-y.m[sample(length(y.m),size=10,replace=F)] = NA;
-G.m = G;
-G.m[sample(length(G.m),size=10000,replace=F)] = NA;
-X.m = X;
-X.m[sample(length(X.m),size=100,replace=F)] = NA;
-S.m = S;
-S.m[sample(length(S.m),size=10,replace=F)] = NA;
-# Association Testing after Missingness
-pm.bat = RNOmni::BAT(y=y.m,G=G.m,X=X.m,S=S.m);
-pm.dint = RNOmni::DINT(y=y.m,G=G.m,X=X.m,S=S.m);
-pm.piint = RNOmni::PIINT(y=y.m,G=G.m,X=X.m,S=S.m);
-pm.omni.avg = RNOmni::RNOmni(y=y.m,G=G.m,X=X.m,S=S.m);
-pm.omni.boot = RNOmni::RNOmni(y=y.m,G=G.m,X=X.m,S=S.m,method="Bootstrap",B=100);
-```
-
-Below, size estimates for the normal phenotype in the absence and presence of missingness are tabulated:
-
-    ## Normal Phenotype in the Absence of Missingness, Combined Results
-    ##         Method  Size     L     U
-    ## 1          BAT 0.052 0.038 0.066
-    ## 2         DINT 0.061 0.046 0.076
-    ## 3        PIINT 0.056 0.041 0.071
-    ## 4 Omni.AvgCorr 0.038 0.026 0.050
-    ## 5    Omni.Boot 0.052 0.038 0.066
-    ## 
-    ## Normal Phenotype in the Presence of Missingness, Combined Results
-    ##      Method  Size     L     U
-    ## 1       BAT 0.035 0.023 0.047
-    ## 2      DINT 0.041 0.028 0.054
-    ## 3     PIINT 0.042 0.029 0.055
-    ## 4  Omni.Avg 0.025 0.015 0.035
-    ## 5 Omni.Boot 0.033 0.022 0.044
+Observations are excluded from association testing if any of the phenotype *y*, the covariates *X*, or the structure adjustments *S* are missing. An observation missing genotype data *G* is excluded from association testing only at those loci were the genotype is missing.

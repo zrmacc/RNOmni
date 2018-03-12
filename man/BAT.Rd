@@ -4,7 +4,7 @@
 \alias{BAT}
 \title{Basic Association Test}
 \usage{
-BAT(y, G, X, S, M = T)
+BAT(y, G, X, S)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -14,8 +14,6 @@ BAT(y, G, X, S, M = T)
 \item{X}{Obs by feature covariate matrix.}
 
 \item{S}{Obs by feature structure matrix.}
-
-\item{M}{Apply missingness filter? See \code{\link{missFilter}}.}
 }
 \value{
 A numeric vector of p-values assessing the null hypothesis of no 

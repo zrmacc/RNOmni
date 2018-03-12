@@ -4,7 +4,7 @@
 \alias{FIINT}
 \title{Fully Indirect-INT}
 \usage{
-FIINT(y, G, X, S, M = T, c = 3/8)
+FIINT(y, G, X, S, k = 3/8)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -15,9 +15,7 @@ FIINT(y, G, X, S, M = T, c = 3/8)
 
 \item{S}{Obs by feature structure matrix.}
 
-\item{M}{Apply missingness filter? See \code{\link{missFilter}}.}
-
-\item{c}{Offset applied during rank-normalization. See
+\item{k}{Offset applied during rank-normalization. See
 \code{\link{rankNormal}}.}
 }
 \value{
@@ -26,7 +24,7 @@ A numeric vector of p-values assessing the null hypothesis of no
   correspond to the rows of G.
 }
 \description{
-Two-stage regression procedure In the first stage, phenotype is regressed on 
+Two-stage regression procedure. In the first stage, phenotype is regressed on 
 covariates and adjustments for population structure to obtain residuals. In 
 the second stage, INT-transformed residuals are regressed on genotype.
 }

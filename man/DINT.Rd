@@ -4,7 +4,7 @@
 \alias{DINT}
 \title{Direct-INT}
 \usage{
-DINT(y, G, X, S, M = T, c = 3/8)
+DINT(y, G, X, S, k = 3/8)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -15,9 +15,7 @@ DINT(y, G, X, S, M = T, c = 3/8)
 
 \item{S}{Obs by feature structure matrix.}
 
-\item{M}{Apply missingness filter? See \code{\link{missFilter}}.}
-
-\item{c}{Offset applied during rank-normalization. See \code{\link{rankNormal}}.}
+\item{k}{Offset applied during rank-normalization. See \code{\link{rankNormal}}.}
 }
 \value{
 A numeric vector of p-values assessing the null hypothesis of no 

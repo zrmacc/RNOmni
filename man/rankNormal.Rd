@@ -4,20 +4,20 @@
 \alias{rankNormal}
 \title{Rank-Normalize}
 \usage{
-rankNormal(u, c = 3/8)
+rankNormal(u, k = 3/8)
 }
 \arguments{
 \item{u}{Numeric vector.}
 
-\item{c}{Offset. Defaults to (3/8), correspond to the Blom transform.}
+\item{k}{Offset. Defaults to (3/8), correspond to the Blom transform.}
 }
 \value{
 Numeric vector of rank normalized measurements.
 }
 \description{
-Applies the rank based inverse normal transform (INT) to a numeric vector.
-INT is indicated for continuous phenotypes lacking ties. See the vignette for
-the mathematical definition of INT.
+Applies the rank based inverse normal transform (INT) to a numeric vector. 
+INT is indicated for continuous outcomes. See the vignette for the
+definition of INT.
 }
 \examples{
 # Draw from chi-1 distribution
