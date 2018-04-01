@@ -4,7 +4,7 @@
 \name{S}
 \alias{S}
 \title{Population Structure Adjustments}
-\format{A numeric matrix with 1000 rows and 2 columns
+\format{A numeric matrix with 1000 rows and 2 columns.
 \describe{
    \item{pc1}{The first principal component.}
    \item{pc2}{The second principal component.}
@@ -13,8 +13,8 @@
 S
 }
 \description{
-First two principal components of the centered and scaled subject by locus 
-genotype matrix. Note that principal components were calculated using
-genotype at more loci than are provided in the example data set.
+First two principal components of the genetic relatedness matrix. Note that
+principal components were calculated using genotype at more loci than are
+provided in the example data set.
 }
 \keyword{datasets}

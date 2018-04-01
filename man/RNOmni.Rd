@@ -5,57 +5,62 @@
 \title{Rank-Normal Omnibus Test}
 \usage{
 RNOmni(y, G, X, S, method = "AvgCorr", k = 3/8, B = 100, set.rho,
-  keep.rho = F, parallel = F)
+  keep.rho = F, keep.stats = F, parallel = F)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Snp by obs genotype matrix.}
+\item{G}{Numeric snp by obs genotype matrix.}
 
-\item{X}{Obs by feature covariate matrix.}
+\item{X}{Numeric obs by feature covariate matrix.}
 
-\item{S}{Obs by feature structure matrix.}
+\item{S}{Numeric obs by feature structure matrix.}
 
 \item{method}{Method used to estimate correlation for the omnibus test, 
 either "AvgCorr", "Bootstrap", or "Manual".}
 
-\item{k}{Offset applied during rank-normalization. See
+\item{k}{Offset applied during rank-normalization. See 
 \code{\link{rankNormal}}.}
 
 \item{B}{If using \code{method=="Bootstrap"}, number of bootstrap samples for
 correlation estimation.}
 
-\item{set.rho}{If using \code{method=="Manual"}, the fixed value of rho,
+\item{set.rho}{If using \code{method=="Manual"}, the fixed value of rho, 
 either a single value or a vector of length==nrow(G);}
 
-\item{keep.rho}{Logical indicating whether to return the correlation parameter 
-estimated during omnibus calculation. Defaults to FALSE.}
+\item{keep.rho}{Logical indicating whether to return the correlation 
+parameter estimated during omnibus calculation. Defaults to FALSE.}
 
-\item{parallel}{Run bootstraps in parallel? Must register parallel backend
-first.}
+\item{keep.stats}{Logical indicating whether to return the interim test 
+statistics calculated by DINT and IINT. Defaults to FALSE.}
+
+\item{parallel}{Logical indicating whether to run in parallel. Must register
+parallel backend first.}
 }
 \value{
-A numeric matrix with three columsn and one row per locus, i.e. row,
-  in the genotype matrix, and three columns. The columns are p-values
-  obtained by DINT, PIINT, and the omnibus test.
+A numeric matrix with three columsn and one row per locus, i.e. row, 
+  in the genotype matrix, and three columns. The columns are p-values 
+  obtained by D-INT, IINT, and the omnibus test.
 }
 \description{
-Omnibus association test that synthesizes the \code{\link{DINT}} and
-\code{\link{PIINT}} approaches. In the omnibus test, both DINT and PIINT are
-applied. An omnibus statistic is calculated based on whichever approach
-provides more evidence against the null hypothesis of no genotypic effect.
-Details of the method are discussed below and in the vignette.
+Adaptive association test that synthesizes the \code{\link{DINT}} and 
+\code{\link{IINT}} approaches. First, the direct and indirect INT based 
+association tests are applied. An omnibus statistic is calculated based on 
+whichever approach provides more evidence against the null hypothesis of no 
+genotypic effect. Details of the method are discussed in the vignette.
 }
 \details{
-Assignment of a p-value to the omnibus statistic requires an estimate of the
-correlation between the test statistics estimated by DINT and PIINT. When the
-sample size and number of loci are both large, and efficient estimate of the
-correlation is obtained by averaging across loci (\code{method="AvgCorr"}).
-When either the sample size or the number of loci is small, bootstrap
-(\code{method="Bootstrap"}) allows for locus specific correlation estimates.
-If using the bootstrap approach, consider registering a parallel backend and
-setting \code{parallel=T}. To manually provide an estimate of the correlation
-between the test statistics, set (\code{method="Manual"}) and specify (\code{set.rho}).
+Assigning a p-value to the omnibus statistic requires estimation of the 
+correlation between the test statistics estimated by \code{DINT} and 
+\code{IINT}. When many loci are under consideration, a computationally 
+efficient approach is to take the correlation of the observed test statistics
+across loci (\code{method="AvgCorr"}). Alternatively, when there are fewer 
+loci, or locus specific estimates are desired, the correlation may be 
+estimated using bootstrap (\code{method="Bootstrap"}). When using the 
+bootstrap approach, consider registering a parallel backend and setting 
+\code{parallel=T}. To manually provide an estimate of the correlation between
+the test statistics, set (\code{method="Manual"}) and specify 
+(\code{set.rho}).
 }
 \examples{
 # Omnibus test against normal phenotype using the average correlation method 

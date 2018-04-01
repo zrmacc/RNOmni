@@ -4,14 +4,14 @@
 \alias{AvgCorr}
 \title{Average Correlation Estimate.}
 \usage{
-AvgCorr(P1, P2, eps = 0.001)
+AvgCorr(p1, p2, a = 0.001)
 }
 \arguments{
-\item{P1}{Fist p-value.}
+\item{p1}{Fist p-value.}
 
-\item{P2}{Second p-value.}
+\item{p2}{Second p-value.}
 
-\item{eps}{Force correlation estimate to fall in the interval (eps,1-eps);}
+\item{a}{Force correlation estimate to fall in the interval (a,1-a);}
 }
 \description{
 Estimate correlation using the average of qnorm(p1)*qnorm(p2) across loci, where

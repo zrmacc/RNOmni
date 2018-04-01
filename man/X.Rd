@@ -4,10 +4,10 @@
 \name{X}
 \alias{X}
 \title{Simulated Covariates}
-\format{A numeric matrix with 1000 rows and 2 columns
+\format{A numeric matrix with 1000 rows and 2 columns.
 \describe{
    \item{Age}{Age.}
-,,,\item{Sex}{Sex.}
+   \item{Sex}{Sex.}
 }}
 \usage{
 X

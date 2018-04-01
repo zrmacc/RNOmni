@@ -4,7 +4,7 @@
 \alias{BootCorr}
 \title{Bootstrap Correlation Estimate.}
 \usage{
-BootCorr(y, G, X, S, B = 100, parallel)
+BootCorr(y, G, X, S, k = 3/8, B = 100, parallel)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -14,6 +14,9 @@ BootCorr(y, G, X, S, B = 100, parallel)
 \item{X}{Obs by feature covariate matrix.}
 
 \item{S}{Obs by feature structure matrix.}
+
+\item{k}{Offset applied during rank-normalization. See
+\code{\link{rankNormal}}.}
 
 \item{B}{Bootstrap samples for correlation estimation.}
 

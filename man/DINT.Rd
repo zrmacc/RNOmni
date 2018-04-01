@@ -4,29 +4,35 @@
 \alias{DINT}
 \title{Direct-INT}
 \usage{
-DINT(y, G, X, S, k = 3/8)
+DINT(y, G, X, S, calcP = T, k = 3/8, parallel = F)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Snp by obs genotype matrix.}
+\item{G}{Numeric Snp by obs genotype matrix.}
 
-\item{X}{Obs by feature covariate matrix.}
+\item{X}{Numeric Obs by feature covariate matrix.}
 
-\item{S}{Obs by feature structure matrix.}
+\item{S}{Numeric Obs by feature structure matrix.}
 
-\item{k}{Offset applied during rank-normalization. See \code{\link{rankNormal}}.}
+\item{calcP}{Logical indicating that p values should be calculated.}
+
+\item{k}{Offset applied during rank-normalization. See 
+\code{\link{rankNormal}}.}
+
+\item{parallel}{Logical indicating whether to run in parallel. Must register
+parallel backend first.}
 }
 \value{
-A numeric vector of p-values assessing the null hypothesis of no 
-  genotypic effect. P-values are estimated using the Wald statistic, and 
-  correspond to the rows of G.
+A numeric matrix of score statistics, one for each locus (row) in \code{G},
+  assessing the null hypothesis that genotype is unrelated to the outcome. If
+  \code{p=T}, a p-value is additionally calculated for each locus.
 }
 \description{
-Rank-normalizes the phenotype, then regresses the transformed phenotype on
-genotype, covariates, and adjustments for population structure.
+Tests for association between genotype and the rank normalized phenotype, 
+adjusting for covariates and population structure.
 }
 \examples{
-# DINT against normal phenotype 
+# Direct INT on the normal phenotype 
 p = RNOmni::DINT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 }

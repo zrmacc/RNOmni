@@ -4,25 +4,30 @@
 \alias{BAT}
 \title{Basic Association Test}
 \usage{
-BAT(y, G, X, S)
+BAT(y, G, X, S, calcP = T, parallel = F)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Snp by obs genotype matrix.}
+\item{G}{Numeric snp by obs genotype matrix.}
 
-\item{X}{Obs by feature covariate matrix.}
+\item{X}{Numeric obs by feature covariate matrix.}
 
-\item{S}{Obs by feature structure matrix.}
+\item{S}{Numeric obs by feature structure matrix.}
+
+\item{calcP}{Logical indicating that p values should be calculated.}
+
+\item{parallel}{Logical indicating whether to run in parallel. Must register
+parallel backend first.}
 }
 \value{
-A numeric vector of p-values assessing the null hypothesis of no 
-  genotypic effect. P-values are estimated using the Wald statistic, and 
-  correspond to the rows of G.
+A numeric matrix of score statistics, one for each locus (row) in \code{G},
+  assessing the null hypothesis that genotype is unrelated to the outcome. If
+  \code{p=T}, a p-value is additionally calculated for each locus.
 }
 \description{
-Regression of the untransformed phenotype on genotype, covariates, and 
-adjustments for population structure.
+Tests the association between genotype and the untransformed phenotype, 
+adjusting for covariates and population structure.
 }
 \examples{
 # BAT against normal phenotype
