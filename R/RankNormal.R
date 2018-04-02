@@ -391,6 +391,7 @@ OmniP = function(Q){
   C = matrix(c(1,r,r,1),ncol=2,byrow=T);
   # P-value
   p.omni = 1 - mvtnorm::pmvnorm(upper=c(omni,omni),corr=C)[1];
+  if(p.omni==0){p.omni=1e-16};
   # Output
   Out = c(omni,p.omni);
   return(Out)
@@ -442,10 +443,14 @@ OmniP = function(Q){
 #'   obtained by D-INT, IINT, and the omnibus test.
 #' 
 #' @examples
+#' y = RNOmni::Y[,1];
+#' Gsub = RNOmni::G[1:10,];
+#' X = RNOmni::X;
+#' S = RNOmni::S;
 #' # Omnibus test against normal phenotype using the average correlation method 
-#' p = RNOmni::RNOmni(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S,method="AvgCorr");
+#' p = RNOmni::RNOmni(y=y,G=Gsub,X=X,S=S,method="AvgCorr");
 #' # Omnibus test against normal phenotype using the bootstrap correlation method
-#' p = RNOmni::RNOmni(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S,method="Bootstrap");
+#' p = RNOmni::RNOmni(y=y,G=Gsub,X=X,S=S,method="Bootstrap",B=10);
 
 RNOmni = function(y,G,X,S,method="AvgCorr",k=3/8,B=100,set.rho,keep.rho=F,keep.stats=F,parallel=F){
   ## Check inputs
@@ -455,10 +460,10 @@ RNOmni = function(y,G,X,S,method="AvgCorr",k=3/8,B=100,set.rho,keep.rho=F,keep.s
   G = Input$G;
   X = Input$X;
   S = Input$S;
-  
   ## Additional input checks
-  # Dimension
-  if(max(dim(G))>1e4){warning("Bootstrap correlation estimation will be time intensive for genotype matrices of this size.\n")}
+  # Dimension check
+  ng = nrow(G);
+  if(ng<10 & method=="AvgCorr"){stop("Average correlation is not applicable to this few loci.")};
   # Method selection
   flag.m = (method %in% c("AvgCorr","Bootstrap","Manual"));
   if(!flag.m){stop("Select 'AvgCorr', 'Bootstrap', or 'Manual' as the method for correlation estimation.")};
@@ -483,7 +488,11 @@ RNOmni = function(y,G,X,S,method="AvgCorr",k=3/8,B=100,set.rho,keep.rho=F,keep.s
   # Matrix containing P1, P2, and their estimated correlation;
   Q = cbind("p1"=P1[,2],"p2"=P2[,2],R);
   # Calculate Omnibus p-values
-  POmni = aaply(.data=Q,.margins=1,.fun=OmniP,.parallel=parallel);
+  if(ng==1){
+    POmni = matrix(OmniP(Q),nrow=1);
+  } else {
+    POmni = aaply(.data=Q,.margins=1,.fun=OmniP,.parallel=parallel);
+  }
   # Keep stats if requested
   if(keep.stats){
     Out = cbind(P1,P2,POmni);
