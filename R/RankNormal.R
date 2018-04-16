@@ -52,6 +52,7 @@ rankNormal = function(u,k=3/8){
 #' @param calcP Logical indicating that p values should be calculated.
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first.
+#' @param check Logical indicating whether to check the input. 
 #' @return A numeric matrix of score statistics, one for each locus (row) in \code{G},
 #'   assessing the null hypothesis that genotype is unrelated to the outcome. If
 #'   \code{p=T}, a p-value is additionally calculated for each locus.
@@ -60,28 +61,37 @@ rankNormal = function(u,k=3/8){
 #' # BAT against normal phenotype
 #' p = RNOmni::BAT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 
-BAT = function(y,G,X,S,calcP=T,parallel=F){
-  # Check inputs
-  Input = inCheck(y,G,X,S);
-  if(Input$fail){stop("Input check failed.")};
-  y = Input$y;
-  G = Input$G;
-  X = Input$X;
-  S = Input$S;
-  # Obs
-  n = length(y);
-  # Snps
+BAT = function(y,G,X,S,calcP=T,parallel=F,check=T){
+  if(check){
+    # Check inputs
+    Input = inCheck(y,G,X,S);
+    if(Input$fail){stop("Input check failed.")};
+    y = Input$y;
+    G = Input$G;
+    X = Input$X;
+    S = Input$S;
+  }
+  # Model matrix
+  Z = cbind(X,S);
+  # Loci
   n.g = nrow(G);
-  # Design matrix
-  D = cbind(X,S);
   # Degrees of freedom
-  df2 = n-ncol(D);
-  # Calculate projection matrix
-  Q = errProj(D);
-  # Calculate scale parameter
-  s2 = scaleParam(y=y,Q=Q,df=df2);
-  # Caculate score statistic
-  aux = function(g){scoreStat(y=y,Q=Q,as.numeric(g),s2=s2)};
+  df2 = length(y)-ncol(Z);
+  # Fit null model
+  M0 = fitNorm(y=y,Z=Z);
+  # Extract model components
+  eT = M0$eT;
+  tau = M0$Tau;
+  I22 = tau*M0$Ibb;
+  # Function to calculate score statistics
+  aux = function(g){
+    I11 = sum(g^2);
+    I12 = fastIP(A=g,B=Z);
+    V = as.numeric(SchurC(I11=I11,I22=I22,I12=I12));
+    a = as.numeric(fastIP(A=g,B=eT));
+    Ts = a^2/(V*tau);
+    return(Ts);
+  }
   # Calculate score statistics
   U = aaply(.data=G,.margins=1,.fun=aux,.parallel=parallel);
   # Output frame
@@ -113,6 +123,7 @@ BAT = function(y,G,X,S,calcP=T,parallel=F){
 #'   \code{\link{rankNormal}}.
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first.  
+#' @param check Logical indicating whether to check the input. 
 #' @return A numeric matrix of score statistics, one for each locus (row) in \code{G},
 #'   assessing the null hypothesis that genotype is unrelated to the outcome. If
 #'   \code{p=T}, a p-value is additionally calculated for each locus.
@@ -121,31 +132,41 @@ BAT = function(y,G,X,S,calcP=T,parallel=F){
 #' # Direct INT on the normal phenotype 
 #' p = RNOmni::DINT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 
-DINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F){
-  # Check inputs
-  Input = inCheck(y,G,X,S);
-  if(Input$fail){stop("Input check failed.")};
-  y = Input$y;
-  G = Input$G;
-  X = Input$X;
-  S = Input$S;
-  # Obs
-  n = length(y);
-  # Snps
+DINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
+  if(check){
+    # Check inputs
+    Input = inCheck(y,G,X,S);
+    if(Input$fail){stop("Input check failed.")};
+    y = Input$y;
+    G = Input$G;
+    X = Input$X;
+    S = Input$S;
+  }
+  # Model matrix
+  Z = cbind(X,S); 
+  # Loci
   n.g = nrow(G);
-  # Design matrix
-  D = cbind(X,S);
   # Degrees of freedom
-  df2 = n-ncol(D);
-  q = ncol(D);
+  df2 = length(y)-ncol(Z);
   # Transform phenotype
   y = rankNormal(y,k=k);
-  # Calculate projection matrix
-  Q = errProj(D);
-  # Calculate scale parameter
-  s2 = scaleParam(y=y,Q=Q,df=df2);
-  # Caculate score statistic
-  aux = function(g){scoreStat(y=y,Q=Q,g=g,s2=s2)};
+  # Degrees of freedom
+  df2 = length(y)-ncol(Z);
+  # Fit null model
+  M0 = fitNorm(y=y,Z=Z);
+  # Extract model components
+  eT = M0$eT;
+  tau = M0$Tau;
+  I22 = tau*M0$Ibb;
+  # Function to calculate score statistics
+  aux = function(g){
+    I11 = sum(g^2);
+    I12 = fastIP(A=g,B=Z);
+    V = as.numeric(SchurC(I11=I11,I22=I22,I12=I12));
+    a = as.numeric(fastIP(A=g,B=eT));
+    Ts = a^2/(V*tau);
+    return(Ts);
+  }
   # Calculate score statistics
   U = aaply(.data=G,.margins=1,.fun=aux,.parallel=parallel);
   # Output frame
@@ -182,6 +203,7 @@ DINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F){
 #'   \code{\link{rankNormal}}.
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first. 
+#' @param check Logical indicating whether to check the input.
 #' @return A numeric matrix of Wald statistics, one for each locus (row) in \code{G},
 #'   assessing the null hypothesis that genotype is unrelated to the outcome. If
 #'   \code{p=T}, a p-value is additionally calculated for each locus.
@@ -190,37 +212,33 @@ DINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F){
 #' # FIINT against normal phenotype 
 #' p = RNOmni::FIINT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 
-FIINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F){
-  warning("This function was included for simulation purposes only.\n");
-  # Check inputs
-  Input = inCheck(y,G,X,S);
-  if(Input$fail){stop("Input check failed.")};
-  y = Input$y;
-  G = Input$G;
-  X = Input$X;
-  S = Input$S;
-  # Obs
-  n = length(y);
-  # Snps
+FIINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
+  if(check){
+    warning("This function was included for simulation purposes only.\n");
+    # Check inputs
+    Input = inCheck(y,G,X,S);
+    if(Input$fail){stop("Input check failed.")};
+    y = Input$y;
+    G = Input$G;
+    X = Input$X;
+    S = Input$S;
+  }
+  # Model matrix
+  Z = cbind(X,S); 
+  # Loci
   n.g = nrow(G);
-  # Design matrix
-  D = cbind(X,S);
   # Degrees of freedom
-  df2 = n-ncol(D);
-  q = ncol(D);
-  # Calculate projection matrix
-  Q = errProj(D);
+  df2 = length(y)-ncol(Z);
+  # Fit null model
+  M0 = fitNorm(y=y,Z=Z);
   # Transformed Residuals
-  e = rankNormal(eps(y=y,Q=Q),k=k);
-  # Estimate of scale parameter
-  t2 = var(e);
-  # Normalize genotypes
+  e = rankNormal(M0$eT);
   # Calculate F statistic
   aux = function(g){
     # Wald statistic
-    g2 = dotP(a=g,b=g);
-    r2 = dotP(a=e,b=g)^2;
-    Tw = r2/(g2*t2);
+    g2 = sum(g^2);
+    r2 = as.numeric(fastIP(A=g,B=e))^2;
+    Tw = r2/(g2);
     return(Tw);
   }
   # Wald statistics
@@ -254,6 +272,7 @@ FIINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F){
 #' @param k Offset applied during rank-normalization. See \code{\link{rankNormal}}.
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first.
+#' @param check Logical indicating whether to check the input.
 #' @return A numeric vector of p-values assessing the null hypothesis of no 
 #'   genotypic effect. P-values are estimated using the Wald statistic, and 
 #'   correspond to the rows of G. 
@@ -262,32 +281,41 @@ FIINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F){
 #' # IINT against normal phenotype
 #' p = RNOmni::IINT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
 
-IINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F){
-  # Check inputs
-  Input = inCheck(y,G,X,S);
-  if(Input$fail){stop("Input check failed.")};
-  y = Input$y;
-  G = Input$G;
-  X = Input$X;
-  S = Input$S;
-  # Obs
-  n = length(y);
-  # Snps
+IINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
+  if(check){
+    # Check inputs
+    Input = inCheck(y,G,X,S);
+    if(Input$fail){stop("Input check failed.")};
+    y = Input$y;
+    G = Input$G;
+    X = Input$X;
+    S = Input$S;
+  }
+  # Loci
   n.g = nrow(G);
   # Degrees of freedom
+  n = length(y);
   p = ncol(X);
   q = ncol(S);
   df2 = n-p-q;
-  # X projection
-  Qx = errProj(X);
-  # Stage 1 residuals
-  ex = rankNormal(eps(y=y,Q=Qx),k=k);
-  # S projection 
-  Qs = errProj(S);
-  # Scale parameter
-  s2 = scaleParam(y=ex,Q=Qs,df=df2);
-  # Caculate score statistic
-  aux = function(g){scoreStat(y=ex,Q=Qs,as.numeric(g),s2=s2)};
+  # Stage 1 model
+  M1 = fitNorm(y=y,Z=X);
+  ex = rankNormal(u=M1$eT);
+  # Stage 2 model
+  M2 = fitNorm(y=ex,Z=S);
+  # Extract components
+  eT = M2$eT;
+  tau = (n-q)/(n-p-q)*M2$Tau; # REML-type correction
+  I22 = tau*M2$Ibb;
+  # Function to calculate score statistics
+  aux = function(g){
+    I11 = sum(g^2);
+    I12 = fastIP(A=g,B=S);
+    V = as.numeric(SchurC(I11=I11,I22=I22,I12=I12));
+    a = as.numeric(fastIP(A=g,B=eT));
+    Ts = a^2/(V*tau);
+    return(Ts);
+  }
   # Calculate score statistics
   U = aaply(.data=G,.margins=1,.fun=aux,.parallel=parallel);
   # Output frame
@@ -316,7 +344,7 @@ AvgCorr = function(p1,p2,a=1e-3){
   z1 = -qnorm(p1);
   z2 = -qnorm(p2);
   # Estimated correlation
-  r = cor(z1,z2);
+  r = vecCor(z1,z2);
   r = min(r,1-a);
   r = max(r,a);
   # Output
@@ -362,7 +390,7 @@ BootCorr = function(y,G,X,S,k=3/8,B=100,parallel){
     return(cbind(z1,z2));
   }
   # Calculate correlation
-  aux = function(X){cor(X[1,],X[2,])};
+  aux = function(X){vecCor(X[1,],X[2,])};
   R = aaply(.data=Rho,.margins=1,.fun=aux,.parallel=parallel);
   # Output
   return(R);
@@ -391,7 +419,7 @@ OmniP = function(Q){
   C = matrix(c(1,r,r,1),ncol=2,byrow=T);
   # P-value
   p.omni = 1 - mvtnorm::pmvnorm(upper=c(omni,omni),corr=C)[1];
-  if(p.omni==0){p.omni=1e-16};
+  if(p.omni<=1e-16){p.omni=1e-16};
   # Output
   Out = c(omni,p.omni);
   return(Out)
@@ -438,6 +466,7 @@ OmniP = function(Q){
 #'   statistics calculated by DINT and IINT. Defaults to FALSE.
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first.
+#' @param check Logical indicating whether to check the input.
 #' @return A numeric matrix with three columsn and one row per locus, i.e. row, 
 #'   in the genotype matrix, and three columns. The columns are p-values 
 #'   obtained by D-INT, IINT, and the omnibus test.
@@ -452,27 +481,28 @@ OmniP = function(Q){
 #' # Omnibus test against normal phenotype using the bootstrap correlation method
 #' p = RNOmni::RNOmni(y=y,G=Gsub,X=X,S=S,method="Bootstrap",B=10);
 
-RNOmni = function(y,G,X,S,method="AvgCorr",k=3/8,B=100,set.rho,keep.rho=F,keep.stats=F,parallel=F){
-  ## Check inputs
-  Input = inCheck(y,G,X,S);
-  if(Input$fail){stop("Input check failed.")};
-  y = Input$y;
-  G = Input$G;
-  X = Input$X;
-  S = Input$S;
-  ## Additional input checks
-  # Dimension check
+RNOmni = function(y,G,X,S,method="AvgCorr",k=3/8,B=100,set.rho,
+                  keep.rho=F,keep.stats=F,parallel=F,check=T){
+  if(check){
+    ## Check inputs
+    Input = inCheck(y,G,X,S);
+    if(Input$fail){stop("Input check failed.")};
+    y = Input$y;
+    G = Input$G;
+    X = Input$X;
+    S = Input$S;
+  }
+  # Mandatory checks
   ng = nrow(G);
   if(ng<10 & method=="AvgCorr"){stop("Average correlation is not applicable to this few loci.")};
   # Method selection
   flag.m = (method %in% c("AvgCorr","Bootstrap","Manual"));
   if(!flag.m){stop("Select 'AvgCorr', 'Bootstrap', or 'Manual' as the method for correlation estimation.")};
-  
   ## Association testing
   # Calculate D-INT p-values
-  P1 = suppressWarnings(DINT(y=y,G=G,X=X,S=S,k=k,parallel=parallel));
+  P1 = DINT(y=y,G=G,X=X,S=S,k=k,parallel=parallel,check=F);
   # Calculate PI-INT p-values
-  P2 = suppressWarnings(IINT(y=y,G=G,X=X,S=S,k=k,parallel=parallel));
+  P2 = IINT(y=y,G=G,X=X,S=S,k=k,parallel=parallel,check=F);
   # Specify correlation between z(DINT) and z(PIINT)
   if(method=="AvgCorr"){
     # Obtain correlation by averaging across loci

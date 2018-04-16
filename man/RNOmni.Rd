@@ -5,7 +5,7 @@
 \title{Rank-Normal Omnibus Test}
 \usage{
 RNOmni(y, G, X, S, method = "AvgCorr", k = 3/8, B = 100, set.rho,
-  keep.rho = F, keep.stats = F, parallel = F)
+  keep.rho = F, keep.stats = F, parallel = F, check = T)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -36,6 +36,8 @@ statistics calculated by DINT and IINT. Defaults to FALSE.}
 
 \item{parallel}{Logical indicating whether to run in parallel. Must register
 parallel backend first.}
+
+\item{check}{Logical indicating whether to check the input.}
 }
 \value{
 A numeric matrix with three columsn and one row per locus, i.e. row, 
@@ -63,8 +65,12 @@ the test statistics, set (\code{method="Manual"}) and specify
 (\code{set.rho}).
 }
 \examples{
+y = RNOmni::Y[,1];
+Gsub = RNOmni::G[1:10,];
+X = RNOmni::X;
+S = RNOmni::S;
 # Omnibus test against normal phenotype using the average correlation method 
-p = RNOmni::RNOmni(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S,method="AvgCorr");
+p = RNOmni::RNOmni(y=y,G=Gsub,X=X,S=S,method="AvgCorr");
 # Omnibus test against normal phenotype using the bootstrap correlation method
-p = RNOmni::RNOmni(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S,method="Bootstrap");
+p = RNOmni::RNOmni(y=y,G=Gsub,X=X,S=S,method="Bootstrap",B=10);
 }

@@ -4,7 +4,7 @@
 \alias{BAT}
 \title{Basic Association Test}
 \usage{
-BAT(y, G, X, S, calcP = T, parallel = F)
+BAT(y, G, X, S, calcP = T, parallel = F, check = T)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -19,6 +19,8 @@ BAT(y, G, X, S, calcP = T, parallel = F)
 
 \item{parallel}{Logical indicating whether to run in parallel. Must register
 parallel backend first.}
+
+\item{check}{Logical indicating whether to check the input.}
 }
 \value{
 A numeric matrix of score statistics, one for each locus (row) in \code{G},

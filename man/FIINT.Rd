@@ -4,7 +4,7 @@
 \alias{FIINT}
 \title{Fully Indirect-INT}
 \usage{
-FIINT(y, G, X, S, calcP = T, k = 3/8, parallel = F)
+FIINT(y, G, X, S, calcP = T, k = 3/8, parallel = F, check = T)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -22,6 +22,8 @@ FIINT(y, G, X, S, calcP = T, k = 3/8, parallel = F)
 
 \item{parallel}{Logical indicating whether to run in parallel. Must register
 parallel backend first.}
+
+\item{check}{Logical indicating whether to check the input.}
 }
 \value{
 A numeric matrix of Wald statistics, one for each locus (row) in \code{G},

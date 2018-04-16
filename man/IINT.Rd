@@ -4,7 +4,7 @@
 \alias{IINT}
 \title{Indirect-INT}
 \usage{
-IINT(y, G, X, S, calcP = T, k = 3/8, parallel = F)
+IINT(y, G, X, S, calcP = T, k = 3/8, parallel = F, check = T)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -21,6 +21,8 @@ IINT(y, G, X, S, calcP = T, k = 3/8, parallel = F)
 
 \item{parallel}{Logical indicating whether to run in parallel. Must register
 parallel backend first.}
+
+\item{check}{Logical indicating whether to check the input.}
 }
 \value{
 A numeric vector of p-values assessing the null hypothesis of no 
