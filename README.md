@@ -168,7 +168,7 @@ round(head(p.dint),digits=3);
 Indirect Inverse Normal Transformation
 --------------------------------------
 
-`IINT` implements a two-stage association test. In the first stage, the untransformed phenotype *y* is regressed on covariates *X* and population structure *S* to obtain residuals *e*. In the second stage, the transformed residuals INT(*e*) are regressed on genotype at each locus in *G*, again adjusting for population structure *S*. A *p*-value assessing the null hypothesis of no genotypic effect is estimated using a score test. The output is a numeric matrix, including the score statistic and *p*-value for each locus (row) in `G`.
+`IINT` implements a two-stage association test. In the first stage, the untransformed phenotype *y* is regressed on covariates *X* and population structure *S* to obtain residuals *e*. In the second stage, the transformed residuals INT(*e*) are regressed on genotype at each locus in *G*, again adjusting for population structure *S*. A *p*-value assessing the null hypothesis of no genotypic effect is estimated using a score test. The output is a numeric matrix, including the score statistic and *p*-value for each locus in `G`.
 
 ``` r
 # Partially Indirect INT Test
