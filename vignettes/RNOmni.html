@@ -69,7 +69,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Rank Normal Omnibus Association Test</h1>
 <h4 class="author"><em>Zachary McCaw</em></h4>
-<h4 class="date"><em>Updated: 04/01/2018</em></h4>
+<h4 class="date"><em>Updated: 04/17/2018</em></h4>
 
 
 
@@ -85,7 +85,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="motivating-example" class="section level1">
 <h1>Motivating Example</h1>
-<p>We consider the setting of genetic association testing with a continuous outcome whose residual distribution is skewed or heavy tailed (relative to the normal distribution). An example is provided by the apnea-hyopnea index (AHI), the gold standard measurement for diagnosing obstructive sleep apnea. The residual distribution obtained upon regressing AHI on genotype and covariates is often non-normal. Application of standard association tests, even those which only rely on asymptotic normality, can lead to an excess of false positive associations when the departure from normality is substantial.</p>
+<p>We consider the setting of genetic association testing with a continuous outcome whose residual distribution is skewed or heavy tailed as compared with the normal distribution. An example is provided by the apnea-hyopnea index (AHI), the gold standard measurement for diagnosing obstructive sleep apnea. The residual distribution obtained after regressing AHI on genotype and covariates is often non-normal. Application of standard association tests, even those which only rely on asymptotic normality, can lead to an excess of false positive associations when the departure from normality is severe.</p>
 <p>The rank based inverse normal transformation (INT) has been proposed to counteract departures from normality. To apply INT, the sample measurements are ranked, and the observed values are replaced with the corresponding quantiles of the standard normal distribution. Below, a sample of size <span class="math inline">\(n=1000\)</span> is drawn from the <span class="math inline">\(\chi_{1}^{2}\)</span> distribution. Provided the measurement is continuous, i.e. there are no ties, the distribution of the measurement after INT is normal.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Chi-1 data</span>
 y =<span class="st"> </span><span class="kw">rchisq</span>(<span class="dt">n=</span><span class="dv">1000</span>,<span class="dt">df=</span><span class="dv">1</span>);
@@ -100,54 +100,54 @@ z =<span class="st"> </span>RNOmni::<span class="kw">rankNormal</span>(y);</code
 <p>Simulated data are available for <span class="math inline">\(10^{3}\)</span> subjects. Covariates <code>X</code> include <code>Age</code> and <code>Sex</code>. Structure adjustments <code>S</code> include the first two principal components of the genetic relatedness matrix. Genotypes <code>G</code> at <span class="math inline">\(10^{3}\)</span> contiguous loci on chromosome one were simulated using Hapgen2. All loci are common, with sample minor allele frequency in the range <span class="math inline">\([0.05, 0.50]\)</span>. Two independent phenotypes <code>Y</code> were generated under the null hypothesis of no genotypic effect. Subject specific means were calculated using a the covariates and structure adjustments. The outcome was formed by adding a random residual to the mean. <code>YN</code> has normally distributed residuals, while <code>YT3</code> has residuals drawn from a heavy tailed <span class="math inline">\(t_{3}\)</span> distribution. The residual distributions were scaled to have unit variance.</p>
 <pre><code>## Covariates
 ##        Age Sex
-## [1,] 48.33   0
-## [2,] 45.02   1
-## [3,] 52.74   1
-## [4,] 50.27   0
-## [5,] 50.91   1
-## [6,] 48.08   1
+## [1,] 47.32   1
+## [2,] 53.14   1
+## [3,] 48.85   0
+## [4,] 52.38   0
+## [5,] 50.96   0
+## [6,] 52.23   0
 ## 
 ## Structure Adjustments
-##        PC1   PC2
-## [1,] -1.90 11.54
-## [2,]  5.43 -1.75
-## [3,] 16.76 -3.23
-## [4,] 19.29 13.15
-## [5,]  2.92  1.49
-## [6,] 10.92 -7.55
+##        pc1   pc2
+## [1,]  1.21  0.62
+## [2,]  1.67  2.18
+## [3,]  0.35  0.98
+## [4,] -1.13  0.34
+## [5,]  2.27 -0.30
+## [6,] -0.03  0.94
 ## 
 ## Genotype Matrix
-##    s1 s2 s3 s4 s5 s6
-## g1  0  0  0  1  0  0
-## g2  1  0  2  0  1  0
-## g3  0  0  0  1  1  0
-## g4  2  2  0  0  1  1
-## g5  2  1  0  2  1  1
-## g6  0  0  0  0  0  0
+##    G1 G2 G3 G4 G5 G6
+## N1  2  0  0  0  0  0
+## N2  0  1  1  0  0  0
+## N3  1  1  0  0  0  0
+## N4  0  1  0  0  0  1
+## N5  0  1  0  0  0  1
+## N6  1  1  0  0  0  0
 ## 
 ## Sample Minor Allele Frequency
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-## 0.05000 0.09388 0.14725 0.18591 0.24213 0.50000 
+##  0.0500  0.0935  0.1730  0.2011  0.3129  0.4995 
 ## 
 ## Phenotypes
-##        YN  YT3
-## [1,] 2.68 2.32
-## [2,] 3.42 4.43
-## [3,] 3.80 4.95
-## [4,] 4.44 3.47
-## [5,] 3.79 4.39
-## [6,] 3.78 3.54</code></pre>
+##         YN   YT3
+## [1,] -1.81 -0.06
+## [2,]  1.60  1.44
+## [3,] -0.21 -0.24
+## [4,] -2.41 -0.94
+## [5,]  0.08  1.19
+## [6,]  0.43 -0.03</code></pre>
 </div>
 <div id="data-formatting" class="section level2">
 <h2>Data Formatting</h2>
-<p>All matrices, including genotypes <code>G</code>, covariates <code>X</code>, and structure adjustments <code>S</code>, are expected in numeric format. Factors and interactions should be expanded in advance, e.g. using <code>model.matrix</code>. The outcome <code>y</code> is centered internally, so an intercept is <strong>not</strong> required. To better accommodate the setting where the number of loci exceeds the number of subjects, the rows of <code>G</code> should correspond to loci, and columns to subjects. Conversely, for the covariate <code>X</code> and structure <code>S</code> matrices, rows should correspond to subjects.</p>
+<p>All matrices, including genotypes <code>G</code>, covariates <code>X</code>, and structure adjustments <code>S</code>, are expected in numeric format. Factors and interactions should be expanded in advance, e.g. using <code>model.matrix</code>. The outcome <code>y</code> is centered internally, so an intercept is <strong>not</strong> required. All matrices are formatted with subjects as rows.</p>
 </div>
 </div>
 <div id="omnibus-test" class="section level1">
 <h1>Omnibus Test</h1>
 <p><code>RNOmni</code> implements an adaptive test of association between the loci in <span class="math inline">\(G\)</span> and the phenotype <span class="math inline">\(y\)</span>, while adjusting for covariates <span class="math inline">\(X\)</span> and population structure <span class="math inline">\(S\)</span>. Internally, <code>RNOmni</code> conducts two association tests, termed direct INT <code>DINT</code> and indirect INT <code>IINT</code>. These tests are described <a href="#additional-association-tests">below</a>. On omnibus statistic is calculated based on whichever approach provides more evidence against the null hypothesis. Synthesizing two complementary approaches affords the omnibus test robustness to the distribution of phenotypic residuals. In simulations against various skewed and heavy tailed residual distributions, the omnibus test provided valid inference in the absence of a genotypic effect, and provided power comparable to the more powerful of the component methods in the presence of a genotypic effect.</p>
 <p>Assigning a <span class="math inline">\(p\)</span>-value to the omnibus statistic requires an estimate of the correlation <span class="math inline">\(\rho\)</span> between the test statistics provided by <code>DINT</code> and <code>IINT</code>. When many loci are under consideration, a computationally efficient strategy is to estimate <span class="math inline">\(\rho\)</span> by taking the correlation between the observed test statistics across loci. Alternatively, when there are fewer loci, or locus specific estimates are desired, <span class="math inline">\(\rho\)</span> may be estimated using bootstrap. In simulations, the value of <span class="math inline">\(\rho\)</span> estimated by taking the correlation across loci was quite similar to the average of the locus specific estimates of <span class="math inline">\(\rho\)</span> obtained using bootstrap. Finally, the user may estimate the correlation externally, then manually specify the value of <span class="math inline">\(\rho\)</span>.</p>
-<p>By default, the output of <code>RNOmni</code> is a numeric matrix of <span class="math inline">\(p\)</span>-values, with rows corresponding to the loci (rows) of <span class="math inline">\(G\)</span>. The columns are the <span class="math inline">\(p\)</span>-values from the <code>DINT</code>, the <code>IINT</code>, and the omnibus tests, respectively. If <code>keep.rho=T</code>, the estimated correlation is retained. If <code>keep.stats=T</code>, the test statistics are retained.</p>
+<p>By default, the output of <code>RNOmni</code> is a numeric matrix of <span class="math inline">\(p\)</span>-values, with rows corresponding to the loci of <span class="math inline">\(G\)</span>. The columns are the <span class="math inline">\(p\)</span>-values from the <code>DINT</code>, the <code>IINT</code>, and the omnibus tests, respectively. If <code>keep.stats=T</code>, the test statistics are retained. If <code>keep.rho=T</code>, the estimated correlation between the <span class="math inline">\(p\)</span>-values provided by <code>DINT</code> and <code>IINT</code> is retained.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cat</span>(<span class="st">&quot;Omnibus Test, Normal Phenotype, Average Correaltion Method</span><span class="ch">\n</span><span class="st">&quot;</span>);
 p1.omni.avg =<span class="st"> </span>RNOmni::<span class="kw">RNOmni</span>(<span class="dt">y=</span>Y[,<span class="dv">1</span>],<span class="dt">G=</span>G,<span class="dt">X=</span>X,<span class="dt">S=</span>S,<span class="dt">method=</span><span class="st">&quot;AvgCorr&quot;</span>);
 <span class="kw">round</span>(<span class="kw">head</span>(p1.omni.avg),<span class="dt">digits=</span><span class="dv">3</span>);
@@ -175,7 +175,7 @@ p2.omni.manual =<span class="st"> </span>RNOmni::<span class="kw">RNOmni</span>(
 <p>In addition to the omnibus test, three genetic association tests are implemented as part of <code>RNOmni</code>. These are the basic association test <code>BAT</code>, the direct INT method <code>DINT</code>, and the indirect INT method <code>IINT</code>.</p>
 <div id="basic-association-test" class="section level2">
 <h2>Basic Association Test</h2>
-<p><code>BAT</code> regresses the untransformed phenotype <span class="math inline">\(y\)</span> on genotype at each locus in <span class="math inline">\(G\)</span>, adjusting for covariates <span class="math inline">\(X\)</span> and population structure <span class="math inline">\(S\)</span>. A <span class="math inline">\(p\)</span>-value assessing the null hypothesis of no genotypic effect is estimated using a score test. The output is a numeric matrix, with a score statistic and <span class="math inline">\(p\)</span>-value for each locus (row) in <code>G</code>.</p>
+<p><code>BAT</code> regresses the untransformed phenotype <span class="math inline">\(y\)</span> on genotype at each locus in <span class="math inline">\(G\)</span>, adjusting for covariates <span class="math inline">\(X\)</span> and population structure <span class="math inline">\(S\)</span>. A <span class="math inline">\(p\)</span>-value assessing the null hypothesis of no genotypic effect is estimated using a score test. The output is a numeric matrix, including the score statistic and <span class="math inline">\(p\)</span>-value for each locus in <code>G</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Basic Association Test</span>
 p.bat =<span class="st"> </span>RNOmni::<span class="kw">BAT</span>(<span class="dt">y=</span>Y[,<span class="dv">1</span>],<span class="dt">G=</span>G,<span class="dt">X=</span>X,<span class="dt">S=</span>S);
 <span class="kw">round</span>(<span class="kw">head</span>(p.bat),<span class="dt">digits=</span><span class="dv">3</span>);</code></pre></div>
@@ -189,7 +189,7 @@ p.bat =<span class="st"> </span>RNOmni::<span class="kw">BAT</span>(<span class=
 </div>
 <div id="direct-inverse-normal-transformation" class="section level2">
 <h2>Direct Inverse Normal Transformation</h2>
-<p><code>DINT</code> regresses the transformed phenotype <span class="math inline">\(\text{INT}(y)\)</span> on genotype at each locus in <span class="math inline">\(G\)</span>, adjusting for covariates <span class="math inline">\(X\)</span> and population structure <span class="math inline">\(S\)</span>. A <span class="math inline">\(p\)</span>-value assessing the null hypothesis of no genotypic effect is estimated using a score test. The output is a numeric matrix, with a score statistic and <span class="math inline">\(p\)</span>-value for each locus (row) in <code>G</code>.</p>
+<p><code>DINT</code> regresses the transformed phenotype <span class="math inline">\(\text{INT}(y)\)</span> on genotype at each locus in <span class="math inline">\(G\)</span>, adjusting for covariates <span class="math inline">\(X\)</span> and population structure <span class="math inline">\(S\)</span>. A <span class="math inline">\(p\)</span>-value assessing the null hypothesis of no genotypic effect is estimated using a score test. The output is a numeric matrix, including the score statistic and <span class="math inline">\(p\)</span>-value for each locus in <code>G</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Direct INT Test</span>
 p.dint =<span class="st"> </span>RNOmni::<span class="kw">DINT</span>(<span class="dt">y=</span>Y[,<span class="dv">1</span>],<span class="dt">G=</span>G,<span class="dt">X=</span>X,<span class="dt">S=</span>S);
 <span class="kw">round</span>(<span class="kw">head</span>(p.dint),<span class="dt">digits=</span><span class="dv">3</span>);</code></pre></div>
@@ -203,7 +203,7 @@ p.dint =<span class="st"> </span>RNOmni::<span class="kw">DINT</span>(<span clas
 </div>
 <div id="indirect-inverse-normal-transformation" class="section level2">
 <h2>Indirect Inverse Normal Transformation</h2>
-<p><code>IINT</code> implements a two-stage association test. In the first stage, the untransformed phenotype <span class="math inline">\(y\)</span> is regressed on covariates <span class="math inline">\(X\)</span> to obtain residuals <span class="math inline">\(e\)</span>. In the second stage, the transformed residuals <span class="math inline">\(\text{INT}(e)\)</span> are regressed on genotype at each locus in <span class="math inline">\(G\)</span>, adjusting for population structure <span class="math inline">\(S\)</span>. A <span class="math inline">\(p\)</span>-value assessing the null hypothesis of no genotypic effect is estimated using a score test. The output is a numeric matrix, with a score statistic and <span class="math inline">\(p\)</span>-value for each locus (row) in <code>G</code>.</p>
+<p><code>IINT</code> implements a two-stage association test. In the first stage, the untransformed phenotype <span class="math inline">\(y\)</span> is regressed on covariates <span class="math inline">\(X\)</span> and population structure <span class="math inline">\(S\)</span> to obtain residuals <span class="math inline">\(e\)</span>. In the second stage, the transformed residuals <span class="math inline">\(\text{INT}(e)\)</span> are regressed on genotype at each locus in <span class="math inline">\(G\)</span>, again adjusting for population structure <span class="math inline">\(S\)</span>. A <span class="math inline">\(p\)</span>-value assessing the null hypothesis of no genotypic effect is estimated using a score test. The output is a numeric matrix, including the score statistic and <span class="math inline">\(p\)</span>-value for each locus (row) in <code>G</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Partially Indirect INT Test</span>
 p.iint =<span class="st"> </span>RNOmni::<span class="kw">IINT</span>(<span class="dt">y=</span>Y[,<span class="dv">1</span>],<span class="dt">G=</span>G,<span class="dt">X=</span>X,<span class="dt">S=</span>S);
 <span class="kw">round</span>(<span class="kw">head</span>(p.iint),<span class="dt">digits=</span><span class="dv">3</span>);</code></pre></div>
@@ -232,7 +232,7 @@ p.iint =<span class="st"> </span>RNOmni::<span class="kw">IINT</span>(<span clas
 </div>
 <div id="nomenclature" class="section level2">
 <h2>Nomenclature</h2>
-<p>In <code>DINT</code>, direct refers to the fact that INT is applied <em>directly</em> to the phenotype <code>y</code>. In contrast, during <code>IINT</code>, the INT is applied to the phenotype only <em>indirectly</em>, i.e. to the phenotypic residuals. Another indirect approach was considered, namely regressing <code>y</code> on both <code>X</code> and <code>S</code> during residual formation, rather than adjusting for <code>S</code> during association testing. In simulations, this approach did not consistently provide valid inference.</p>
+<p>In <code>DINT</code>, direct refers to the fact that INT is applied <em>directly</em> to the phenotype <code>y</code>. In contrast, during <code>IINT</code>, the INT is applied to the phenotype only <em>indirectly</em>, i.e. to the phenotypic residuals.</p>
 </div>
 <div id="parallelization" class="section level2">
 <h2>Parallelization</h2>

@@ -1,12 +1,12 @@
 #' Simulated Genotypes
 #' 
-#' Simulated genotypes for 1000 subjects (columns) at 1000 loci (rows).
+#' Simulated genotypes for 1000 subjects (rows) at 1000 loci (columns).
 #' Genotypes were simulated with use of hapgen2, and are based on the haplotype
 #' structure of human chromosome one in the CEU population of the 1000 Genomes
 #' Project.
 #' @format A double matrix with 1000 rows and 1000 columns.
 #' \describe{ 
-#'    \item{s1-s1000}{Each column corresponds to genotype at 1000 loci (rows) for a single subject.}
+#'    \item{s1-s1000}{Each column corresponds to genotype a given locus for 1000 subjects.}
 #' }
 "G"
 

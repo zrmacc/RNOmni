@@ -9,11 +9,11 @@ inCheck(y, G, X, S)
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Snp by obs genotype matrix.}
+\item{G}{Obs by snp genotype matrix.}
 
-\item{X}{Obs by feature covariate matrix.}
+\item{X}{Obs by feature model matrix of covariates.}
 
-\item{S}{Obs by feature structure matrix.}
+\item{S}{Obs by feature model matrix of structure adjustments.}
 }
 \description{
 Function to ensure the dimensions of inputs to association methods agree.

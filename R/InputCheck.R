@@ -1,14 +1,14 @@
 # Purpose: Function to check input to association tests
-# Updated: 180330
+# Updated: 180417
 
 #' Input Check
 #' 
 #' Function to ensure the dimensions of inputs to association methods agree.
 #' 
 #' @param y Numeric phenotype vector.
-#' @param G Snp by obs genotype matrix.
-#' @param X Obs by feature covariate matrix.
-#' @param S Obs by feature structure matrix.
+#' @param G Obs by snp genotype matrix.
+#' @param X Obs by feature model matrix of covariates.
+#' @param S Obs by feature model matrix of structure adjustments.
 
 inCheck = function(y,G,X,S){
   ## Function to check row for missingness
@@ -27,9 +27,9 @@ inCheck = function(y,G,X,S){
   storage.mode(G) = "double";
   # Change to matrix if vector is supplied
   if(is.vector(G)){
-    G = matrix(G,nrow=1);
+    G = matrix(G,ncol=1);
   }
-  n.g = ncol(G);
+  n.g = nrow(G);
   # Ensure numeric
   flag.g = !is.matrix(G);
   if(flag.g){
@@ -76,7 +76,7 @@ inCheck = function(y,G,X,S){
   fail = (flag.y|flag.x|flag.s|flag.g|flag.d);
   # Drop missing observations
   y = y[keep];
-  G = G[,keep,drop=F];
+  G = G[keep,,drop=F];
   X = X[keep,,drop=F];
   S = S[keep,,drop=F];
   # Ensure y is standardized

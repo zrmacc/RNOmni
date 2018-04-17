@@ -109,8 +109,11 @@ SchurC <- function(I11, I22, I12) {
 
 #' Normal Model
 #' 
+#' Fits the standard OLS model.
+#' 
 #' @param y Outcome.
 #' @param Z Model matrix.
+#' @export 
 fitNorm <- function(y, Z) {
     .Call('_RNOmni_fitNorm', PACKAGE = 'RNOmni', y, Z)
 }

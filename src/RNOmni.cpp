@@ -5,8 +5,11 @@
 
 //' Normal Model
 //' 
+//' Fits the standard OLS model.
+//' 
 //' @param y Outcome.
 //' @param Z Model matrix.
+//' @export 
 // [[Rcpp::export]]
 
 SEXP fitNorm(const Eigen::Map<Eigen::VectorXd> y, const Eigen::Map<Eigen::MatrixXd> Z){
@@ -19,13 +22,13 @@ SEXP fitNorm(const Eigen::Map<Eigen::VectorXd> y, const Eigen::Map<Eigen::Matrix
   // Estimate beta
   const Eigen::VectorXd b = (ZtZ).llt().solve(Z.transpose()*y);
   // Calculate residuals
-  const Eigen::VectorXd eT = (y-Z*b);
+  const Eigen::VectorXd eps = (y-Z*b);
   // Scale
-  const double qf = (eT.transpose()*eT);
+  const double qf = (eps.transpose()*eps);
   const double tau = qf/(n-p);
   // Information
   const Eigen::MatrixXd Ibb = ZtZ/tau;
-  return Rcpp::List::create(Rcpp::Named("Beta")=b,Rcpp::Named("Tau")=tau,Rcpp::Named("Ibb")=Ibb,Rcpp::Named("eT")=eT);
+  return Rcpp::List::create(Rcpp::Named("Beta")=b,Rcpp::Named("Tau")=tau,Rcpp::Named("Ibb")=Ibb,Rcpp::Named("Resid")=eps);
 }
 
 //' Correlation
@@ -54,4 +57,3 @@ SEXP vecCor(const Eigen::Map<Eigen::VectorXd> a,const Eigen::Map<Eigen::VectorXd
   const double r = acbc/sqrt(acac*bcbc);
   return Rcpp::wrap(r);
 } 
-

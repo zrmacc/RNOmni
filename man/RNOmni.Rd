@@ -10,11 +10,11 @@ RNOmni(y, G, X, S, method = "AvgCorr", k = 3/8, B = 100, set.rho,
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Numeric snp by obs genotype matrix.}
+\item{G}{Snp by obs genotype matrix.}
 
-\item{X}{Numeric obs by feature covariate matrix.}
+\item{X}{Obs by feature covariate matrix.}
 
-\item{S}{Numeric obs by feature structure matrix.}
+\item{S}{Obs by feature structure matrix.}
 
 \item{method}{Method used to estimate correlation for the omnibus test, 
 either "AvgCorr", "Bootstrap", or "Manual".}
@@ -34,22 +34,24 @@ parameter estimated during omnibus calculation. Defaults to FALSE.}
 \item{keep.stats}{Logical indicating whether to return the interim test 
 statistics calculated by DINT and IINT. Defaults to FALSE.}
 
-\item{parallel}{Logical indicating whether to run in parallel. Must register
+\item{parallel}{Logical indicating whether to run in parallel. Must register 
 parallel backend first.}
 
 \item{check}{Logical indicating whether to check the input.}
 }
 \value{
-A numeric matrix with three columsn and one row per locus, i.e. row, 
-  in the genotype matrix, and three columns. The columns are p-values 
-  obtained by D-INT, IINT, and the omnibus test.
+A numeric matrix of p values, three for each locus in \code{G},
+  assessing the null hypothesis that genotype is unrelated to the outcome. If
+  \code{keep.stats=T}, the interim test statistics are retained. If
+  \code{keep.rho=T}, the estimated correlation between the p values provided
+  by DINT and IINT is retained.
 }
 \description{
-Adaptive association test that synthesizes the \code{\link{DINT}} and 
-\code{\link{IINT}} approaches. First, the direct and indirect INT based 
-association tests are applied. An omnibus statistic is calculated based on 
-whichever approach provides more evidence against the null hypothesis of no 
-genotypic effect. Details of the method are discussed in the vignette.
+Association test that synthesizes the \code{\link{DINT}} and 
+\code{\link{IINT}} approaches. First, the direct and indirect association
+tests are applied. An omnibus statistic is calculated based on whichever
+approach provides more evidence against the null hypothesis of no genotypic
+effect. Details of the method are discussed in the vignette.
 }
 \details{
 Assigning a p-value to the omnibus statistic requires estimation of the 
@@ -66,7 +68,7 @@ the test statistics, set (\code{method="Manual"}) and specify
 }
 \examples{
 y = RNOmni::Y[,1];
-Gsub = RNOmni::G[1:10,];
+Gsub = RNOmni::G[,1:10];
 X = RNOmni::X;
 S = RNOmni::S;
 # Omnibus test against normal phenotype using the average correlation method 

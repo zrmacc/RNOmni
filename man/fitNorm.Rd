@@ -12,5 +12,5 @@ fitNorm(y, Z)
 \item{Z}{Model matrix.}
 }
 \description{
-Normal Model
+Fits the standard OLS model.
 }

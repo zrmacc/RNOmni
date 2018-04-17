@@ -9,11 +9,11 @@ IINT(y, G, X, S, calcP = T, k = 3/8, parallel = F, check = T)
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Snp by obs genotype matrix.}
+\item{G}{Obs by snp genotype matrix.}
 
-\item{X}{Obs by feature covariate matrix.}
+\item{X}{Model matrix of covariates.}
 
-\item{S}{Obs by feature structure matrix.}
+\item{S}{Model matrix of structure adjustments.}
 
 \item{calcP}{Logical indicating that p values should be calculated.}
 
@@ -25,16 +25,16 @@ parallel backend first.}
 \item{check}{Logical indicating whether to check the input.}
 }
 \value{
-A numeric vector of p-values assessing the null hypothesis of no 
-  genotypic effect. P-values are estimated using the Wald statistic, and 
-  correspond to the rows of G.
+A numeric matrix of score statistics, one for each locus in \code{G},
+  assessing the null hypothesis that genotype is unrelated to the outcome. If
+  \code{calcP=T}, a p-value is additionally calculated for each locus.
 }
 \description{
 Two-stage regression procedure. In the first stage, phenotype is regressed on
-covariates to obtain residuals. In the second stage, INT-transformed
-residuals are regressed on genotype and population structure.
+covariates and structure adjustments to obtain residuals. In the second stage, 
+INT-transformed residuals are regressed on genotype and population structure.
 }
 \examples{
 # IINT against normal phenotype
-p = RNOmni::IINT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
+p = RNOmni::IINT(y=RNOmni::Y[,1],G=RNOmni::G[,1:10],X=RNOmni::X,S=RNOmni::S);
 }

@@ -9,11 +9,11 @@ BAT(y, G, X, S, calcP = T, parallel = F, check = T)
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Numeric snp by obs genotype matrix.}
+\item{G}{Obs by snp genotype matrix.}
 
-\item{X}{Numeric obs by feature covariate matrix.}
+\item{X}{Model matrix of covariates.}
 
-\item{S}{Numeric obs by feature structure matrix.}
+\item{S}{Model matrix of structure adjustments.}
 
 \item{calcP}{Logical indicating that p values should be calculated.}
 
@@ -23,9 +23,9 @@ parallel backend first.}
 \item{check}{Logical indicating whether to check the input.}
 }
 \value{
-A numeric matrix of score statistics, one for each locus (row) in \code{G},
+A numeric matrix of score statistics, one for each locus in \code{G},
   assessing the null hypothesis that genotype is unrelated to the outcome. If
-  \code{p=T}, a p-value is additionally calculated for each locus.
+  \code{calcP=T}, a p-value is additionally calculated for each locus.
 }
 \description{
 Tests the association between genotype and the untransformed phenotype, 
@@ -33,5 +33,5 @@ adjusting for covariates and population structure.
 }
 \examples{
 # BAT against normal phenotype
-p = RNOmni::BAT(y=RNOmni::Y[,1],G=RNOmni::G[1:10,],X=RNOmni::X,S=RNOmni::S);
+p = RNOmni::BAT(y=RNOmni::Y[,1],G=RNOmni::G[,1:10],X=RNOmni::X,S=RNOmni::S);
 }
