@@ -99,14 +99,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// incP
-SEXP incP(const Eigen::Map<Eigen::MatrixXd> A);
-RcppExport SEXP _RNOmni_incP(SEXP ASEXP) {
+// olsB
+SEXP olsB(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> Y);
+RcppExport SEXP _RNOmni_olsB(SEXP ASEXP, SEXP YSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
-    rcpp_result_gen = Rcpp::wrap(incP(A));
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type Y(YSEXP);
+    rcpp_result_gen = Rcpp::wrap(olsB(A, Y));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -157,7 +158,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_RNOmni_fastDet", (DL_FUNC) &_RNOmni_fastDet, 1},
     {"_RNOmni_vecQF", (DL_FUNC) &_RNOmni_vecQF, 2},
     {"_RNOmni_matQF", (DL_FUNC) &_RNOmni_matQF, 2},
-    {"_RNOmni_incP", (DL_FUNC) &_RNOmni_incP, 1},
+    {"_RNOmni_olsB", (DL_FUNC) &_RNOmni_olsB, 2},
     {"_RNOmni_SchurC", (DL_FUNC) &_RNOmni_SchurC, 3},
     {"_RNOmni_fitNorm", (DL_FUNC) &_RNOmni_fitNorm, 2},
     {"_RNOmni_vecCor", (DL_FUNC) &_RNOmni_vecCor, 2},

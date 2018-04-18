@@ -84,14 +84,15 @@ matQF <- function(X, A) {
     .Call('_RNOmni_matQF', PACKAGE = 'RNOmni', X, A)
 }
 
-#' Incomplete projection
+#' Ordinary Least Squares Coeefficient
 #' 
-#' Form the incomplete projection \eqn{(A'A)^{-1}A};
+#' Calculate the OLS coefficient \eqn{(A'A)^{-1}A'Y}.
 #' 
 #' @param A Numeric matrix
+#' @param Y Numeric matrix
 #' @export
-incP <- function(A) {
-    .Call('_RNOmni_incP', PACKAGE = 'RNOmni', A)
+olsB <- function(A, Y) {
+    .Call('_RNOmni_olsB', PACKAGE = 'RNOmni', A, Y)
 }
 
 #' Schur complement

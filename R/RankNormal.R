@@ -89,15 +89,17 @@ BAT = function(y,G,X,S,calcP=T,parallel=F,check=T){
   aux = function(g){
     # Adjust for missingness
     keep = !is.na(g);
-    g = g[keep];
-    Z = Z[keep,];
-    e = e[keep];
-    r = length(g)/n;
+    g.obs = g[keep];
+    Z.obs = Z[keep,,drop=F];
+    Z.miss = Z[!keep,,drop=F];
+    e.obs = e[keep];
+    # Information components
+    I11 = sum(g.obs^2);
+    I12 = fastIP(A=g.obs,B=Z.obs);
+    I22.obs = I22-fastIP(Z.miss,Z.miss);
     # Calculate score
-    I11 = sum(g^2);
-    I12 = fastIP(A=g,B=Z);
-    V = as.numeric(SchurC(I11=I11,I22=r*I22,I12=I12));
-    a = as.numeric(fastIP(A=g,B=e));
+    V = as.numeric(SchurC(I11=I11,I22=I22.obs,I12=I12));
+    a = as.numeric(fastIP(A=g.obs,B=e.obs));
     Ts = a^2/(V*tau);
     return(Ts);
   }
@@ -173,15 +175,17 @@ DINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
   aux = function(g){
     # Adjust for missingness
     keep = !is.na(g);
-    g = g[keep];
-    Z = Z[keep,];
-    e = e[keep];
-    r = length(g)/n;
-    # Score Test
-    I11 = sum(g^2);
-    I12 = fastIP(A=g,B=Z);
-    V = as.numeric(SchurC(I11=I11,I22=r*I22,I12=I12));
-    a = as.numeric(fastIP(A=g,B=e));
+    g.obs = g[keep];
+    Z.obs = Z[keep,,drop=F];
+    Z.miss = Z[!keep,,drop=F];
+    e.obs = e[keep];
+    # Information components
+    I11 = sum(g.obs^2);
+    I12 = fastIP(A=g.obs,B=Z.obs);
+    I22.obs = I22-fastIP(Z.miss,Z.miss);
+    # Calculate score 
+    V = as.numeric(SchurC(I11=I11,I22=I22.obs,I12=I12));
+    a = as.numeric(fastIP(A=g.obs,B=e.obs));
     Ts = a^2/(V*tau);
     return(Ts);
   }
@@ -255,11 +259,11 @@ IINT0 = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
   aux = function(g){
     # Adjust for missingness
     keep = !is.na(g);
-    g = g[keep];
-    e = e[keep];
+    g.obs = g[keep];
+    e.obs = e[keep];
     # Wald statistic
-    g2 = sum(g^2);
-    r2 = as.numeric(fastIP(A=g,B=e))^2;
+    g2 = sum(g.obs^2);
+    r2 = as.numeric(fastIP(A=g.obs,B=e.obs))^2;
     Tw = r2/(g2);
     return(Tw);
   }
@@ -335,15 +339,17 @@ IINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
   aux = function(g){
     # Adjust for missingness
     keep = !is.na(g);
-    g = g[keep];
-    S = S[keep,];
-    e = e[keep];
-    r = length(g)/n;
+    g.obs = g[keep];
+    S.obs = S[keep,,drop=F];
+    S.miss = S[!keep,,drop=F];
+    e.obs = e[keep];
+    # Information components
+    I11 = sum(g.obs^2);
+    I12 = fastIP(A=g.obs,B=S.obs);
+    I22.obs = I22-fastIP(S.miss,S.miss);
     # Score statistic
-    I11 = sum(g^2);
-    I12 = fastIP(A=g,B=S);
-    V = as.numeric(SchurC(I11=I11,I22=r*I22,I12=I12));
-    a = as.numeric(fastIP(A=g,B=e));
+    V = as.numeric(SchurC(I11=I11,I22=I22.obs,I12=I12));
+    a = as.numeric(fastIP(A=g.obs,B=e.obs));
     Ts = a^2/(tau*V);
     return(Ts);
   }

@@ -100,16 +100,17 @@ SEXP matQF(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd
   return Rcpp::wrap(q);
 }
 
-//' Incomplete projection
+//' Ordinary Least Squares Coeefficient
 //' 
-//' Form the incomplete projection \eqn{(A'A)^{-1}A};
+//' Calculate the OLS coefficient \eqn{(A'A)^{-1}A'Y}.
 //' 
 //' @param A Numeric matrix
+//' @param Y Numeric matrix
 //' @export
 // [[Rcpp::export]]
 
-SEXP incP(const Eigen::Map<Eigen::MatrixXd> A){
-  const Eigen::MatrixXd B = (A.transpose()*A).llt().solve(A.transpose());
+SEXP olsB(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> Y){
+  const Eigen::MatrixXd B = (A.transpose()*A).llt().solve(A.transpose()*Y);
   return Rcpp::wrap(B);
 }
 
