@@ -1,5 +1,5 @@
 # Purpose: Function to check input to association tests
-# Updated: 180417
+# Updated: 180418
 
 #' Input Check
 #' 
@@ -79,8 +79,6 @@ inCheck = function(y,G,X,S){
   G = G[keep,,drop=F];
   X = X[keep,,drop=F];
   S = S[keep,,drop=F];
-  # Ensure y is standardized
-  y = as.numeric(scale(y));
   Out = list("fail"=fail,"y"=y,"G"=G,"X"=X,"S"=S);
   return(Out);
 }

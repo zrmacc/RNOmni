@@ -140,7 +140,7 @@ z =<span class="st"> </span>RNOmni::<span class="kw">rankNormal</span>(y);</code
 </div>
 <div id="data-formatting" class="section level2">
 <h2>Data Formatting</h2>
-<p>All matrices, including genotypes <code>G</code>, covariates <code>X</code>, and structure adjustments <code>S</code>, are expected in numeric format. Factors and interactions should be expanded in advance, e.g. using <code>model.matrix</code>. The outcome <code>y</code> is centered internally, so an intercept is <strong>not</strong> required. All matrices are formatted with subjects as rows.</p>
+<p>All matrices, including genotypes <code>G</code>, covariates <code>X</code>, and structure adjustments <code>S</code>, are expected in numeric format. Factors and interactions should be expanded in advance, e.g. using <code>model.matrix</code>. If an intercept is required, include a vector of constants in <code>X</code>. All matrices are formatted with subjects as rows.</p>
 </div>
 </div>
 <div id="omnibus-test" class="section level1">

@@ -94,12 +94,14 @@ BAT = function(y,G,X,S,calcP=T,parallel=F,check=T){
     Z.miss = Z[!keep,,drop=F];
     e.obs = e[keep];
     # Information components
-    I11 = sum(g.obs^2);
+    I11 = fastIP(A=g.obs,B=g.obs);
     I12 = fastIP(A=g.obs,B=Z.obs);
     I22.obs = I22-fastIP(Z.miss,Z.miss);
-    # Calculate score
+    # Variance
     V = as.numeric(SchurC(I11=I11,I22=I22.obs,I12=I12));
+    # Score
     a = as.numeric(fastIP(A=g.obs,B=e.obs));
+    # Test statistic
     Ts = a^2/(V*tau);
     return(Ts);
   }
@@ -213,7 +215,7 @@ DINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
 #' inference, see \code{\link{IINT}}.
 #' 
 #' @importFrom plyr aaply
-#' @importFrom stats pf var
+#' @importFrom stats pchisq var
 #' @export
 #' 
 #' @param y Numeric phenotype vector.
@@ -261,8 +263,9 @@ IINT0 = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
     keep = !is.na(g);
     g.obs = g[keep];
     e.obs = e[keep];
-    # Wald statistic
+    # Information component
     g2 = sum(g.obs^2);
+    # Score statistic
     r2 = as.numeric(fastIP(A=g.obs,B=e.obs))^2;
     Tw = r2/(g2);
     return(Tw);
@@ -274,7 +277,7 @@ IINT0 = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
   colnames(Out) = "Wald";
   # Calculate p values
   if(calcP){
-    P = pf(q=W,df1=1,df2=df2,lower.tail=F);
+    P = pchisq(q=W,df=1);
     Out = cbind(Out,P);
   }
   return(Out);
@@ -323,18 +326,16 @@ IINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
   n = length(y);
   p = ncol(X);
   q = ncol(S);
-  df2 = n-p-q;
+  df2 = n-q;
   # Stage 1 model
   M1 = fitNorm(y=y,Z=cbind(X,S));
-  ex = rankNormal(u=M1$Resid);
+  e = rankNormal(u=M1$Resid);
   # Stage 2 model
-  M2 = fitNorm(y=ex,Z=S);
+  M2 = fitNorm(y=e,Z=S);
   # Extract components
-  e = M2$Resid;
+  d = M2$Resid;
   tau = M2$Tau; 
   I22 = tau*M2$Ibb;
-  # REML-type correction
-  tau = (n-q)/(n-p-q)*tau;
   # Function to calculate score statistics
   aux = function(g){
     # Adjust for missingness
@@ -342,14 +343,14 @@ IINT = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
     g.obs = g[keep];
     S.obs = S[keep,,drop=F];
     S.miss = S[!keep,,drop=F];
-    e.obs = e[keep];
+    d.obs = d[keep];
     # Information components
     I11 = sum(g.obs^2);
     I12 = fastIP(A=g.obs,B=S.obs);
     I22.obs = I22-fastIP(S.miss,S.miss);
     # Score statistic
     V = as.numeric(SchurC(I11=I11,I22=I22.obs,I12=I12));
-    a = as.numeric(fastIP(A=g.obs,B=e.obs));
+    a = as.numeric(fastIP(A=g.obs,B=d.obs));
     Ts = a^2/(tau*V);
     return(Ts);
   }
