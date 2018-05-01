@@ -277,7 +277,7 @@ IINT0 = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
   colnames(Out) = "Wald";
   # Calculate p values
   if(calcP){
-    P = pchisq(q=W,df=1);
+    P = pchisq(q=W,df=1,lower.tail=F);
     Out = cbind(Out,P);
   }
   return(Out);
@@ -381,6 +381,10 @@ AvgCorr = function(p1,p2,a=1e-3){
   # Convert to z-scores
   z1 = -qnorm(p1);
   z2 = -qnorm(p2);
+  # Restrict to probable null loci
+  keep = (abs(z1)<=5)&(abs(z2)<=5);
+  z1 = z1[keep];
+  z2 = z2[keep];
   # Estimated correlation
   r = vecCor(z1,z2);
   r = min(r,1-a);

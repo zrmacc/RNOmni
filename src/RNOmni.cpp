@@ -37,6 +37,7 @@ SEXP fitNorm(const Eigen::Map<Eigen::VectorXd> y, const Eigen::Map<Eigen::Matrix
 //' 
 //' @param a First vector.
 //' @param b Second vector.
+//' @export
 // [[Rcpp::export]]
 
 SEXP vecCor(const Eigen::Map<Eigen::VectorXd> a,const Eigen::Map<Eigen::VectorXd> b){
