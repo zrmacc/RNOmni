@@ -48,7 +48,7 @@ A numeric matrix of p values, three for each locus in \code{G},
 }
 \description{
 Association test that synthesizes the \code{\link{DINT}} and 
-\code{\link{IINT}} approaches. First, the direct and indirect association
+\code{\link{IINTc}} approaches. First, the direct and indirect association
 tests are applied. An omnibus statistic is calculated based on whichever
 approach provides more evidence against the null hypothesis of no genotypic
 effect. Details of the method are discussed in the vignette.
@@ -56,7 +56,7 @@ effect. Details of the method are discussed in the vignette.
 \details{
 Assigning a p-value to the omnibus statistic requires estimation of the 
 correlation between the test statistics estimated by \code{DINT} and 
-\code{IINT}. When many loci are under consideration, a computationally 
+\code{IINTc}. When many loci are under consideration, a computationally 
 efficient approach is to take the correlation of the observed test statistics
 across loci (\code{method="AvgCorr"}). Alternatively, when there are fewer 
 loci, or locus specific estimates are desired, the correlation may be 

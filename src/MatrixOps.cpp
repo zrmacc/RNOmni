@@ -1,19 +1,6 @@
 // [[Rcpp::depends(RcppEigen)]]
 #include <RcppEigen.h>
 
-//' Matrix vector product
-//'
-//' Calculates \eqn{Ab};
-//'
-//' @param A Numeric matrix.
-//' @param b Numeric vector.
-//' @export
-// [[Rcpp::export]]
-SEXP fastMvp(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::VectorXd> b){
-  const Eigen::MatrixXd B = A*b;
-  return Rcpp::wrap(B);
-}
-
 //' Matrix matrix product
 //'
 //' Calculates \eqn{AB};
@@ -74,19 +61,6 @@ SEXP fastDet(const Eigen::Map<Eigen::MatrixXd> A){
   return Rcpp::wrap(d);
 }
 
-//' Quadratic Form
-//' 
-//' Calculates \eqn{x'Ax}.
-//' 
-//' @param x Numeric vector.
-//' @param A Numeric matrix.
-//' @export
-// [[Rcpp::export]]
-SEXP vecQF(const Eigen::Map<Eigen::VectorXd> x, const Eigen::Map<Eigen::MatrixXd> A){
-  const double q = x.transpose()*A*x;
-  return Rcpp::wrap(q);
-}
-
 //' Matrix Quadratic Form
 //' 
 //' Calculates \eqn{x'Ax}.
@@ -95,7 +69,7 @@ SEXP vecQF(const Eigen::Map<Eigen::VectorXd> x, const Eigen::Map<Eigen::MatrixXd
 //' @param A Numeric matrix.
 //' @export
 // [[Rcpp::export]]
-SEXP matQF(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> A){
+SEXP fastQF(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> A){
   const Eigen::MatrixXd q = X.transpose()*A*X;
   return Rcpp::wrap(q);
 }
@@ -129,4 +103,18 @@ SEXP SchurC(const Eigen::Map<Eigen::MatrixXd> I11, const Eigen::Map<Eigen::Matri
   // Kernel matrix
   const Eigen::MatrixXd K = I11 - I12 * I22.llt().solve(I12.transpose());
   return Rcpp::wrap(K);
+}
+
+//' Residual
+//' 
+//' Calculates the residual after projection of Y onto X
+//' 
+//' @param X Numeric matrix.
+//' @param Y Numeric matrix.
+//' 
+//' @export 
+// [[Rcpp::export]]
+SEXP Resid(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> Y){
+  const Eigen::MatrixXd E=Y-X*(X.transpose()*X).llt().solve(X.transpose()*Y);
+  return Rcpp::wrap(E);
 }
