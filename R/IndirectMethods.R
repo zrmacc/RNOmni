@@ -198,7 +198,6 @@ IINTb = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
 #' p = RNOmni::IINTc(y=RNOmni::Y[,1],G=RNOmni::G[,1:10],X=RNOmni::X,S=RNOmni::S);
 
 IINTc = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
-  warning("This function was included for simulation purposes only.\n");
   if(check){
     # Check inputs
     Input = inCheck(y,G,X,S);
@@ -274,7 +273,6 @@ IINTc = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
 #' p = RNOmni::IINTd(y=RNOmni::Y[,1],G=RNOmni::G[,1:10],X=RNOmni::X,S=RNOmni::S);
 
 IINTd = function(y,G,X,S,calcP=T,k=3/8,parallel=F,check=T){
-  warning("This function was included for simulation purposes only.\n");
   if(check){
     # Check inputs
     Input = inCheck(y,G,X,S);
