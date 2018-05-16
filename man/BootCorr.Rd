@@ -9,11 +9,11 @@ BootCorr(y, G, X, S, k = 3/8, B = 100, parallel)
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Snp by obs genotype matrix.}
+\item{G}{Obs by snp genotype matrix.}
 
-\item{X}{Obs by feature covariate matrix.}
+\item{X}{Model matrix of covariates.}
 
-\item{S}{Obs by feature structure matrix.}
+\item{S}{Model matrix of structure adjustments.}
 
 \item{k}{Offset applied during rank-normalization. See
 \code{\link{rankNormal}}.}
@@ -22,7 +22,12 @@ BootCorr(y, G, X, S, k = 3/8, B = 100, parallel)
 
 \item{parallel}{Run bootstraps in parallel? Must register parallel backend first.}
 }
+\value{
+Numeric matrix of correlation estimates, one per locus (column) in G.
+}
 \description{
-Use bootstrap to estimate correlation among Z statistics
-whose maximum is taken in the omnibus test.
+Estimates the correlation between correlated p-values on the Z-score scale.
+Avoids the assumption that the correlation between p-values is constant across
+loci. Instead, bootstrap is used to calculate locus-specific estimates of the
+correlation between p-values.
 }

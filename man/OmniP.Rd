@@ -4,12 +4,17 @@
 \alias{OmniP}
 \title{Omnibus P-value}
 \usage{
-OmniP(Q)
+OmniP(u, r)
 }
 \arguments{
-\item{Q}{Numeric vector formatted as (p1,p2,rho), where p1 and p2 are 
-estimated p-values, and rho is their correlation.}
+\item{u}{Test statistic.}
+
+\item{r}{Correlation.}
+}
+\value{
+Numeric p-value.
 }
 \description{
-Calculate p-value for omnibus statistic.
+Calculates the p-value for the maximum of two correlated, standard normal 
+random variables.
 }

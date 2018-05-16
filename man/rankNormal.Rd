@@ -16,7 +16,7 @@ Numeric vector of rank normalized measurements.
 }
 \description{
 Applies the rank based inverse normal transform (INT) to a numeric vector. 
-INT is indicated for continuous outcomes. See the vignette for the
+INT is best-suited to continuous outcomes. See the vignette for the
 definition of INT.
 }
 \examples{

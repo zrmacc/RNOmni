@@ -4,7 +4,7 @@
 \alias{BAT}
 \title{Basic Association Test}
 \usage{
-BAT(y, G, X, S, calcP = T, parallel = F, check = T)
+BAT(y, G, X, S, parallel = F, check = T)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -15,20 +15,18 @@ BAT(y, G, X, S, calcP = T, parallel = F, check = T)
 
 \item{S}{Model matrix of structure adjustments.}
 
-\item{calcP}{Logical indicating that p values should be calculated.}
-
 \item{parallel}{Logical indicating whether to run in parallel. Must register
 parallel backend first.}
 
-\item{check}{Logical indicating whether to check the input.}
+\item{check}{Logical indicating whether to check input formatting.}
 }
 \value{
-A numeric matrix of score statistics, one for each locus in \code{G},
-  assessing the null hypothesis that genotype is unrelated to the outcome. If
-  \code{calcP=T}, a p-value is additionally calculated for each locus.
+A numeric matrix of score statistics and p-values, one for each locus
+  (column) in \code{G}, assessing the null hypothesis that genotype is
+  unrelated to the phenotype.
 }
 \description{
-Tests the association between genotype and the untransformed phenotype, 
+Test of association between genotype and the untransformed phenotype, 
 adjusting for covariates and population structure.
 }
 \examples{

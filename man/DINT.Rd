@@ -4,7 +4,7 @@
 \alias{DINT}
 \title{Direct-INT}
 \usage{
-DINT(y, G, X, S, calcP = T, k = 3/8, parallel = F, check = T)
+DINT(y, G, X, S, k = 3/8, parallel = F, check = T)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -15,23 +15,21 @@ DINT(y, G, X, S, calcP = T, k = 3/8, parallel = F, check = T)
 
 \item{S}{Model matrix of structure adjustments.}
 
-\item{calcP}{Logical indicating that p values should be calculated.}
-
 \item{k}{Offset applied during rank-normalization. See 
 \code{\link{rankNormal}}.}
 
 \item{parallel}{Logical indicating whether to run in parallel. Must register
 parallel backend first.}
 
-\item{check}{Logical indicating whether to check the input.}
+\item{check}{Logical indicating whether to check input formatting.}
 }
 \value{
-A numeric matrix of score statistics, one for each locus in \code{G},
-  assessing the null hypothesis that genotype is unrelated to the outcome. If
-  \code{calcP=T}, a p-value is additionally calculated for each locus.
+A numeric matrix of score statistics and p-values, one for each locus
+  (column) in \code{G}, assessing the null hypothesis that genotype is
+  unrelated to the phenotype.
 }
 \description{
-Tests for association between genotype and the rank normalized phenotype, 
+Tests of association between genotype and the rank normalized phenotype, 
 adjusting for covariates and population structure.
 }
 \examples{

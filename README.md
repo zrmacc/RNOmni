@@ -6,7 +6,7 @@ Zachary McCaw
 Purpose
 =======
 
-Genetic association tests for continuous phenotypes often assume normally distributed residuals. Departures from the assumed residual distribution can lead to an excess of false positive associations in the absence of a genotypic effect, and loss of power in the presence of a genotypic effect. When the outcome distribution is far from normal, the rank based inverse normal transformation (INT) has been applied to improve residual normality. `RNOmni` provides an omnibus, INT-based association test, synthesizing two approaches found to robustly control the type I error. In simulations, the omnibus test provided valid inference in the absence of a genotypic effect, and provided power comparable to the more powerful of the component methods in the presence of a genotypic effect.
+Genetic association tests for continuous phenotypes often assume normally distributed residuals. Departures from the assumed residual distribution can lead to an excess of false positive associations in the absence of genetic effects, and loss of power in the presence of genetic effects. When the outcome distribution is far from normal, the rank based inverse normal transformation (INT) has been applied to improve residual normality. `RNOmni` provides an omnibus, INT-based association test, synthesizing two approaches found to robustly control the type I error. In simulations, the omnibus test provided valid inference in the absence of a genotypic effect, while provided power comparable to the more efficient of the component methods in the presence of a genotypic effect.
 
 Package Vignette
 ================
@@ -25,7 +25,7 @@ Motivating Example
 
 We consider the setting of genetic association testing with a continuous outcome whose residual distribution is skewed or heavy tailed as compared with the normal distribution. An example is provided by the apnea-hyopnea index (AHI), the gold standard measurement for diagnosing obstructive sleep apnea. The residual distribution obtained after regressing AHI on genotype and covariates is often non-normal. Application of standard association tests, even those which only rely on asymptotic normality, can lead to an excess of false positive associations when the departure from normality is severe.
 
-The rank based inverse normal transformation (INT) has been proposed to counteract departures from normality. To apply INT, the sample measurements are ranked, and the observed values are replaced with the corresponding quantiles of the standard normal distribution. Below, a sample of size *n* = 1000 is drawn from the *χ*<sub>1</sub><sup>2</sup> distribution. Provided the measurement is continuous, i.e. there are no ties, the distribution of the measurement after INT is normal.
+The rank based inverse normal transformation (INT) has been proposed to counteract departures from normality. To apply INT, the sample measurements are ranked, and the observed order statistics are replaced with the corresponding quantiles of the standard normal distribution. Below, a sample of size *n* = 1000 is drawn from the *χ*<sub>1</sub><sup>2</sup> distribution. Provided the measurement is continuous, i.e. there are no ties, the distribution of the measurement in the sample is normal after INT.
 
 ``` r
 # Chi-1 data
@@ -87,14 +87,14 @@ Simulated data are available for 10<sup>3</sup> subjects. Covariates `X` include
 Data Formatting
 ---------------
 
-All matrices, including genotypes `G`, covariates `X`, and structure adjustments `S`, are expected in numeric format. Factors and interactions should be expanded in advance, e.g. using `model.matrix`. The outcome `y` is centered internally, so an intercept is **not** required. All matrices are formatted with subjects as rows.
+All matrices, including genotypes `G`, covariates `X`, and structure adjustments `S`, are expected in numeric format. Factors and interactions should be expanded in advance, e.g. using `model.matrix`. If an intercept is required, include a vector of constants in `X`. All matrices are formatted with subjects as rows.
 
 Omnibus Test
 ============
 
 `RNOmni` implements an adaptive test of association between the loci in *G* and the phenotype *y*, while adjusting for covariates *X* and population structure *S*. Internally, `RNOmni` conducts two association tests, termed direct INT `DINT` and indirect INT `IINT`. These tests are described [below](#additional-association-tests). On omnibus statistic is calculated based on whichever approach provides more evidence against the null hypothesis. Synthesizing two complementary approaches affords the omnibus test robustness to the distribution of phenotypic residuals. In simulations against various skewed and heavy tailed residual distributions, the omnibus test provided valid inference in the absence of a genotypic effect, and provided power comparable to the more powerful of the component methods in the presence of a genotypic effect.
 
-Assigning a *p*-value to the omnibus statistic requires an estimate of the correlation *ρ* between the test statistics provided by `DINT` and `IINT`. When many loci are under consideration, a computationally efficient strategy is to estimate *ρ* by taking the correlation between the observed test statistics across loci. Alternatively, when there are fewer loci, or locus specific estimates are desired, *ρ* may be estimated using bootstrap. In simulations, the value of *ρ* estimated by taking the correlation across loci was quite similar to the average of the locus specific estimates of *ρ* obtained using bootstrap. Finally, the user may estimate the correlation externally, then manually specify the value of *ρ*.
+Assigning a *p*-value to the omnibus statistic requires an estimate of the correlation *ρ* between the test statistics provided by `DINT` and `IINT`. When many loci are under consideration, a computationally efficient strategy is to estimate *ρ* by taking the correlation between the observed test statistics across loci. Alternatively, when there are fewer loci, or locus specific estimates are desired, *ρ* may be estimated using bootstrap. In simulations, the value of *ρ* estimated by taking the correlation across loci agreed with the average of the locus specific estimates of *ρ* obtained using bootstrap. Finally, the user may estimate the correlation externally, then manually specify the value of *ρ*.
 
 By default, the output of `RNOmni` is a numeric matrix of *p*-values, with rows corresponding to the loci of *G*. The columns are the *p*-values from the `DINT`, the `IINT`, and the omnibus tests, respectively. If `keep.stats=T`, the test statistics are retained. If `keep.rho=T`, the estimated correlation between the *p*-values provided by `DINT` and `IINT` is retained.
 
@@ -139,12 +139,12 @@ round(head(p.bat),digits=3);
 ```
 
     ##    Score     P
-    ## G1 0.698 0.404
-    ## G2 1.706 0.192
-    ## G3 1.148 0.284
-    ## G4 0.935 0.334
-    ## G5 0.320 0.572
-    ## G6 4.292 0.039
+    ## G1 0.691 0.406
+    ## G2 1.714 0.191
+    ## G3 1.151 0.284
+    ## G4 0.945 0.331
+    ## G5 0.321 0.571
+    ## G6 4.264 0.039
 
 Direct Inverse Normal Transformation
 ------------------------------------
@@ -168,7 +168,7 @@ round(head(p.dint),digits=3);
 Indirect Inverse Normal Transformation
 --------------------------------------
 
-`IINT` implements a two-stage association test. In the first stage, the untransformed phenotype *y* is regressed on covariates *X* and population structure *S* to obtain residuals *e*. In the second stage, the transformed residuals INT(*e*) are regressed on genotype at each locus in *G*, again adjusting for population structure *S*. A *p*-value assessing the null hypothesis of no genotypic effect is estimated using a score test. The output is a numeric matrix, including the score statistic and *p*-value for each locus in `G`.
+`IINT` implements a two-stage association test. In the first stage, the untransformed phenotype *y* is regressed on covariates *X* and population structure *S* to obtain residuals *e*. Likewise, genotype *g* at the locus under scrutiny is regressed on covariates *X* and population structure *S* to obtain residuals *h*. In the second stage, the transformed phenotypic residuals INT(*e*) are regressed on genotypic residuals *h*. The output is a numeric matrix, including the Wald statistic and *p*-value for each locus in `G`.
 
 ``` r
 # Partially Indirect INT Test
@@ -176,13 +176,13 @@ p.iint = RNOmni::IINT(y=Y[,1],G=G,X=X,S=S);
 round(head(p.iint),digits=3);
 ```
 
-    ##    Score     P
-    ## G1 0.266 0.606
-    ## G2 0.985 0.321
-    ## G3 1.240 0.266
-    ## G4 1.109 0.292
-    ## G5 0.350 0.554
-    ## G6 1.847 0.174
+    ##     Wald     P
+    ## G1 0.691 0.406
+    ## G2 1.695 0.193
+    ## G3 1.171 0.279
+    ## G4 1.052 0.305
+    ## G5 0.284 0.594
+    ## G6 4.247 0.039
 
 Implementation Notes
 ====================

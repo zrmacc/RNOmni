@@ -4,16 +4,23 @@
 \alias{AvgCorr}
 \title{Average Correlation Estimate.}
 \usage{
-AvgCorr(p1, p2, a = 0.001)
+AvgCorr(p1, p2, tau = 3, a = 0.001)
 }
 \arguments{
 \item{p1}{Fist p-value.}
 
 \item{p2}{Second p-value.}
 
+\item{tau}{Threshold Z score above which the p-value likely corresponds to a true positive.}
+
 \item{a}{Force correlation estimate to fall in the interval (a,1-a);}
 }
+\value{
+A numeric correlation.
+}
 \description{
-Estimate correlation using the average of qnorm(p1)*qnorm(p2) across loci, where
-(p1,p2) are p-values obtained via two different association tests.
+Estimates the correlation between correlated p-values on the Z-score scale. The
+p-values are supposed to have arisen from different tests of the same hypothesis
+using the same data. Since an estimate of correlation under the null is of interest,
+pairs where at least one of the Z scores exceeds the threshold \eqn{\tau} are excluded.
 }

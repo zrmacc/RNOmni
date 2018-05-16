@@ -5,7 +5,7 @@
 \title{Rank-Normal Omnibus Test}
 \usage{
 RNOmni(y, G, X, S, method = "AvgCorr", k = 3/8, B = 100, set.rho,
-  keep.rho = F, keep.stats = F, parallel = F, check = T)
+  keep.rho = F, keep.stats = F, parallel = F)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -36,8 +36,6 @@ statistics calculated by DINT and IINT. Defaults to FALSE.}
 
 \item{parallel}{Logical indicating whether to run in parallel. Must register 
 parallel backend first.}
-
-\item{check}{Logical indicating whether to check the input.}
 }
 \value{
 A numeric matrix of p values, three for each locus in \code{G},
@@ -47,16 +45,19 @@ A numeric matrix of p values, three for each locus in \code{G},
   by DINT and IINT is retained.
 }
 \description{
-Association test that synthesizes the \code{\link{DINT}} and 
-\code{\link{IINTc}} approaches. First, the direct and indirect association
-tests are applied. An omnibus statistic is calculated based on whichever
-approach provides more evidence against the null hypothesis of no genotypic
-effect. Details of the method are discussed in the vignette.
+Association test that synthesizes the \code{\link{DINT}} and
+\code{\link{IINT}} approaches. The first approach directly transforms the
+phenotype, whereas the second approach forms residuals prior to applying the
+rank normal transformation (\code{\link{rankNormal}}). In the omnibus test,
+the direct and indirect tests are separately applied. An omnibus statistic is
+calculated based on whichever approach provides more evidence against the
+null hypothesis of no genotypic effect. Details of the method are discussed
+in the vignette.
 }
 \details{
-Assigning a p-value to the omnibus statistic requires estimation of the 
+Assigning a p-value to the omnibus statistic requires an estimate of the 
 correlation between the test statistics estimated by \code{DINT} and 
-\code{IINTc}. When many loci are under consideration, a computationally 
+\code{IINT}. When many loci are under consideration, a computationally 
 efficient approach is to take the correlation of the observed test statistics
 across loci (\code{method="AvgCorr"}). Alternatively, when there are fewer 
 loci, or locus specific estimates are desired, the correlation may be 
