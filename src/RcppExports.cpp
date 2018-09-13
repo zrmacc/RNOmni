@@ -6,149 +6,112 @@
 
 using namespace Rcpp;
 
-// fastMMp
-SEXP fastMMp(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B);
-RcppExport SEXP _RNOmni_fastMMp(SEXP ASEXP, SEXP BSEXP) {
+// cov
+SEXP cov(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B, const bool cor);
+RcppExport SEXP _RNOmni_cov(SEXP ASEXP, SEXP BSEXP, SEXP corSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type B(BSEXP);
-    rcpp_result_gen = Rcpp::wrap(fastMMp(A, B));
+    Rcpp::traits::input_parameter< const bool >::type cor(corSEXP);
+    rcpp_result_gen = Rcpp::wrap(cov(A, B, cor));
     return rcpp_result_gen;
 END_RCPP
 }
-// fastT
-SEXP fastT(const Eigen::Map<Eigen::MatrixXd> A);
-RcppExport SEXP _RNOmni_fastT(SEXP ASEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
-    rcpp_result_gen = Rcpp::wrap(fastT(A));
-    return rcpp_result_gen;
-END_RCPP
-}
-// fastIP
-SEXP fastIP(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B);
-RcppExport SEXP _RNOmni_fastIP(SEXP ASEXP, SEXP BSEXP) {
+// MMP
+SEXP MMP(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B);
+RcppExport SEXP _RNOmni_MMP(SEXP ASEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type B(BSEXP);
-    rcpp_result_gen = Rcpp::wrap(fastIP(A, B));
+    rcpp_result_gen = Rcpp::wrap(MMP(A, B));
     return rcpp_result_gen;
 END_RCPP
 }
-// fastInv
-SEXP fastInv(const Eigen::Map<Eigen::MatrixXd> A);
-RcppExport SEXP _RNOmni_fastInv(SEXP ASEXP) {
+// matIP
+SEXP matIP(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B);
+RcppExport SEXP _RNOmni_matIP(SEXP ASEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
-    rcpp_result_gen = Rcpp::wrap(fastInv(A));
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type B(BSEXP);
+    rcpp_result_gen = Rcpp::wrap(matIP(A, B));
     return rcpp_result_gen;
 END_RCPP
 }
-// fastDet
-SEXP fastDet(const Eigen::Map<Eigen::MatrixXd> A);
-RcppExport SEXP _RNOmni_fastDet(SEXP ASEXP) {
+// matInv
+SEXP matInv(const Eigen::Map<Eigen::MatrixXd> A);
+RcppExport SEXP _RNOmni_matInv(SEXP ASEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
-    rcpp_result_gen = Rcpp::wrap(fastDet(A));
+    rcpp_result_gen = Rcpp::wrap(matInv(A));
     return rcpp_result_gen;
 END_RCPP
 }
-// fastQF
-SEXP fastQF(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> A);
-RcppExport SEXP _RNOmni_fastQF(SEXP XSEXP, SEXP ASEXP) {
+// det
+SEXP det(const Eigen::Map<Eigen::MatrixXd> A);
+RcppExport SEXP _RNOmni_det(SEXP ASEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
+    rcpp_result_gen = Rcpp::wrap(det(A));
+    return rcpp_result_gen;
+END_RCPP
+}
+// matQF
+SEXP matQF(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> A);
+RcppExport SEXP _RNOmni_matQF(SEXP XSEXP, SEXP ASEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type X(XSEXP);
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
-    rcpp_result_gen = Rcpp::wrap(fastQF(X, A));
-    return rcpp_result_gen;
-END_RCPP
-}
-// olsB
-SEXP olsB(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> Y);
-RcppExport SEXP _RNOmni_olsB(SEXP ASEXP, SEXP YSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type Y(YSEXP);
-    rcpp_result_gen = Rcpp::wrap(olsB(A, Y));
+    rcpp_result_gen = Rcpp::wrap(matQF(X, A));
     return rcpp_result_gen;
 END_RCPP
 }
 // SchurC
-SEXP SchurC(const Eigen::Map<Eigen::MatrixXd> I11, const Eigen::Map<Eigen::MatrixXd> I22, const Eigen::Map<Eigen::MatrixXd> I12);
-RcppExport SEXP _RNOmni_SchurC(SEXP I11SEXP, SEXP I22SEXP, SEXP I12SEXP) {
+SEXP SchurC(const Eigen::Map<Eigen::MatrixXd> Ibb, const Eigen::Map<Eigen::MatrixXd> Iaa, const Eigen::Map<Eigen::MatrixXd> Iba);
+RcppExport SEXP _RNOmni_SchurC(SEXP IbbSEXP, SEXP IaaSEXP, SEXP IbaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type I11(I11SEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type I22(I22SEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type I12(I12SEXP);
-    rcpp_result_gen = Rcpp::wrap(SchurC(I11, I22, I12));
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type Ibb(IbbSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type Iaa(IaaSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type Iba(IbaSEXP);
+    rcpp_result_gen = Rcpp::wrap(SchurC(Ibb, Iaa, Iba));
     return rcpp_result_gen;
 END_RCPP
 }
-// Resid
-SEXP Resid(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> Y);
-RcppExport SEXP _RNOmni_Resid(SEXP XSEXP, SEXP YSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type Y(YSEXP);
-    rcpp_result_gen = Rcpp::wrap(Resid(X, Y));
-    return rcpp_result_gen;
-END_RCPP
-}
-// fitNorm
-SEXP fitNorm(const Eigen::Map<Eigen::VectorXd> y, const Eigen::Map<Eigen::MatrixXd> Z);
-RcppExport SEXP _RNOmni_fitNorm(SEXP ySEXP, SEXP ZSEXP) {
+// fitOLS
+SEXP fitOLS(const Eigen::Map<Eigen::VectorXd> y, const Eigen::Map<Eigen::MatrixXd> X);
+RcppExport SEXP _RNOmni_fitOLS(SEXP ySEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd> >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type Z(ZSEXP);
-    rcpp_result_gen = Rcpp::wrap(fitNorm(y, Z));
-    return rcpp_result_gen;
-END_RCPP
-}
-// vecCor
-SEXP vecCor(const Eigen::Map<Eigen::VectorXd> a, const Eigen::Map<Eigen::VectorXd> b);
-RcppExport SEXP _RNOmni_vecCor(SEXP aSEXP, SEXP bSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd> >::type a(aSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd> >::type b(bSEXP);
-    rcpp_result_gen = Rcpp::wrap(vecCor(a, b));
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(fitOLS(y, X));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_RNOmni_fastMMp", (DL_FUNC) &_RNOmni_fastMMp, 2},
-    {"_RNOmni_fastT", (DL_FUNC) &_RNOmni_fastT, 1},
-    {"_RNOmni_fastIP", (DL_FUNC) &_RNOmni_fastIP, 2},
-    {"_RNOmni_fastInv", (DL_FUNC) &_RNOmni_fastInv, 1},
-    {"_RNOmni_fastDet", (DL_FUNC) &_RNOmni_fastDet, 1},
-    {"_RNOmni_fastQF", (DL_FUNC) &_RNOmni_fastQF, 2},
-    {"_RNOmni_olsB", (DL_FUNC) &_RNOmni_olsB, 2},
+    {"_RNOmni_cov", (DL_FUNC) &_RNOmni_cov, 3},
+    {"_RNOmni_MMP", (DL_FUNC) &_RNOmni_MMP, 2},
+    {"_RNOmni_matIP", (DL_FUNC) &_RNOmni_matIP, 2},
+    {"_RNOmni_matInv", (DL_FUNC) &_RNOmni_matInv, 1},
+    {"_RNOmni_det", (DL_FUNC) &_RNOmni_det, 1},
+    {"_RNOmni_matQF", (DL_FUNC) &_RNOmni_matQF, 2},
     {"_RNOmni_SchurC", (DL_FUNC) &_RNOmni_SchurC, 3},
-    {"_RNOmni_Resid", (DL_FUNC) &_RNOmni_Resid, 2},
-    {"_RNOmni_fitNorm", (DL_FUNC) &_RNOmni_fitNorm, 2},
-    {"_RNOmni_vecCor", (DL_FUNC) &_RNOmni_vecCor, 2},
+    {"_RNOmni_fitOLS", (DL_FUNC) &_RNOmni_fitOLS, 2},
     {NULL, NULL, 0}
 };
 

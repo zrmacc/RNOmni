@@ -1,120 +1,86 @@
 // [[Rcpp::depends(RcppEigen)]]
 #include <RcppEigen.h>
 
-//' Matrix matrix product
+//' Matrix Matrix Product
 //'
-//' Calculates \eqn{AB};
+//' Calculates the product \eqn{AB}. 
 //'
 //' @param A Numeric matrix.
 //' @param B Numeric matrix.
-//' @export
+//' @return Numeric matrix.
 // [[Rcpp::export]]
-SEXP fastMMp(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B){
+
+SEXP MMP(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B){
   const Eigen::MatrixXd C = A*B;
   return Rcpp::wrap(C);
 }
 
-//' Matrix Transpose
-//'
-//' Constructs \eqn{A'} from \eqn{A}.
-//'
-//' @param A Numeric matrix.
-//' @export
-// [[Rcpp::export]]
-SEXP fastT(const Eigen::Map<Eigen::MatrixXd> A){
-  const Eigen::MatrixXd At = A.transpose();
-  return Rcpp::wrap(At);
-}
-
 //' Matrix Inner Product
 //'
-//' Calculates \eqn{A'B}.
+//' Calculates the inner product \eqn{A'B}.
 //'
 //' @param A Numeric matrix.
 //' @param B Numeric matrix.
-//' @export
+//' @return Numeric matrix. 
 // [[Rcpp::export]]
-SEXP fastIP(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B){
+
+SEXP matIP(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B){
   const Eigen::MatrixXd AtB = (A.transpose() * B);
   return Rcpp::wrap(AtB);
 }
 
 //' Matrix Inverse
 //'
+//' Calcualtes \eqn{A^{-1}}.
+//' 
 //' @param A Numeric matrix.
-//' @export
+//' @return A numeric matrix. 
 // [[Rcpp::export]]
-SEXP fastInv(const Eigen::Map<Eigen::MatrixXd> A){
+
+SEXP matInv(const Eigen::Map<Eigen::MatrixXd> A){
   const Eigen::MatrixXd Ai = A.completeOrthogonalDecomposition().pseudoInverse();
   return Rcpp::wrap(Ai);
 }
 
 //' Matrix Determinant
 //'
-//' Calculates \eqn{\det(A)}.
+//' Calculates the determinant of matrix \eqn{A}. 
 //'
 //' @param A Numeric matrix.
-//' @export
+//' @return Scalar. 
 // [[Rcpp::export]]
-SEXP fastDet(const Eigen::Map<Eigen::MatrixXd> A){
+
+SEXP det(const Eigen::Map<Eigen::MatrixXd> A){
   const double d = A.determinant();
   return Rcpp::wrap(d);
 }
 
 //' Matrix Quadratic Form
 //' 
-//' Calculates \eqn{x'Ax}.
+//' Calculates the quadratic form \eqn{X'AX}.
 //' 
 //' @param X Numeric matrix.
 //' @param A Numeric matrix.
-//' @export
+//' @return Numeric matrix
 // [[Rcpp::export]]
-SEXP fastQF(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> A){
+
+SEXP matQF(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> A){
   const Eigen::MatrixXd q = X.transpose()*A*X;
   return Rcpp::wrap(q);
 }
 
-//' Ordinary Least Squares Coeefficient
-//' 
-//' Calculate the OLS coefficient \eqn{(A'A)^{-1}A'Y}.
-//' 
-//' @param A Numeric matrix
-//' @param Y Numeric matrix
-//' @export
-// [[Rcpp::export]]
-
-SEXP olsB(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> Y){
-  const Eigen::MatrixXd B = (A.transpose()*A).llt().solve(A.transpose()*Y);
-  return Rcpp::wrap(B);
-}
-
 //' Schur complement
 //'
-//' Calculates the efficient information \eqn{I_{11}-I_{12}I_{22}^{-1}I_{21}};
+//' Calculates the efficient information \eqn{I_{bb}-I_{ba}I_{aa}^{-1}I_{ab}}. 
 //'
-//' @param I11 Information of target parameter
-//' @param I22 Information of nuisance parameter
-//' @param I12 Cross information between target and nuisance parameters
-//' @export
-//'
+//' @param Ibb Information of target parameter
+//' @param Iaa Information of nuisance parameter
+//' @param Iba Cross information between target and nuisance parameters
+//' @return Numeric matrix. 
 // [[Rcpp::export]]
-SEXP SchurC(const Eigen::Map<Eigen::MatrixXd> I11, const Eigen::Map<Eigen::MatrixXd> I22,
-            const Eigen::Map<Eigen::MatrixXd> I12){
+SEXP SchurC(const Eigen::Map<Eigen::MatrixXd> Ibb, const Eigen::Map<Eigen::MatrixXd> Iaa,
+            const Eigen::Map<Eigen::MatrixXd> Iba){
   // Kernel matrix
-  const Eigen::MatrixXd K = I11 - I12 * I22.llt().solve(I12.transpose());
-  return Rcpp::wrap(K);
-}
-
-//' Residual
-//' 
-//' Calculates the residual after projection of Y onto X
-//' 
-//' @param X Numeric matrix.
-//' @param Y Numeric matrix.
-//' 
-//' @export 
-// [[Rcpp::export]]
-SEXP Resid(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> Y){
-  const Eigen::MatrixXd E=Y-X*(X.transpose()*X).llt().solve(X.transpose()*Y);
+  const Eigen::MatrixXd E = Ibb-(Iba*(Iaa.ldlt().solve(Iba.transpose())));
   return Rcpp::wrap(E);
 }

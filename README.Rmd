@@ -1,11 +1,11 @@
 ---
 title: "README"
 author: "Zachary McCaw"
-date: "04/17/2018"
-output: github_document
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    keep_md: TRUE
 --- 
-# Purpose
-Genetic association tests for continuous phenotypes often assume normally distributed residuals. Departures from the assumed residual distribution can lead to an excess of false positive associations in the absence of genetic effects, and loss of power in the presence of genetic effects. When the outcome distribution is far from normal, the rank based inverse normal transformation (INT) has been applied to improve residual normality. `RNOmni` provides an omnibus, INT-based association test, synthesizing two approaches found to robustly control the type I error. In simulations, the omnibus test provided valid inference in the absence of a genotypic effect, while provided power comparable to the more efficient of the component methods in the presence of a genotypic effect. 
 
 # Package Vignette
 ```{r,child='vignettes/RNOmni.Rmd'}
