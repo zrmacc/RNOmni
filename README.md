@@ -7,6 +7,10 @@ output:
     keep_md: TRUE
 --- 
 
+# Purpose
+
+Genetic association tests for continuous phenotypes often assume normally distributed residuals. Departures from the assumed residual distribution can lead to an excess of false positive associations in the absence of genetic effects, and loss of power in the presence of genetic effects. When the outcome distribution is far from normal, the rank based inverse normal transformation (INT) has been applied to improve residual normality. RNOmni provides an omnibus, INT-based association test, synthesizing two approaches found to robustly control the type I error. In simulations against non-normal phenotypes, the omnibus test controlled the type I error in the absence of genetic associations, and improved power in the presence of genetic associations. Under the same settings, standard linear regression variously failed to control the type I error in the absence of associations, and was underpowered in the presence of associations. 
+
 # Package Vignette
 
 
