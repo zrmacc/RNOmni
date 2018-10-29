@@ -1,5 +1,5 @@
 # Purpose: Direct INT-based test
-# Updated: 180912
+# Updated: 181029
 
 #' Direct-INT
 #' 
@@ -17,6 +17,7 @@
 #'   an intercept. Omit to perform marginal tests of association. 
 #' @param k Offset applied during rank-normalization. See 
 #'   \code{\link{rankNorm}}.
+#' @param test Either Score or Wald. 
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first.
 #' @return A numeric matrix of score statistics and p-values, one for each locus
@@ -36,13 +37,15 @@
 #' p = DINT(y=y,G=G,X=X);
 #' }
 
-DINT = function(y,G,X=NULL,k=3/8,parallel=F){
+DINT = function(y,G,X=NULL,k=3/8,test="Score",parallel=F){
   # Input check 
   n = length(y);
   if(!is.vector(y)){stop("A numeric vector is expected for y.")};
   if(!is.matrix(G)){stop("A numeric matrix is expected for G.")};
   if(is.null(X)){X=array(1,dim=c(n,1))};
   if(!is.matrix(X)){stop("A numeric matrix is expected for X.")};
+  # Test
+  if(!(test%in%c("Score","Wald"))){stop("Select test from among: Score, Wald.")};
   # Missingness
   Miss = sum(is.na(y))+sum(is.na(X));
   if(Miss>0){stop("Please exclude observations missing phenotype or covariate information.")}
@@ -50,6 +53,6 @@ DINT = function(y,G,X=NULL,k=3/8,parallel=F){
   # Transform phenotype
   z = rankNorm(y,k=k);
   # Apply basic association test to transformed phenotype
-  Out = BAT(y=z,G=G,X=X);
+  Out = BAT(y=z,G=G,X=X,test=test);
   return(Out);
 }

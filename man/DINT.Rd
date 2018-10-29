@@ -4,7 +4,7 @@
 \alias{DINT}
 \title{Direct-INT}
 \usage{
-DINT(y, G, X = NULL, k = 3/8, parallel = F)
+DINT(y, G, X = NULL, k = 3/8, test = "Score", parallel = F)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -16,6 +16,8 @@ an intercept. Omit to perform marginal tests of association.}
 
 \item{k}{Offset applied during rank-normalization. See 
 \code{\link{rankNorm}}.}
+
+\item{test}{Either Score or Wald.}
 
 \item{parallel}{Logical indicating whether to run in parallel. Must register
 parallel backend first.}

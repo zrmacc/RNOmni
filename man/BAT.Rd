@@ -4,7 +4,7 @@
 \alias{BAT}
 \title{Basic Association Test}
 \usage{
-BAT(y, G, X = NULL, parallel = F)
+BAT(y, G, X = NULL, test = "Score", parallel = F)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -13,6 +13,8 @@ BAT(y, G, X = NULL, parallel = F)
 
 \item{X}{Model matrix of covariates and structure adjustments. Should include
 an intercept. Omit to perform marginal tests of association.}
+
+\item{test}{Either Score or Wald.}
 
 \item{parallel}{Logical indicating whether to run in parallel. Must register
 parallel backend first.}
