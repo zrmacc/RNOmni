@@ -54,8 +54,6 @@ IINT = function(y,G,X=NULL,k=3/8,parallel=F){
   ng = ncol(G);
   # Sample size
   n = length(y);
-  # Degrees of freedom
-  df2 = n-ncol(X);
   # Fit null model
   M0 = fitOLS(y=y,X=X);
   # Transformed Residuals
@@ -81,15 +79,18 @@ IINT = function(y,G,X=NULL,k=3/8,parallel=F){
     # Wald statistic
     U = as.numeric(matIP(g1,e0));
     Tw = (U^2)/V;
-    return(Tw);
+    # p-value
+    p = pchisq(q=Tw,df=1,lower.tail=F);
+    # Output
+    Out = c(Tw,p);
+    return(Out);
   }
   # Wald statistics
-  W = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
-  # Output frame
-  Out = matrix(W,nrow=ng);
-  colnames(Out) = "Wald";
-  # Calculate p values
-  P = pchisq(q=W,df=1,lower.tail=F);
-  Out = cbind(Out,P);
+  Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
+  # Format
+  dimnames(Out) = NULL;
+  colnames(Out) = c("Wald","p");
+  if(!is.null(colnames(G))){rownames(Out)=colnames(G)} else {rownames(Out) = seq(1:ng)};
+  # Return
   return(Out);
 };

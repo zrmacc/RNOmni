@@ -40,21 +40,19 @@ BAT = function(y,G,X=NULL,test="Score",parallel=F){
   if(!is.vector(y)){stop("A numeric vector is expected for y.")};
   if(!is.matrix(G)){stop("A numeric matrix is expected for G.")};
   if(is.null(X)){X=array(1,dim=c(n,1))};
-  p = ncol(X);
+  k = ncol(X);
   if(!is.matrix(X)){stop("A numeric matrix is expected for X.")};
   # Test
   if(!(test%in%c("Score","Wald"))){stop("Select test from among: Score, Wald.")};
   # Missingness
   Miss = sum(is.na(y))+sum(is.na(X));
-  if(Miss>0){stop("Please exclude observations missing phenotype or covariate information.")}
+  if(Miss>0){stop("Please exclude observations missing phenotype or covariate information.")};
   
   # Loci
   ng = ncol(G);
 
   ## Score test
   if(test=="Score"){
-    # Degrees of freedom
-    df2 = n-p;
     # Fit null model
     M0 = fitOLS(y=y,X=X);
     # Extract model components
@@ -91,18 +89,16 @@ BAT = function(y,G,X=NULL,test="Score",parallel=F){
       U = as.numeric(matIP(g0,e0));
       # Test statistic
       Ts = (U^2)/(v*E);
-      return(Ts);
+      # p-value
+      p = pf(q=Ts,df1=1,df2=sum(key)-k-1,lower.tail=F);
+      # Output
+      Out = c(Ts,p);
+      return(Out);
     }
     # Calculate score statistics
-    U = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
-    # Output frame
-    Out = matrix(U,nrow=ng);
-    colnames(Out) = "Score";
+    Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
   } else {
   ## Wald Test
-    # Degrees of freedom
-    df2 = n-p-1;
-    
     # Function to calculate wald statistics
     aux = function(g){
       # Adjust for missingness
@@ -125,16 +121,19 @@ BAT = function(y,G,X=NULL,test="Score",parallel=F){
       Ibbi = as.numeric(matInv(M1$Ibb)[1,1]);
       # Test statistic
       Ts = (bg^2)/(Ibbi);
-      return(Ts);
+      # p-value
+      p = pf(q=Ts,df1=1,df2=sum(key)-k-1,lower.tail=F);
+      # Output
+      Out = c(Ts,p);
+      return(Out);
     }
-    # Calculate score statistics
-    U = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
-    # Output frame
-    Out = matrix(U,nrow=ng);
-    colnames(Out) = "Wald";
+    # Calculate wald statistics
+    Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
   }
-  # Calculate p values
-  P = pf(q=U,df1=1,df2=df2,lower.tail=F);
-  Out = cbind(Out,P);
+  # Format
+  dimnames(Out) = NULL;
+  colnames(Out) = c(test,"p");
+  if(!is.null(colnames(G))){rownames(Out)=colnames(G)} else {rownames(Out) = seq(1:ng)};
+  # Return
   return(Out);
 }
