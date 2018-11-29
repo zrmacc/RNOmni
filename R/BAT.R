@@ -96,7 +96,7 @@ BAT = function(y,G,X=NULL,test="Score",parallel=F){
       return(Out);
     }
     # Calculate score statistics
-    Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
+    Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel,.drop=F);
   } else {
   ## Wald Test
     # Function to calculate wald statistics
@@ -128,7 +128,7 @@ BAT = function(y,G,X=NULL,test="Score",parallel=F){
       return(Out);
     }
     # Calculate wald statistics
-    Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
+    Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel,.drop=F);
   }
   # Format
   dimnames(Out) = NULL;

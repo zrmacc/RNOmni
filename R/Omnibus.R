@@ -80,7 +80,7 @@ BootCorr = function(y,G,X,k=3/8,B=100,parallel=F){
     r = cov(z1,z2,cor=T);
     return(r);
     };
-  R = aaply(.data=Rho,.margins=1,.fun=aux,.parallel=parallel);
+  R = aaply(.data=Rho,.margins=1,.fun=aux,.parallel=parallel,.drop=F);
   # Output
   return(R);
 }

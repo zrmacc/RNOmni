@@ -86,7 +86,7 @@ IINT = function(y,G,X=NULL,k=3/8,parallel=F){
     return(Out);
   }
   # Wald statistics
-  Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
+  Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel,.drop=F);
   # Format
   dimnames(Out) = NULL;
   colnames(Out) = c("Wald","p");
