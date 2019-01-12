@@ -19,7 +19,7 @@
 #'   an intercept. Omit to perform marginal tests of association. 
 #' @param k Offset applied during rank-normalization. See
 #'   \code{\link{rankNorm}}.
-#' @param simple Return only the p-values? 
+#' @param simple Return the p-values only? 
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first. 
 #' @return If \code{simple=T}, returns a vector of p-values, one for each column
@@ -100,31 +100,27 @@ IINT = function(y,G,X=NULL,k=3/8,simple=FALSE,parallel=FALSE){
   
   # Score statistics
   Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
-  # Format output
+  
+  ## Format output
   dimnames(Out) = NULL;
   # Check for genotype names
   gnames = colnames(G);
+  if(is.null(gnames)){
+    gnames = seq(1:ng);
+  }
   
   # If returning p-values only
   if(simple){
-    # Locus names
-    if(!is.null(gnames)){
-      names(Out) = gnames;
-    } else {
-      names(Out) = seq(1:ng);
-    }
+    names(Out) = gnames;
   } else {
+    # Format as matrix
     if(ng==1){
       Out = matrix(Out,nrow=1);
     }
     # Column names
     colnames(Out) = c("Score","SE","Z","p");
-    # Locus names
-    if(!is.null(gnames)){
-      names(Out) = gnames;
-    } else {
-      rownames(Out) = seq(1:ng)
-    }
+    # Row names
+    rownames(Out) = gnames;
   };
   # Return
   return(Out);

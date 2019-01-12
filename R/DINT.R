@@ -18,7 +18,7 @@
 #' @param k Offset applied during rank-normalization. See 
 #'   \code{\link{rankNorm}}.
 #' @param test Either Score or Wald. 
-#' @param simple Return only the p-values? 
+#' @param simple Return the p-values only? 
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first.
 #' @return If \code{simple=T}, returns a vector of p-values, one for each column

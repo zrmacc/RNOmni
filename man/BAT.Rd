@@ -17,7 +17,7 @@ an intercept. Omit to perform marginal tests of association.}
 
 \item{test}{Either Score or Wald.}
 
-\item{simple}{Return only the p-values?}
+\item{simple}{Return the p-values only?}
 
 \item{parallel}{Logical indicating whether to run in parallel. Must register
 parallel backend first.}

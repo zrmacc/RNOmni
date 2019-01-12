@@ -196,7 +196,7 @@ Results_OINT_Boot_Yt = OINT(y=yt,G=G[,1:10],X=X,method="Bootstrap",keep.rho=T,B=
 round(head(Results_OINT_Boot_Yt),digits=3);
 cat("\n");
 cat("Replicate the Omnibus Test on the T3 Phenotype, Manually Specifying Correlation\n");
-Results_OINT_Boot_Yt = OINT(y=yt,G=G,X=X,method="Manual",set.rho=Results_OINT_Boot_Yt[,"Corr"],keep.rho=T);
+Results_OINT_Boot_Yt = OINT(y=yt,G=G,X=X,method="Manual",set.rho=Results_OINT_Boot_Yt[,"Rho"],keep.rho=T);
 round(head(Results_OINT_Boot_Yt),digits=3);
 cat("\n");
 ```
@@ -230,7 +230,7 @@ cat("\n");
 ## 6  0.398  0.501  0.448
 ## 
 ## Omnibus Test, T3 Phenotype, Bootstrap Correlation Method
-##   DINT-p IINT-p OINT-p  Corr
+##   DINT-p IINT-p OINT-p   Rho
 ## 1  0.708  0.624  0.642 0.993
 ## 2  0.290  0.341  0.304 0.995
 ## 3  0.400  0.418  0.416 0.995
@@ -239,7 +239,7 @@ cat("\n");
 ## 6  0.398  0.501  0.426 0.984
 ## 
 ## Replicate the Omnibus Test on the T3 Phenotype, Manually Specifying Correlation
-##   DINT-p IINT-p OINT-p  Corr
+##   DINT-p IINT-p OINT-p   Rho
 ## 1  0.708  0.624  0.642 0.993
 ## 2  0.290  0.341  0.304 0.995
 ## 3  0.400  0.418  0.416 0.995

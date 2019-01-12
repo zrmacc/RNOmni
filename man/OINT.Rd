@@ -4,9 +4,9 @@
 \alias{OINT}
 \title{Omnibus-INT}
 \usage{
-OINT(y, G, X = NULL, method = "AvgCorr", k = 3/8, B = 100,
-  set.rho = NULL, keep.rho = FALSE, keep.stats = FALSE,
-  parallel = FALSE)
+OINT(y, G, X = NULL, k = 3/8, method = "AvgCorr", B = 100,
+  set.rho = NULL, simple = FALSE, keep.rho = FALSE,
+  keep.stats = FALSE, parallel = FALSE)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -16,17 +16,19 @@ OINT(y, G, X = NULL, method = "AvgCorr", k = 3/8, B = 100,
 \item{X}{Model matrix of covariates and structure adjustments. Should include
 an intercept. Omit to perform marginal tests of association.}
 
-\item{method}{Method used to estimate correlation for the omnibus test, 
-either "AvgCorr", "Bootstrap", or "Manual".}
-
 \item{k}{Offset applied during rank-normalization. See 
 \code{\link{rankNorm}}.}
+
+\item{method}{Method used to estimate correlation for the omnibus test, 
+either "AvgCorr", "Bootstrap", or "Manual".}
 
 \item{B}{If using \code{method=="Bootstrap"}, number of bootstrap samples for
 correlation estimation.}
 
 \item{set.rho}{If using \code{method=="Manual"}, the fixed value of rho, 
 either a single value or a vector with one element per column in \code{G}.}
+
+\item{simple}{Return the OINT p-values only?}
 
 \item{keep.rho}{Logical indicating whether to return the correlation 
 parameter estimated during omnibus calculation. Defaults to FALSE.}

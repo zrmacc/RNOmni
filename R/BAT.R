@@ -15,7 +15,7 @@
 #' @param X Model matrix of covariates and structure adjustments. Should include
 #'   an intercept. Omit to perform marginal tests of association. 
 #' @param test Either Score or Wald. 
-#' @param simple Return only the p-values? 
+#' @param simple Return the p-values only? 
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first.
 #' @return If \code{simple=T}, returns a vector of p-values, one for each column
@@ -151,19 +151,17 @@ BAT = function(y,G,X=NULL,test="Score",simple=FALSE,parallel=FALSE){
     Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
   }
   
-  # Format output
+  ## Format output
   dimnames(Out) = NULL;
   # Check for genotype names
   gnames = colnames(G);
+  if(is.null(gnames)){
+    gnames = seq(1:ng);
+  }
   
   # If returning p-values only
   if(simple){
-    # Locus names
-    if(!is.null(gnames)){
-      names(Out) = gnames;
-    } else {
-      names(Out) = seq(1:ng);
-    }
+    names(Out) = gnames;
   } else {
     # Format as matrix
     if(ng==1){
@@ -171,12 +169,8 @@ BAT = function(y,G,X=NULL,test="Score",simple=FALSE,parallel=FALSE){
     }
     # Column names
     colnames(Out) = c(test,"SE","Z","p");
-    # Locus names
-    if(!is.null(gnames)){
-      names(Out) = gnames;
-    } else {
-      rownames(Out) = seq(1:ng)
-    }
+    # Row names
+    rownames(Out) = gnames;
   };
   # Return
   return(Out);

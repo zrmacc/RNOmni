@@ -162,7 +162,7 @@ Results_OINT_Boot_Yt = OINT(y=yt,G=G[,1:10],X=X,method="Bootstrap",keep.rho=T,B=
 round(head(Results_OINT_Boot_Yt),digits=3);
 cat("\n");
 cat("Replicate the Omnibus Test on the T3 Phenotype, Manually Specifying Correlation\n");
-Results_OINT_Boot_Yt = OINT(y=yt,G=G,X=X,method="Manual",set.rho=Results_OINT_Boot_Yt[,"Corr"],keep.rho=T);
+Results_OINT_Boot_Yt = OINT(y=yt,G=G,X=X,method="Manual",set.rho=Results_OINT_Boot_Yt[,"Rho"],keep.rho=T);
 round(head(Results_OINT_Boot_Yt),digits=3);
 cat("\n");
 ```

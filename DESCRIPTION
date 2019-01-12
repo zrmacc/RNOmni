@@ -1,6 +1,6 @@
 Package: RNOmni
 Title: Rank Normal Transformation Omnibus Test
-Version: 0.6.0
+Version: 0.6.1
 Date: 2019-01-12
 Authors@R: person("Zachary","McCaw",email="zmccaw@g.harvard.edu",role=c("aut","cre"))
 Description: Implementation of genetic association tests that incorporate the rank-based inverse normal transformation (INT). These tests are broadly indicated for traits with continuous residual distributions. In the presence of non-normal residuals, INT-based tests robustly control the type I error, whereas standard linear regression may not. Moreover, INT-based tests dominate standard linear regression in terms of power. There are two main strategies for incorporating the INT in association analysis. In direct INT (D-INT), the trait is directly transformed. In indirect INT (I-INT), residuals are formed prior to transformation. Neither D-INT nor I-INT is uniformly most powerful. The INT omnibus test (O-INT) adaptively combines D-INT and I-INT into a single robust and statistically powerful approach. 

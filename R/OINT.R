@@ -139,14 +139,15 @@ OmniP = function(u,r){
 #' @param G Obs by locus genotype matrix.
 #' @param X Model matrix of covariates and structure adjustments. Should include
 #'   an intercept. Omit to perform marginal tests of association.
-#' @param method Method used to estimate correlation for the omnibus test, 
-#'   either "AvgCorr", "Bootstrap", or "Manual".
 #' @param k Offset applied during rank-normalization. See 
 #'   \code{\link{rankNorm}}.
+#' @param method Method used to estimate correlation for the omnibus test, 
+#'   either "AvgCorr", "Bootstrap", or "Manual".
 #' @param B If using \code{method=="Bootstrap"}, number of bootstrap samples for
 #'   correlation estimation.
 #' @param set.rho If using \code{method=="Manual"}, the fixed value of rho, 
 #'   either a single value or a vector with one element per column in \code{G}.
+#' @param simple Return the OINT p-values only? 
 #' @param keep.rho Logical indicating whether to return the correlation 
 #'   parameter estimated during omnibus calculation. Defaults to FALSE.
 #' @param keep.stats Logical indicating whether to return the interim test 
@@ -178,7 +179,8 @@ OmniP = function(u,r){
 #' p = OINT(y=y,G=G,X=X,method="Manual",set.rho=0.5);
 #' }
 
-OINT = function(y,G,X=NULL,method="AvgCorr",k=3/8,B=100,set.rho=NULL,keep.rho=FALSE,keep.stats=FALSE,parallel=FALSE){
+OINT = function(y,G,X=NULL,k=3/8,method="AvgCorr",B=100,set.rho=NULL,simple=FALSE,
+                keep.rho=FALSE,keep.stats=FALSE,parallel=FALSE){
   ## Check inputs
   # Input check 
   n = length(y);
@@ -227,23 +229,40 @@ OINT = function(y,G,X=NULL,method="AvgCorr",k=3/8,B=100,set.rho=NULL,keep.rho=FA
     OmniP(v[1],v[2]);
   }
   if(ng==1){
-    POmni = matrix(aux(Q),nrow=1);
+    POmni = aux(Q);
   } else {
     POmni = aaply(.data=Q,.margins=1,.fun=aux,.parallel=parallel);
   }
   
-  ## Keep stats if requested
-  if(keep.stats){
-    Out = cbind(P1[,3:4],P2[,3:4],POmni);
-    colnames(Out) = c("DINT-Z","DINT-p","IINT-Z","IINT-p","OINT-p");
-  } else {
-    Out = cbind(P1[,4],P2[,4],POmni);
-    colnames(Out) = c("DINT-p","IINT-p","OINT-p");
+  ## Format output
+  # Locus names
+  gnames = colnames(G);
+  if(is.null(gnames)){
+    gnames = seq(1:ng);
   }
   
-  ## Keep correlation if requested 
-  if(keep.rho){
-    Out = cbind(Out,"Corr"=R);
+  # Simple output
+  if(simple){
+    Out = POmni;
+    names(Out) = gnames;
+  } else {
+    # Retain Z-stats?
+    if(keep.stats){
+      Out = cbind(P1[,3:4,drop=F],P2[,3:4,drop=F],POmni);
+      colnames(Out) = c("DINT-Z","DINT-p","IINT-Z","IINT-p","OINT-p");
+    } else {
+      Out = cbind(P1[,4,drop=F],P2[,4,drop=F],POmni);
+      colnames(Out) = c("DINT-p","IINT-p","OINT-p");
+    }
+    
+    # Retain correlation?
+    if(keep.rho){
+      Out = cbind(Out,"Rho"=R);
+    }
+    
+    # Row names
+    rownames(Out) = gnames;
   }
+  # Return
   return(Out);
 }
