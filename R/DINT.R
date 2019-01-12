@@ -1,5 +1,5 @@
 # Purpose: Direct INT-based test
-# Updated: 181029
+# Updated: 19/01/09
 
 #' Direct-INT
 #' 
@@ -18,10 +18,14 @@
 #' @param k Offset applied during rank-normalization. See 
 #'   \code{\link{rankNorm}}.
 #' @param test Either Score or Wald. 
+#' @param simple Return only the p-values? 
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first.
-#' @return A numeric matrix of score statistics and p-values, one for each locus
-#'   (column) in \code{G}, assessing the null hypothesis of no genetic effect. 
+#' @return If \code{simple=T}, returns a vector of p-values, one for each column
+#'   of \code{G}. If \code{simple=F}, returns a numeric matrix, including the
+#'   Wald or Score statistic, its standard error, the Z-score, and the p-value.
+#'   
+#' @seealso Basic association test \code{\link{BAT}}, indirect INT \code{\link{IINT}}, omnibus INT \code{\link{OINT}}.
 #'   
 #' @examples
 #' \dontrun{
@@ -34,10 +38,10 @@
 #' # Phenotype
 #' y = exp(as.numeric(X%*%c(1,1))+rnorm(1e3));
 #' # Association test
-#' p = DINT(y=y,G=G,X=X);
+#' p = DINT(y=y,G=G,X=X,simple=T);
 #' }
 
-DINT = function(y,G,X=NULL,k=3/8,test="Score",parallel=F){
+DINT = function(y,G,X=NULL,k=3/8,test="Score",simple=FALSE,parallel=FALSE){
   # Input check 
   n = length(y);
   if(!is.vector(y)){stop("A numeric vector is expected for y.")};
@@ -53,6 +57,6 @@ DINT = function(y,G,X=NULL,k=3/8,test="Score",parallel=F){
   # Transform phenotype
   z = rankNorm(y,k=k);
   # Apply basic association test to transformed phenotype
-  Out = BAT(y=z,G=G,X=X,test=test);
+  Out = BAT(y=z,G=G,X=X,test=test,simple=simple);
   return(Out);
 }

@@ -16,7 +16,7 @@ Numeric vector of rank normalized measurements.
 }
 \description{
 Applies the rank based inverse normal transform (INT) to a numeric vector.
-The INT can be conceived of as a two-step procedure. In the first, the
+The INT can be broken down into a two-step procedure. In the first, the
 observations are transformed onto the probability scale using the empirical
 cumulative distribution function (ECDF). In the second, the observations are
 transformed onto the real line, as Z-scores, using the probit function.
@@ -30,4 +30,7 @@ z = rankNorm(y);
 # Plot density of transformed measurement
 plot(density(z));
 }
+}
+\seealso{
+Direct INT \code{\link{DINT}}, indirect INT \code{\link{IINT}}, omnibus INT \code{\link{OINT}}.
 }

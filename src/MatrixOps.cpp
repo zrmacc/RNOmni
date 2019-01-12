@@ -1,20 +1,6 @@
 // [[Rcpp::depends(RcppEigen)]]
 #include <RcppEigen.h>
 
-//' Matrix Matrix Product
-//'
-//' Calculates the product \eqn{AB}. 
-//'
-//' @param A Numeric matrix.
-//' @param B Numeric matrix.
-//' @return Numeric matrix.
-// [[Rcpp::export]]
-
-SEXP MMP(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B){
-  const Eigen::MatrixXd C = A*B;
-  return Rcpp::wrap(C);
-}
-
 //' Matrix Inner Product
 //'
 //' Calculates the inner product \eqn{A'B}.
@@ -40,33 +26,6 @@ SEXP matIP(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd
 SEXP matInv(const Eigen::Map<Eigen::MatrixXd> A){
   const Eigen::MatrixXd Ai = A.completeOrthogonalDecomposition().pseudoInverse();
   return Rcpp::wrap(Ai);
-}
-
-//' Matrix Determinant
-//'
-//' Calculates the determinant of matrix \eqn{A}. 
-//'
-//' @param A Numeric matrix.
-//' @return Scalar. 
-// [[Rcpp::export]]
-
-SEXP det(const Eigen::Map<Eigen::MatrixXd> A){
-  const double d = A.determinant();
-  return Rcpp::wrap(d);
-}
-
-//' Matrix Quadratic Form
-//' 
-//' Calculates the quadratic form \eqn{X'AX}.
-//' 
-//' @param X Numeric matrix.
-//' @param A Numeric matrix.
-//' @return Numeric matrix
-// [[Rcpp::export]]
-
-SEXP matQF(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> A){
-  const Eigen::MatrixXd q = X.transpose()*A*X;
-  return Rcpp::wrap(q);
 }
 
 //' Schur complement

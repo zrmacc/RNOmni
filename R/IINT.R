@@ -1,14 +1,13 @@
 # Purpose: Indirect INT-based method
-# Updated: 180912
+# Updated: 19/01/11
 
 #' Indirect-INT
 #' 
 #' Two-stage association testing procedure. In the first stage, phenotype 
 #' \code{y} and genotype \code{G} are each regressed on the model matrix
-#' \code{X} to obtain residuals. Next, the rank-based inverse normal
-#' transformation \code{\link{rankNorm}} is applied to the phenotypic residuals.
-#' In the second stage, tests of association are conducted between the genotypic
-#' residuals and the transformed phenotypic residuals.
+#' \code{X} to obtain residuals. The phenotypic residuals are transformed
+#' using \code{\link{rankNorm}}. In the next stage, the INT-transformed
+#' residuals are regressed on the genotypic residuals. 
 #' 
 #' @importFrom plyr aaply
 #' @importFrom stats pchisq
@@ -20,10 +19,14 @@
 #'   an intercept. Omit to perform marginal tests of association. 
 #' @param k Offset applied during rank-normalization. See
 #'   \code{\link{rankNorm}}.
+#' @param simple Return only the p-values? 
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first. 
-#' @return A numeric matrix of Wald statistics and p-values, one for each locus
-#'   (column) in \code{G}, assessing the null hypothesis of no genetic effect. 
+#' @return If \code{simple=T}, returns a vector of p-values, one for each column
+#'   of \code{G}. If \code{simple=F}, returns a numeric matrix, including the
+#'   Wald or Score statistic, its standard error, the Z-score, and the p-value.
+#'   
+#' @seealso Basic association test \code{\link{BAT}}, direct INT \code{\link{DINT}}, omnibus INT \code{\link{OINT}}.
 #'   
 #' @examples
 #' \dontrun{
@@ -36,10 +39,10 @@
 #' # Phenotype
 #' y = exp(as.numeric(X%*%c(1,1))+rnorm(1e3));
 #' # Association test
-#' p = IINT(y=y,G=G,X=X);
+#' p = IINT(y=y,G=G,X=X,simple=T);
 #' };
 
-IINT = function(y,G,X=NULL,k=3/8,parallel=F){
+IINT = function(y,G,X=NULL,k=3/8,simple=FALSE,parallel=FALSE){
   # Input check 
   n = length(y);
   if(!is.vector(y)){stop("A numeric vector is expected for y.")};
@@ -76,21 +79,50 @@ IINT = function(y,G,X=NULL,k=3/8,parallel=F){
     g1 = fitOLS(y=g0,X=X0)$Resid;
     # Information component
     V = sum(g1^2);
+    # SE
+    se = sqrt(V);
     # Wald statistic
     U = as.numeric(matIP(g1,e0));
-    Tw = (U^2)/V;
+    # Z statistic
+    Z = U/se;
+    # Chi statistic
+    Tw = Z^2;
     # p-value
     p = pchisq(q=Tw,df=1,lower.tail=F);
     # Output
-    Out = c(Tw,p);
+    if(simple){
+      Out = c(p);
+    } else {
+      Out = c(U,se,Z,p);
+    }
     return(Out);
   }
-  # Wald statistics
-  Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel,.drop=F);
-  # Format
+  
+  # Score statistics
+  Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
+  # Format output
   dimnames(Out) = NULL;
-  colnames(Out) = c("Wald","p");
-  if(!is.null(colnames(G))){rownames(Out)=colnames(G)} else {rownames(Out) = seq(1:ng)};
+  # Check for genotype names
+  gnames = colnames(G);
+  
+  # If returning p-values only
+  if(simple){
+    # Locus names
+    if(!is.null(gnames)){
+      names(Out) = gnames;
+    } else {
+      names(Out) = seq(1:ng);
+    }
+  } else {
+    # Column names
+    colnames(Out) = c("Score","SE","Z","p");
+    # Locus names
+    if(!is.null(gnames)){
+      names(Out) = gnames;
+    } else {
+      rownames(Out) = seq(1:ng)
+    }
+  };
   # Return
   return(Out);
 };

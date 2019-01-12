@@ -1,12 +1,12 @@
 # Purpose: Omnibus test
-# Updated: 180912
+# Updated: 19/01/09
 
 #' Average Correlation Estimate.
 #' 
-#' Estimates the correlation between correlated p-values on the Z-score scale. The
-#' p-values are taken as having arisen from different tests of the same hypothesis
-#' using the same data. Since an estimate of correlation under the null is of interest,
-#' pairs where at least one of the Z scores exceeds the threshold \eqn{\tau} are excluded.
+#' Estimates the correlation p-values that have arisen from different tests of
+#' the same hypothesis using the same data. Since an estimate of correlation
+#' under the null is of interest, pairs where at least one of the Z scores
+#' exceeds the threshold \eqn{\tau} are excluded.
 #' 
 #' @importFrom stats qnorm
 #' 
@@ -14,7 +14,7 @@
 #' @param p2 Second p-value.
 #' @param tau Threshold Z score above which the p-value likely corresponds to a true positive.
 #' @param a Force correlation estimate to fall in the interval (a,1-a);
-#' @return Numeric correlation. 
+#' @return Scalar. 
 
 AvgCorr = function(p1,p2,tau=3,a=1e-3){
   # Convert to z-scores
@@ -36,8 +36,7 @@ AvgCorr = function(p1,p2,tau=3,a=1e-3){
 #' 
 #' Estimates the correlation between correlated p-values on the Z-score scale.
 #' Avoids the assumption that the correlation between p-values is constant across
-#' loci. Instead, bootstrap is used to calculate locus-specific estimates of the
-#' correlation between p-values. 
+#' loci. Instead, bootstrap is used to calculate a locus-specific estimate. 
 #' 
 #' @importFrom abind abind
 #' @importFrom foreach "%dopar%" foreach registerDoSEQ
@@ -50,7 +49,7 @@ AvgCorr = function(p1,p2,tau=3,a=1e-3){
 #' @param k Offset applied during rank-normalization.
 #' @param B Bootstrap samples for correlation estimation. 
 #' @param parallel Run bootstraps in parallel? Must register parallel backend first.
-#' @return Numeric matrix of correlation estimates, one per locus (column) in G. 
+#' @return Numeric matrix of correlation estimates, one per column of \code{G}. 
 
 BootCorr = function(y,G,X,k=3/8,B=100,parallel=F){
   # Parallelize
@@ -66,8 +65,8 @@ BootCorr = function(y,G,X,k=3/8,B=100,parallel=F){
     yb = y[Draw];
     Xb = X[Draw,,drop=F];
     # Calculate z-statistics
-    z1 = -qnorm(DINT(y=yb,G=G,X=X,k=k,parallel=F)[,2]);
-    z2 = -qnorm(IINT(y=yb,G=G,X=X,k=k,parallel=F)[,2]);
+    z1 = -qnorm(DINT(y=yb,G=G,X=X,k=k,parallel=F)[,4]);
+    z2 = -qnorm(IINT(y=yb,G=G,X=X,k=k,parallel=F)[,4]);
     return(cbind(z1,z2));
   }
   # Calculate correlation
@@ -108,26 +107,28 @@ OmniP = function(u,r){
   return(p);
 };
 
-#' Rank-Normal Omnibus Test
+#' Omnibus-INT
 #' 
-#' Association test that synthesizes the \code{\link{DINT}} and 
-#' \code{\link{IINT}} methods. The first approach directly transforms the 
-#' phenotype, whereas the second approach forms residuals prior to applying the 
-#' rank normal transformation (\code{\link{rankNorm}}). In the omnibus test, the
-#' direct and indirect tests are separately applied. An omnibus statistic is 
-#' calculated based on whichever approach provides more evidence against the 
-#' null hypothesis. Details of the method are discussed in the vignette.
+#' Association test that synthesizes the \code{\link{DINT}} and
+#' \code{\link{IINT}} tests. The first approach is most powerful for traits that
+#' could have arisen from a rank-preserving transformation of a latent normal
+#' trait. The second approach is most powerful for traits that are linear in
+#' covariates, yet have skewed or kurtotic residual distributions. During the
+#' omnibus test, the direct and indirect tests are separately applied. An
+#' omnibus statistic is calculated based on whichever approach provides more
+#' evidence of an association. Details of the method are discussed in the
+#' vignette.
 #' 
-#' Assigning a p-value to the omnibus statistic requires an estimate of the 
-#' correlation between the test statistics estimated by \code{DINT} and 
-#' \code{IINT} under the null. When many loci are under consideration, a 
+#' Assigning a p-value to the omnibus statistic requires an estimate of the
+#' correlation between the test statistics estimated by \code{DINT} and
+#' \code{IINT} under the null. When many loci are under consideration, a
 #' computationally efficient approach is to take the correlation of the observed
-#' test statistics across loci (\code{method="AvgCorr"}). Alternatively, when 
-#' there are fewer loci, or locus-specific estimates are desired, the 
-#' correlation may be estimated using bootstrap (\code{method="Bootstrap"}). 
-#' When using the bootstrap approach, consider registering a parallel backend 
-#' and setting \code{parallel=T}. To manually provide an estimate of the 
-#' correlation between the test statistics, set (\code{method="Manual"}) and 
+#' test statistics across loci (\code{method="AvgCorr"}). Alternatively, when
+#' there are fewer loci, or when locus-specific estimates are desired, the
+#' correlation may be estimated using bootstrap (\code{method="Bootstrap"}).
+#' When using the bootstrap approach, consider registering a parallel backend
+#' and setting \code{parallel=T}. To manually provide an estimate of the
+#' correlation between the test statistics, set (\code{method="Manual"}) and
 #' specify (\code{set.rho}).
 #' 
 #' @importFrom stats qnorm
@@ -152,10 +153,12 @@ OmniP = function(u,r){
 #'   statistics calculated by DINT and IINT. Defaults to FALSE.
 #' @param parallel Logical indicating whether to run in parallel. Must register 
 #'   parallel backend first.
-#' @return A numeric matrix of p-values, three for each locus in \code{G}, 
-#'   assessing the null hypothesis of no genetic effect. If \code{keep.stats=T},
-#'   the interim test statistics are retained. If \code{keep.rho=T}, the
-#'   correlation between the p-values provided by DINT and IINT is retained.
+#' @return A numeric matrix of p-values, three for each column of \code{G}. If \code{keep.stats=T},
+#'   the D-INT and I-INT Z statistics are returned. If \code{keep.rho=T}, the
+#'   correlation between the p-values provided is returned. 
+#'   
+#' @seealso Basic association test \code{\link{BAT}}, direct INT \code{\link{DINT}}, 
+#' indirect INT \code{\link{IINT}}.
 #'   
 #' @examples
 #' \dontrun{
@@ -168,14 +171,14 @@ OmniP = function(u,r){
 #' # Phenotype
 #' y = exp(as.numeric(X%*%c(1,1))+rnorm(1e3));
 #' # Average correlation
-#' p = RNOmni(y=y,G=G,X=X,method="AvgCorr");
+#' p = OINT(y=y,G=G,X=X,method="AvgCorr");
 #' # Bootstrap correlation
-#' p = RNOmni(y=y,G=G[,1:10],X=X,method="Bootstrap",B=100);
+#' p = OINT(y=y,G=G[,1:10],X=X,method="Bootstrap",B=100);
 #' # Manual correlation
-#' p = RNOmni(y=y,G=G,X=X,method="Manual",set.rho=0.5);
+#' p = OINT(y=y,G=G,X=X,method="Manual",set.rho=0.5);
 #' }
 
-RNOmni = function(y,G,X=NULL,method="AvgCorr",k=3/8,B=100,set.rho=NULL,keep.rho=F,keep.stats=F,parallel=F){
+OINT = function(y,G,X=NULL,method="AvgCorr",k=3/8,B=100,set.rho=NULL,keep.rho=FALSE,keep.stats=FALSE,parallel=FALSE){
   ## Check inputs
   # Input check 
   n = length(y);
@@ -206,7 +209,7 @@ RNOmni = function(y,G,X=NULL,method="AvgCorr",k=3/8,B=100,set.rho=NULL,keep.rho=
   # Specify correlation between z(DINT) and z(PIINT)
   if(method=="AvgCorr"){
     # Obtain correlation by averaging across loci
-    R = AvgCorr(p1=P1[,2],p2=P2[,2]);
+    R = AvgCorr(p1=P1[,4],p2=P2[,4]);
   } else if(method=="Bootstrap") {
     # Obtain bootstrap correlation estimate
     R = BootCorr(y=y,G=G,X=X,B=B,parallel=parallel);
@@ -216,7 +219,7 @@ RNOmni = function(y,G,X=NULL,method="AvgCorr",k=3/8,B=100,set.rho=NULL,keep.rho=
   }
   
   ## Omnibus statistic
-  Q = cbind(-qnorm(P1[,2]),-qnorm(P2[,2]));
+  Q = cbind(-qnorm(P1[,4]),-qnorm(P2[,4]));
   Q = aaply(.data=Q,.margins=1,.fun=max);
   Q = cbind(Q,R);
   # Calculate Omnibus p-values
@@ -231,11 +234,11 @@ RNOmni = function(y,G,X=NULL,method="AvgCorr",k=3/8,B=100,set.rho=NULL,keep.rho=
   
   ## Keep stats if requested
   if(keep.stats){
-    Out = cbind(P1,P2,Q[,1],POmni);
-    colnames(Out) = c("DINT.Stat","DINT.p","IINT.Stat","IINT.p","Omni.Stat","Omni.p");
+    Out = cbind(P1[,3:4],P2[,3:4],POmni);
+    colnames(Out) = c("DINT-Z","DINT-p","IINT-Z","IINT-p","OINT-p");
   } else {
-    Out = cbind(P1[,2],P2[,2],POmni);
-    colnames(Out) = c("DINT","IINT","Omni");
+    Out = cbind(P1[,4],P2[,4],POmni);
+    colnames(Out) = c("DINT-p","IINT-p","OINT-p");
   }
   
   ## Keep correlation if requested 

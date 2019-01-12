@@ -1,10 +1,10 @@
 # Purpose: Rank normal transform
-# Updated: 180912
+# Updated: 19/10/11
 
 #' Rank-Normalize
 #' 
 #' Applies the rank based inverse normal transform (INT) to a numeric vector.
-#' The INT can be conceived of as a two-step procedure. In the first, the
+#' The INT can be broken down into a two-step procedure. In the first, the
 #' observations are transformed onto the probability scale using the empirical
 #' cumulative distribution function (ECDF). In the second, the observations are
 #' transformed onto the real line, as Z-scores, using the probit function.
@@ -15,6 +15,8 @@
 #' @param u Numeric vector.
 #' @param k Offset. Defaults to (3/8), correspond to the Blom transform.
 #' @return Numeric vector of rank normalized measurements.
+#' 
+#' @seealso Direct INT \code{\link{DINT}}, indirect INT \code{\link{IINT}}, omnibus INT \code{\link{OINT}}.
 #'   
 #' @examples 
 #' \dontrun{

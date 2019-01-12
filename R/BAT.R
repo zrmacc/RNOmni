@@ -1,5 +1,5 @@
 # Purpose: Basic score test
-# Updated: 181029
+# Updated: 19/01/09
 
 #' Basic Association Test
 #' 
@@ -15,10 +15,14 @@
 #' @param X Model matrix of covariates and structure adjustments. Should include
 #'   an intercept. Omit to perform marginal tests of association. 
 #' @param test Either Score or Wald. 
+#' @param simple Return only the p-values? 
 #' @param parallel Logical indicating whether to run in parallel. Must register
 #'   parallel backend first.
-#' @return A numeric matrix of score statistics and p-values, one for each locus
-#'   (column) in \code{G}, assessing the null hypothesis of no genetic effect. 
+#' @return If \code{simple=T}, returns a vector of p-values, one for each column
+#'   of \code{G}. If \code{simple=F}, returns a numeric matrix, including the
+#'   Wald or Score statistic, its standard error, the Z-score, and the p-value.
+#'
+#' @seealso Direct INT \code{\link{DINT}}, indirect INT \code{\link{IINT}}, omnibus INT \code{\link{OINT}}.
 #'   
 #' @examples
 #' \dontrun{
@@ -31,10 +35,10 @@
 #' # Phenotype
 #' y = as.numeric(X%*%c(1,1))+rnorm(1e3);
 #' # Association test
-#' p = BAT(y=y,G=G,X=X);
+#' p = BAT(y=y,G=G,X=X,simple=T);
 #' }
 
-BAT = function(y,G,X=NULL,test="Score",parallel=F){
+BAT = function(y,G,X=NULL,test="Score",simple=FALSE,parallel=FALSE){
   # Input check 
   n = length(y);
   if(!is.vector(y)){stop("A numeric vector is expected for y.")};
@@ -86,17 +90,25 @@ BAT = function(y,G,X=NULL,test="Score",parallel=F){
       # Efficient info
       E = as.numeric(SchurC(I11,I22,I12));
       # Score
-      U = as.numeric(matIP(g0,e0));
-      # Test statistic
-      Ts = (U^2)/(v*E);
+      U = as.numeric(matIP(g0,e0))/v;
+      # SE
+      se = sqrt(E/v);
+      # Z statistic
+      Z = U/se;
+      # Chi statistic
+      Ts = Z^2;
       # p-value
       p = pf(q=Ts,df1=1,df2=sum(key)-k-1,lower.tail=F);
       # Output
-      Out = c(Ts,p);
+      if(simple){
+        Out = c(p);
+      } else {
+        Out = c(U,se,Z,p);
+      }
       return(Out);
     }
     # Calculate score statistics
-    Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel,.drop=F);
+    Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
   } else {
   ## Wald Test
     # Function to calculate wald statistics
@@ -119,21 +131,49 @@ BAT = function(y,G,X=NULL,test="Score",parallel=F){
       bg = M1$Beta[1];
       # Variance
       Ibbi = as.numeric(matInv(M1$Ibb)[1,1]);
-      # Test statistic
-      Ts = (bg^2)/(Ibbi);
+      # Standard error
+      se = sqrt(Ibbi);
+      # Z statistic
+      Z = bg/se;
+      # Chi statistic
+      Ts = Z^2;
       # p-value
       p = pf(q=Ts,df1=1,df2=sum(key)-k-1,lower.tail=F);
       # Output
-      Out = c(Ts,p);
+      if(simple){
+        Out = c(p);
+      } else {
+        Out = c(bg,se,Z,p);
+      }
       return(Out);
     }
     # Calculate wald statistics
-    Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel,.drop=F);
+    Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
   }
-  # Format
+  
+  # Format output
   dimnames(Out) = NULL;
-  colnames(Out) = c(test,"p");
-  if(!is.null(colnames(G))){rownames(Out)=colnames(G)} else {rownames(Out) = seq(1:ng)};
+  # Check for genotype names
+  gnames = colnames(G);
+  
+  # If returning p-values only
+  if(simple){
+    # Locus names
+    if(!is.null(gnames)){
+      names(Out) = gnames;
+    } else {
+      names(Out) = seq(1:ng);
+    }
+  } else {
+    # Column names
+    colnames(Out) = c(test,"SE","Z","p");
+    # Locus names
+    if(!is.null(gnames)){
+      names(Out) = gnames;
+    } else {
+      rownames(Out) = seq(1:ng)
+    }
+  };
   # Return
   return(Out);
 }

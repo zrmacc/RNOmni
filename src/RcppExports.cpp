@@ -19,18 +19,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// MMP
-SEXP MMP(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B);
-RcppExport SEXP _RNOmni_MMP(SEXP ASEXP, SEXP BSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type B(BSEXP);
-    rcpp_result_gen = Rcpp::wrap(MMP(A, B));
-    return rcpp_result_gen;
-END_RCPP
-}
 // matIP
 SEXP matIP(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B);
 RcppExport SEXP _RNOmni_matIP(SEXP ASEXP, SEXP BSEXP) {
@@ -51,29 +39,6 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
     rcpp_result_gen = Rcpp::wrap(matInv(A));
-    return rcpp_result_gen;
-END_RCPP
-}
-// det
-SEXP det(const Eigen::Map<Eigen::MatrixXd> A);
-RcppExport SEXP _RNOmni_det(SEXP ASEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
-    rcpp_result_gen = Rcpp::wrap(det(A));
-    return rcpp_result_gen;
-END_RCPP
-}
-// matQF
-SEXP matQF(const Eigen::Map<Eigen::MatrixXd> X, const Eigen::Map<Eigen::MatrixXd> A);
-RcppExport SEXP _RNOmni_matQF(SEXP XSEXP, SEXP ASEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd> >::type A(ASEXP);
-    rcpp_result_gen = Rcpp::wrap(matQF(X, A));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -105,11 +70,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_RNOmni_cov", (DL_FUNC) &_RNOmni_cov, 3},
-    {"_RNOmni_MMP", (DL_FUNC) &_RNOmni_MMP, 2},
     {"_RNOmni_matIP", (DL_FUNC) &_RNOmni_matIP, 2},
     {"_RNOmni_matInv", (DL_FUNC) &_RNOmni_matInv, 1},
-    {"_RNOmni_det", (DL_FUNC) &_RNOmni_det, 1},
-    {"_RNOmni_matQF", (DL_FUNC) &_RNOmni_matQF, 2},
     {"_RNOmni_SchurC", (DL_FUNC) &_RNOmni_SchurC, 3},
     {"_RNOmni_fitOLS", (DL_FUNC) &_RNOmni_fitOLS, 2},
     {NULL, NULL, 0}

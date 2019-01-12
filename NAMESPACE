@@ -3,7 +3,7 @@
 export(BAT)
 export(DINT)
 export(IINT)
-export(RNOmni)
+export(OINT)
 export(rankNorm)
 importFrom(Rcpp,sourceCpp)
 importFrom(abind,abind)

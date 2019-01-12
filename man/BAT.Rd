@@ -4,7 +4,8 @@
 \alias{BAT}
 \title{Basic Association Test}
 \usage{
-BAT(y, G, X = NULL, test = "Score", parallel = F)
+BAT(y, G, X = NULL, test = "Score", simple = FALSE,
+  parallel = FALSE)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -16,12 +17,15 @@ an intercept. Omit to perform marginal tests of association.}
 
 \item{test}{Either Score or Wald.}
 
+\item{simple}{Return only the p-values?}
+
 \item{parallel}{Logical indicating whether to run in parallel. Must register
 parallel backend first.}
 }
 \value{
-A numeric matrix of score statistics and p-values, one for each locus
-  (column) in \code{G}, assessing the null hypothesis of no genetic effect.
+If \code{simple=T}, returns a vector of p-values, one for each column
+  of \code{G}. If \code{simple=F}, returns a numeric matrix, including the
+  Wald or Score statistic, its standard error, the Z-score, and the p-value.
 }
 \description{
 Conducts tests of association between the loci in \code{G} and the
@@ -38,6 +42,9 @@ storage.mode(G) = "numeric";
 # Phenotype
 y = as.numeric(X\%*\%c(1,1))+rnorm(1e3);
 # Association test
-p = BAT(y=y,G=G,X=X);
+p = BAT(y=y,G=G,X=X,simple=T);
 }
+}
+\seealso{
+Direct INT \code{\link{DINT}}, indirect INT \code{\link{IINT}}, omnibus INT \code{\link{OINT}}.
 }

@@ -13,17 +13,6 @@ cov <- function(A, B, cor = FALSE) {
     .Call('_RNOmni_cov', PACKAGE = 'RNOmni', A, B, cor)
 }
 
-#' Matrix Matrix Product
-#'
-#' Calculates the product \eqn{AB}. 
-#'
-#' @param A Numeric matrix.
-#' @param B Numeric matrix.
-#' @return Numeric matrix.
-MMP <- function(A, B) {
-    .Call('_RNOmni_MMP', PACKAGE = 'RNOmni', A, B)
-}
-
 #' Matrix Inner Product
 #'
 #' Calculates the inner product \eqn{A'B}.
@@ -43,27 +32,6 @@ matIP <- function(A, B) {
 #' @return A numeric matrix. 
 matInv <- function(A) {
     .Call('_RNOmni_matInv', PACKAGE = 'RNOmni', A)
-}
-
-#' Matrix Determinant
-#'
-#' Calculates the determinant of matrix \eqn{A}. 
-#'
-#' @param A Numeric matrix.
-#' @return Scalar. 
-det <- function(A) {
-    .Call('_RNOmni_det', PACKAGE = 'RNOmni', A)
-}
-
-#' Matrix Quadratic Form
-#' 
-#' Calculates the quadratic form \eqn{X'AX}.
-#' 
-#' @param X Numeric matrix.
-#' @param A Numeric matrix.
-#' @return Numeric matrix
-matQF <- function(X, A) {
-    .Call('_RNOmni_matQF', PACKAGE = 'RNOmni', X, A)
 }
 
 #' Schur complement
