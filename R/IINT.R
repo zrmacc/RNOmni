@@ -114,6 +114,9 @@ IINT = function(y,G,X=NULL,k=3/8,simple=FALSE,parallel=FALSE){
       names(Out) = seq(1:ng);
     }
   } else {
+    if(ng==1){
+      Out = matrix(Out,nrow=1);
+    }
     # Column names
     colnames(Out) = c("Score","SE","Z","p");
     # Locus names

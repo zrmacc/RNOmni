@@ -165,6 +165,10 @@ BAT = function(y,G,X=NULL,test="Score",simple=FALSE,parallel=FALSE){
       names(Out) = seq(1:ng);
     }
   } else {
+    # Format as matrix
+    if(ng==1){
+      Out = matrix(Out,nrow=1);
+    }
     # Column names
     colnames(Out) = c(test,"SE","Z","p");
     # Locus names
