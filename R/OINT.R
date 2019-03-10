@@ -42,7 +42,7 @@
 #' p = OINT(y=y,G=G,X=X,simple=T);
 #' }
 
-OINT = function(y,G,X=NULL,k=3/8,simple=FALSE,keep.stats=FALSE,parallel=FALSE){
+OINT = function(y,G,X=NULL,k=3/8,simple=FALSE,parallel=FALSE){
   ## Check inputs
   # Input check 
   n = length(y);

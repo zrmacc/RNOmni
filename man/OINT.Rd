@@ -4,8 +4,7 @@
 \alias{OINT}
 \title{Omnibus-INT}
 \usage{
-OINT(y, G, X = NULL, k = 3/8, simple = FALSE, keep.stats = FALSE,
-  parallel = FALSE)
+OINT(y, G, X = NULL, k = 3/8, simple = FALSE, parallel = FALSE)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -44,12 +43,8 @@ G = replicate(1e3,rbinom(n=1e3,size=2,prob=0.25));
 storage.mode(G) = "numeric";
 # Phenotype
 y = exp(as.numeric(X\%*\%c(1,1))+rnorm(1e3));
-# Average correlation
-p = OINT(y=y,G=G,X=X,method="AvgCorr");
-# Bootstrap correlation
-p = OINT(y=y,G=G[,1:10],X=X,method="Bootstrap",B=100);
-# Manual correlation
-p = OINT(y=y,G=G,X=X,method="Manual",set.rho=0.5);
+# Omnibus
+p = OINT(y=y,G=G,X=X,simple=T);
 }
 }
 \seealso{
