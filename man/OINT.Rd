@@ -4,9 +4,8 @@
 \alias{OINT}
 \title{Omnibus-INT}
 \usage{
-OINT(y, G, X = NULL, k = 3/8, method = "AvgCorr", B = 100,
-  set.rho = NULL, simple = FALSE, keep.rho = FALSE,
-  keep.stats = FALSE, parallel = FALSE)
+OINT(y, G, X = NULL, k = 3/8, simple = FALSE, keep.stats = FALSE,
+  parallel = FALSE)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -19,30 +18,13 @@ an intercept. Omit to perform marginal tests of association.}
 \item{k}{Offset applied during rank-normalization. See 
 \code{\link{rankNorm}}.}
 
-\item{method}{Method used to estimate correlation for the omnibus test, 
-either "AvgCorr", "Bootstrap", or "Manual".}
-
-\item{B}{If using \code{method=="Bootstrap"}, number of bootstrap samples for
-correlation estimation.}
-
-\item{set.rho}{If using \code{method=="Manual"}, the fixed value of rho, 
-either a single value or a vector with one element per column in \code{G}.}
-
 \item{simple}{Return the OINT p-values only?}
-
-\item{keep.rho}{Logical indicating whether to return the correlation 
-parameter estimated during omnibus calculation. Defaults to FALSE.}
-
-\item{keep.stats}{Logical indicating whether to return the interim test 
-statistics calculated by DINT and IINT. Defaults to FALSE.}
 
 \item{parallel}{Logical indicating whether to run in parallel. Must register 
 parallel backend first.}
 }
 \value{
-A numeric matrix of p-values, three for each column of \code{G}. If \code{keep.stats=T},
-  the D-INT and I-INT Z statistics are returned. If \code{keep.rho=T}, the
-  correlation between the p-values provided is returned.
+A numeric matrix of p-values, three for each column of \code{G}.
 }
 \description{
 Association test that synthesizes the \code{\link{DINT}} and
@@ -50,23 +32,7 @@ Association test that synthesizes the \code{\link{DINT}} and
 could have arisen from a rank-preserving transformation of a latent normal
 trait. The second approach is most powerful for traits that are linear in
 covariates, yet have skewed or kurtotic residual distributions. During the
-omnibus test, the direct and indirect tests are separately applied. An
-omnibus statistic is calculated based on whichever approach provides more
-evidence of an association. Details of the method are discussed in the
-vignette.
-}
-\details{
-Assigning a p-value to the omnibus statistic requires an estimate of the
-correlation between the test statistics estimated by \code{DINT} and
-\code{IINT} under the null. When many loci are under consideration, a
-computationally efficient approach is to take the correlation of the observed
-test statistics across loci (\code{method="AvgCorr"}). Alternatively, when
-there are fewer loci, or when locus-specific estimates are desired, the
-correlation may be estimated using bootstrap (\code{method="Bootstrap"}).
-When using the bootstrap approach, consider registering a parallel backend
-and setting \code{parallel=T}. To manually provide an estimate of the
-correlation between the test statistics, set (\code{method="Manual"}) and
-specify (\code{set.rho}).
+omnibus test, the direct and indirect tests are separately applied then
 }
 \examples{
 \dontrun{
