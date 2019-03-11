@@ -27,6 +27,7 @@
 #'   
 #' @seealso Basic association test \code{\link{BAT}}, direct INT \code{\link{DINT}}, 
 #' indirect INT \code{\link{IINT}}.
+#' @importFrom Rmpfr mpfr
 #'   
 #' @examples
 #' \dontrun{
@@ -65,8 +66,14 @@ OINT = function(y,G,X=NULL,k=3/8,simple=FALSE,parallel=FALSE){
   P = cbind(p1,p2);
   # Cauchy combination
   aux = function(x){
-    u = mean(tan(pi*(0.5-x)));
-    Out = (1/2)-atan(u)/pi;
+    if(x<1e-10){
+      u = mpfr(x=x,precBits=4096);
+    } else {
+      u = x;
+    }
+    m = mean(tanpi(0.5-u));
+    p = (1/2)-atan(m)/pi;
+    Out = as.double(p);
     return(Out);
   }
   
