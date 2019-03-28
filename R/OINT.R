@@ -62,7 +62,6 @@ OINTp = function(p){
 #'   
 #' @seealso Basic association test \code{\link{BAT}}, direct INT \code{\link{DINT}}, 
 #' indirect INT \code{\link{IINT}}.
-#' @importFrom Rmpfr mpfr
 #'   
 #' @examples
 #' \dontrun{
