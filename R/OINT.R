@@ -1,6 +1,41 @@
 # Purpose: Omnibus test
 # Updated: 19/03/10
 
+#' Omnibus p-value
+#' 
+#' @param p Vector of p-values
+#' @return OINT p-value.
+#' 
+#' @importFrom stats pcauchy
+
+OINTp = function(p){
+  # Check input
+  m = min(p);
+  M = max(p);
+  # Cases
+  if((m<0)|(M>1)){stop("Cannot have p-values < 0 or > 1.")}
+  if((m==0)&(M==1)){stop("Cannot have p-values of 0 and 1 simultaneously.");}
+  if((m==0)&(M<1)){return(0);}
+  if((m>0)&(M==1)){return(1);}
+  # Convert to Cauchy
+  aux = function(x){
+    if(x<1e-10){
+      y = 1/(x*pi);
+    } else {
+      y = tanpi(0.5-x);
+    }
+    return(y);
+  }
+  y = mean(sapply(p,aux));
+  # Invert
+  if(y>1e10){
+    q = (1/y)/pi;
+  } else {
+    q = pcauchy(q=y,lower.tail=F);
+  }
+  return(q);
+}
+
 #' Omnibus-INT
 #' 
 #' Association test that synthesizes the \code{\link{DINT}} and
@@ -64,21 +99,9 @@ OINT = function(y,G,X=NULL,k=3/8,simple=FALSE,parallel=FALSE){
   
   # P Matrix
   P = cbind(p1,p2);
-  # Cauchy combination
-  aux = function(x){
-    if(x<1e-10){
-      u = mpfr(x=x,precBits=4096);
-    } else {
-      u = x;
-    }
-    m = mean(tanpi(0.5-u));
-    p = (1/2)-atan(m)/pi;
-    Out = as.double(p);
-    return(Out);
-  }
   
   # Omnibus p-values
-  p3 = aaply(.data=P,.margins=1,.fun=aux);
+  p3 = aaply(.data=P,.margins=1,.fun=OINTp);
   
   ## Output
   
