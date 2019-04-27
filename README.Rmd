@@ -1,0 +1,16 @@
+---
+title: "README"
+author: "Zachary McCaw"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    keep_md: TRUE
+--- 
+
+# Description
+
+Genetic association tests that use the rank-based inverse normal transformation (INT). These tests are recommend for continuous traits with non-normally distributed residuals. INT-based tests robustly control the type I error in settings where standard linear regression does not. Moreover, INT-based tests dominate standard linear regression in terms of power. INT-based tests may be classified into two types: tests that directly transform the phenotype (D-INT) and tests that transform phenotypic residuals (I-INT). Our omnibus test (O-INT) adaptively combines D-INT and I-INT into a single robust and statistically powerful approach. 
+
+# Package Vignette
+```{r,child='vignettes/RNOmni.Rmd'}
+```
