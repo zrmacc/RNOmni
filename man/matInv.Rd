@@ -10,7 +10,7 @@ matInv(A)
 \item{A}{Numeric matrix.}
 }
 \value{
-A numeric matrix.
+Numeric matrix.
 }
 \description{
 Calcualtes \eqn{A^{-1}}.

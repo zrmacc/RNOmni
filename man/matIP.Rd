@@ -15,5 +15,5 @@ matIP(A, B)
 Numeric matrix.
 }
 \description{
-Calculates the inner product \eqn{A'B}.
+Calculates the product \eqn{A'B}.
 }

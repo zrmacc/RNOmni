@@ -2,14 +2,14 @@
 % Please edit documentation in R/RcppExports.R
 \name{fitOLS}
 \alias{fitOLS}
-\title{Univariate OLS model.}
+\title{Ordinary Least Squares}
 \usage{
 fitOLS(y, X)
 }
 \arguments{
-\item{y}{Numeric vector.}
+\item{y}{Nx1 Numeric vector.}
 
-\item{X}{Numeric matrix.}
+\item{X}{NxP Numeric matrix.}
 }
 \value{
 List containing the following:

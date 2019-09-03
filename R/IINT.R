@@ -60,16 +60,17 @@ IINT = function(y,G,X=NULL,k=3/8,simple=FALSE,parallel=FALSE){
   # Fit null model
   M0 = fitOLS(y=y,X=X);
   # Transformed Residuals
-  e = rankNorm(M0$Resid);
+  e = matrix(rankNorm(as.numeric(M0$Resid)),ncol=1);
   # Calculate F statistic
   aux = function(g){
+    g = matrix(g,ncol=1);
     # Adjust for missingness
     key = !is.na(g);
     miss = (sum(!key)>0);
     if(miss){
-      g0 = g[key];
+      g0 = g[key,,drop=F];
       X0 = X[key,,drop=F];
-      e0 = e[key];
+      e0 = e[key,,drop=F];
     } else {
       g0 = g;
       X0 = X;

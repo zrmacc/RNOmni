@@ -1,5 +1,5 @@
 # Purpose: Basic score test
-# Updated: 19/01/09
+# Updated: 19/09/02
 
 #' Basic Association Test
 #' 
@@ -60,20 +60,21 @@ BAT = function(y,G,X=NULL,test="Score",simple=FALSE,parallel=FALSE){
     # Fit null model
     M0 = fitOLS(y=y,X=X);
     # Extract model components
-    e = M0$Resid;
+    e = matrix(M0$Resid,ncol=1);
     v = M0$V;
     # Base information
     Iaa = M0$Ibb*v;
     # Function to calculate score statistics
     aux = function(g){
+      g = matrix(g,ncol=1);
       # Adjust for missingness
       key = !is.na(g);
       miss = (sum(!key)>0);
       if(miss){
-        g0 = g[key];
+        g0 = g[key,,drop=F];
         X0 = X[key,,drop=F];
         X1 = X[!key,,drop=F];
-        e0 = e[key];
+        e0 = e[key,,drop=F];
       } else {
         g0 = g;
         X0 = X;
@@ -118,7 +119,7 @@ BAT = function(y,G,X=NULL,test="Score",simple=FALSE,parallel=FALSE){
       miss = (sum(!key)>0);
       if(miss){
         y0 = y[key];
-        g0 = g[key];
+        g0 = g[key,,drop=F];
         X0 = X[key,,drop=F];
       } else {
         y0 = y;

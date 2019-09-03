@@ -1,30 +1,28 @@
-// [[Rcpp::depends(RcppEigen)]]
-#include <RcppEigen.h>
+// [[Rcpp::depends(RcppArmadillo)]]
+#include <RcppArmadillo.h>
 
 //' Matrix Inner Product
 //'
-//' Calculates the inner product \eqn{A'B}.
+//' Calculates the product \eqn{A'B}.
 //'
 //' @param A Numeric matrix.
 //' @param B Numeric matrix.
-//' @return Numeric matrix. 
+//' @return Numeric matrix.
 // [[Rcpp::export]]
-
-SEXP matIP(const Eigen::Map<Eigen::MatrixXd> A, const Eigen::Map<Eigen::MatrixXd> B){
-  const Eigen::MatrixXd AtB = (A.transpose() * B);
+SEXP matIP(const arma::mat A, const arma::mat B){
+  const arma::mat AtB = A.t()*B;
   return Rcpp::wrap(AtB);
 }
 
 //' Matrix Inverse
-//'
-//' Calcualtes \eqn{A^{-1}}.
 //' 
+//' Calcualtes \eqn{A^{-1}}.
+//'
 //' @param A Numeric matrix.
-//' @return A numeric matrix. 
+//' @return Numeric matrix. 
 // [[Rcpp::export]]
-
-SEXP matInv(const Eigen::Map<Eigen::MatrixXd> A){
-  const Eigen::MatrixXd Ai = A.completeOrthogonalDecomposition().pseudoInverse();
+SEXP matInv(const arma::mat A){
+  const arma::mat Ai = arma::pinv(A);
   return Rcpp::wrap(Ai);
 }
 
@@ -37,9 +35,8 @@ SEXP matInv(const Eigen::Map<Eigen::MatrixXd> A){
 //' @param Iba Cross information between target and nuisance parameters
 //' @return Numeric matrix. 
 // [[Rcpp::export]]
-SEXP SchurC(const Eigen::Map<Eigen::MatrixXd> Ibb, const Eigen::Map<Eigen::MatrixXd> Iaa,
-            const Eigen::Map<Eigen::MatrixXd> Iba){
-  // Kernel matrix
-  const Eigen::MatrixXd E = Ibb-(Iba*(Iaa.ldlt().solve(Iba.transpose())));
-  return Rcpp::wrap(E);
+SEXP SchurC(const arma::mat Ibb, const arma::mat Iaa,
+            const arma::mat Iba){
+  const arma::mat Ibba = Ibb-Iba*arma::solve(Iaa,Iba.t(),arma::solve_opts::likely_sympd);
+  return Rcpp::wrap(Ibba);
 }
