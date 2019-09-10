@@ -7,6 +7,7 @@
 #' @return OINT p-value.
 #' 
 #' @importFrom stats pcauchy
+#' @export 
 
 OINTp = function(p){
   # Check input
