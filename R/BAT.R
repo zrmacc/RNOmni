@@ -114,6 +114,7 @@ BAT = function(y,G,X=NULL,test="Score",simple=FALSE,parallel=FALSE){
   ## Wald Test
     # Function to calculate wald statistics
     aux = function(g){
+      g = matrix(g,ncol=1);
       # Adjust for missingness
       key = !is.na(g);
       miss = (sum(!key)>0);
