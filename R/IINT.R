@@ -1,128 +1,111 @@
 # Purpose: Indirect INT-based method
-# Updated: 19/01/11
+# Updated: 2020/10/04
+
+#' Basic Association Score Test
+#' 
+#' @param y Numeric phenotype vector.
+#' @param G Genotype matrix with observations as rows, SNPs as columns.
+#' @param X Model matrix of covariates.
+#' @param k Offset applied during rank-normalization.
+#' @return Numeric matrix, with 1 row per SNP, containing these columns:
+#' \itemize{
+#'   \item "score", the score statistic.
+#'   \item "se", its standard error.
+#'   \item "z", the Z statistic.
+#'   \item "p", the p-value. 
+#' }
+#' @importFrom plyr aaply
+
+IINT.ScoreTest <- function(y, G, X, k) {
+  
+  # Fit null model.
+  fit0 <- fitOLS(y = y, X = X)
+  
+  # Extract model components.
+  e <- matrix(
+    RankNorm(u = as.numeric(fit0$Resid), k = k), 
+    ncol = 1
+  )
+  v <- fit0$V
+  
+  # Calculate Score Statistic.
+  out <- aaply(.data = G, .margins = 2, .fun = function(g) {
+    ScoreStat(e = e, g = g, X = X, v = 1)
+  })
+  
+  return(out)
+}
+
+
+# -----------------------------------------------------------------------------
 
 #' Indirect-INT
 #' 
 #' Two-stage association testing procedure. In the first stage, phenotype 
 #' \code{y} and genotype \code{G} are each regressed on the model matrix
 #' \code{X} to obtain residuals. The phenotypic residuals are transformed
-#' using \code{\link{rankNorm}}. In the next stage, the INT-transformed
+#' using \code{\link{RankNorm}}. In the next stage, the INT-transformed
 #' residuals are regressed on the genotypic residuals. 
 #' 
-#' @importFrom plyr aaply
-#' @importFrom stats pchisq
-#' @export
-#' 
 #' @param y Numeric phenotype vector.
-#' @param G Obs by snp genotype matrix.
+#' @param G Genotype matrix with observations as rows, SNPs as columns.
 #' @param X Model matrix of covariates and structure adjustments. Should include
 #'   an intercept. Omit to perform marginal tests of association. 
 #' @param k Offset applied during rank-normalization. See
-#'   \code{\link{rankNorm}}.
+#'   \code{\link{RankNorm}}.
 #' @param simple Return the p-values only? 
-#' @param parallel Logical indicating whether to run in parallel. Must register
-#'   parallel backend first. 
-#' @return If \code{simple=T}, returns a vector of p-values, one for each column
-#'   of \code{G}. If \code{simple=F}, returns a numeric matrix, including the
+#' @return If \code{simple = TRUE}, returns a vector of p-values, one for each column
+#'   of \code{G}. If \code{simple = FALSE}, returns a numeric matrix, including the
 #'   Wald or Score statistic, its standard error, the Z-score, and the p-value.
-#'   
-#' @seealso Basic association test \code{\link{BAT}}, direct INT \code{\link{DINT}}, omnibus INT \code{\link{OINT}}.
-#'   
+#' 
+#' @export
+#' @seealso
+#' \itemize{
+#'   \item Basic association test \code{\link{BAT}}.
+#'   \item Direct INT test \code{\link{DINT}}.
+#'   \item Omnibus INT test \code{\link{OINT}}.
+#' } 
+#' 
 #' @examples
-#' \dontrun{
-#' set.seed(100);
+#' set.seed(100)
 #' # Design matrix
-#' X = cbind(1,rnorm(1e3));
+#' X <- cbind(1, rnorm(1e3))
 #' # Genotypes
-#' G = replicate(1e3,rbinom(n=1e3,size=2,prob=0.25));
-#' storage.mode(G) = "numeric";
+#' G <- replicate(1e3, rbinom(n = 1e3, size = 2, prob = 0.25))
+#' storage.mode(G) <- "numeric"
 #' # Phenotype
-#' y = exp(as.numeric(X%*%c(1,1))+rnorm(1e3));
+#' y <- exp(as.numeric(X %*% c(1,1)) + rnorm(1e3))
 #' # Association test
-#' p = IINT(y=y,G=G,X=X,simple=T);
-#' };
+#' p <- IINT(y = y, G = G, X = X)
 
-IINT = function(y,G,X=NULL,k=3/8,simple=FALSE,parallel=FALSE){
-  # Input check 
-  n = length(y);
-  if(!is.vector(y)){stop("A numeric vector is expected for y.")};
-  if(!is.matrix(G)){stop("A numeric matrix is expected for G.")};
-  if(is.null(X)){X=array(1,dim=c(n,1))};
-  if(!is.matrix(X)){stop("A numeric matrix is expected for X.")};
-  # Missingness
-  Miss = sum(is.na(y))+sum(is.na(X));
-  if(Miss>0){stop("Please exclude observations missing phenotype or covariate information.")}
-  
-  # Loci
-  ng = ncol(G);
-  # Sample size
-  n = length(y);
-  # Fit null model
-  M0 = fitOLS(y=y,X=X);
-  # Transformed Residuals
-  e = matrix(rankNorm(as.numeric(M0$Resid)),ncol=1);
-  # Calculate F statistic
-  aux = function(g){
-    g = matrix(g,ncol=1);
-    # Adjust for missingness
-    key = !is.na(g);
-    miss = (sum(!key)>0);
-    if(miss){
-      g0 = g[key,,drop=F];
-      X0 = X[key,,drop=F];
-      e0 = e[key,,drop=F];
-    } else {
-      g0 = g;
-      X0 = X;
-      e0 = e;
-    }
-    # Regression genotype on covariates
-    g1 = fitOLS(y=g0,X=X0)$Resid;
-    # Information component
-    V = sum(g1^2);
-    # SE
-    se = sqrt(V);
-    # Wald statistic
-    U = as.numeric(matIP(g1,e0));
-    # Z statistic
-    Z = U/se;
-    # Chi statistic
-    Tw = Z^2;
-    # p-value
-    p = pchisq(q=Tw,df=1,lower.tail=F);
-    # Output
-    if(simple){
-      Out = c(p);
-    } else {
-      Out = c(U,se,Z,p);
-    }
-    return(Out);
+IINT <- function(y, G, X = NULL, k = 0.375, simple = FALSE) {
+
+  # Generate X is omitted.
+  if (is.null(X)) {
+    X <- array(1, dim = c(length(y), 1))
   }
   
+  # Input check.
+  BasicInputChecks(y, G, X)
+
   # Score statistics
-  Out = aaply(.data=G,.margins=2,.fun=aux,.parallel=parallel);
+  out <- IINT.ScoreTest(y = y, G = G, X = X, k = k)
+  if (!is.matrix(out)) {out <- matrix(out, nrow = 1)}
   
-  ## Format output
-  dimnames(Out) = NULL;
-  # Check for genotype names
-  gnames = colnames(G);
-  if(is.null(gnames)){
-    gnames = seq(1:ng);
+  # Check for genotype names.
+  gnames <- colnames(G)
+  if (is.null(gnames)) {
+    gnames <- seq_len(ncol(G))
   }
   
-  # If returning p-values only
-  if(simple){
-    names(Out) = gnames;
+  # Format output.
+  if (simple) { 
+    out <- out[, 4]
+    names(out) <- gnames
   } else {
-    # Format as matrix
-    if(ng==1){
-      Out = matrix(Out,nrow=1);
-    }
-    # Column names
-    colnames(Out) = c("Score","SE","Z","p");
-    # Row names
-    rownames(Out) = gnames;
-  };
-  # Return
-  return(Out);
-};
+    if (!is.matrix(out)) {out <- matrix(out, nrow = 1)}
+    colnames(out) <- c("Score", "SE", "Z", "P")
+    rownames(out) <- gnames
+  }
+  return(out)
+}

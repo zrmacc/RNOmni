@@ -4,23 +4,20 @@
 \alias{OINT}
 \title{Omnibus-INT}
 \usage{
-OINT(y, G, X = NULL, k = 3/8, simple = FALSE, parallel = FALSE)
+OINT(y, G, X = NULL, k = 0.375, simple = FALSE)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Obs by locus genotype matrix.}
+\item{G}{Genotype matrix with observations as rows, SNPs as columns.}
 
 \item{X}{Model matrix of covariates and structure adjustments. Should include
 an intercept. Omit to perform marginal tests of association.}
 
-\item{k}{Offset applied during rank-normalization. See 
-\code{\link{rankNorm}}.}
+\item{k}{Offset applied during rank-normalization. See
+\code{\link{RankNorm}}.}
 
 \item{simple}{Return the OINT p-values only?}
-
-\item{parallel}{Logical indicating whether to run in parallel. Must register 
-parallel backend first.}
 }
 \value{
 A numeric matrix of p-values, three for each column of \code{G}.
@@ -31,23 +28,25 @@ Association test that synthesizes the \code{\link{DINT}} and
 could have arisen from a rank-preserving transformation of a latent normal
 trait. The second approach is most powerful for traits that are linear in
 covariates, yet have skewed or kurtotic residual distributions. During the
-omnibus test, the direct and indirect tests are separately applied then
+omnibus test, the direct and indirect tests are separately applied, then the
+p-values are combined via the Cauchy combination method.
 }
 \examples{
-\dontrun{
-set.seed(100);
+set.seed(100)
 # Design matrix
-X = cbind(1,rnorm(1e3));
+X <- cbind(1, rnorm(1e3))
 # Genotypes
-G = replicate(1e3,rbinom(n=1e3,size=2,prob=0.25));
-storage.mode(G) = "numeric";
+G <- replicate(1e3, rbinom(n = 1e3, size = 2, prob = 0.25))
+storage.mode(G) <- "numeric"
 # Phenotype
-y = exp(as.numeric(X\%*\%c(1,1))+rnorm(1e3));
+y <- exp(as.numeric(X \%*\% c(1, 1)) + rnorm(1e3))
 # Omnibus
-p = OINT(y=y,G=G,X=X,simple=T);
-}
+p <- OINT(y = y, G = G, X = X, simple = TRUE)
 }
 \seealso{
-Basic association test \code{\link{BAT}}, direct INT \code{\link{DINT}}, 
-indirect INT \code{\link{IINT}}.
+\itemize{
+  \item Basic association test \code{\link{BAT}}.
+  \item Direct INT test \code{\link{DINT}}.
+  \item Indirect INT test \code{\link{IINT}}.
+}
 }

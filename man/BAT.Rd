@@ -4,13 +4,12 @@
 \alias{BAT}
 \title{Basic Association Test}
 \usage{
-BAT(y, G, X = NULL, test = "Score", simple = FALSE,
-  parallel = FALSE)
+BAT(y, G, X = NULL, test = "Score", simple = FALSE)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Obs by snp genotype matrix.}
+\item{G}{Genotype matrix with observations as rows, SNPs as columns.}
 
 \item{X}{Model matrix of covariates and structure adjustments. Should include
 an intercept. Omit to perform marginal tests of association.}
@@ -18,13 +17,10 @@ an intercept. Omit to perform marginal tests of association.}
 \item{test}{Either Score or Wald.}
 
 \item{simple}{Return the p-values only?}
-
-\item{parallel}{Logical indicating whether to run in parallel. Must register
-parallel backend first.}
 }
 \value{
-If \code{simple=T}, returns a vector of p-values, one for each column
-  of \code{G}. If \code{simple=F}, returns a numeric matrix, including the
+If \code{simple = TRUE}, returns a vector of p-values, one for each column
+  of \code{G}. If \code{simple = FALSE}, returns a numeric matrix, including the
   Wald or Score statistic, its standard error, the Z-score, and the p-value.
 }
 \description{
@@ -32,19 +28,21 @@ Conducts tests of association between the loci in \code{G} and the
 untransformed phenotype \code{y}, adjusting for the model matrix \code{X}.
 }
 \examples{
-\dontrun{
-set.seed(100);
+set.seed(100)
 # Design matrix
-X = cbind(1,rnorm(1e3));
+X <- cbind(1, rnorm(1e3))
 # Genotypes
-G = replicate(1e3,rbinom(n=1e3,size=2,prob=0.25));
-storage.mode(G) = "numeric";
+G <- replicate(1e3, rbinom(n = 1e3, size = 2, prob = 0.25))
+storage.mode(G) <- "numeric"
 # Phenotype
-y = as.numeric(X\%*\%c(1,1))+rnorm(1e3);
+y <- as.numeric(X \%*\% c(1, 1)) + rnorm(1e3)
 # Association test
-p = BAT(y=y,G=G,X=X,simple=T);
-}
+p <- BAT(y = y, G = G, X = X)
 }
 \seealso{
-Direct INT \code{\link{DINT}}, indirect INT \code{\link{IINT}}, omnibus INT \code{\link{OINT}}.
+\itemize{
+  \item Direct INT \code{\link{DINT}}
+  \item Indirect INT \code{\link{IINT}}
+  \item Omnibus INT \code{\link{OINT}}
+}
 }

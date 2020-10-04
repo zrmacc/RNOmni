@@ -4,51 +4,49 @@
 \alias{DINT}
 \title{Direct-INT}
 \usage{
-DINT(y, G, X = NULL, k = 3/8, test = "Score", simple = FALSE,
-  parallel = FALSE)
+DINT(y, G, X = NULL, k = 0.375, test = "Score", simple = FALSE)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Obs by snp genotype matrix.}
+\item{G}{Genotype matrix with observations as rows, SNPs as columns.}
 
 \item{X}{Model matrix of covariates and structure adjustments. Should include
 an intercept. Omit to perform marginal tests of association.}
 
-\item{k}{Offset applied during rank-normalization. See 
-\code{\link{rankNorm}}.}
+\item{k}{Offset applied during rank-normalization. See
+\code{\link{RankNorm}}.}
 
 \item{test}{Either Score or Wald.}
 
 \item{simple}{Return the p-values only?}
-
-\item{parallel}{Logical indicating whether to run in parallel. Must register
-parallel backend first.}
 }
 \value{
-If \code{simple=T}, returns a vector of p-values, one for each column
-  of \code{G}. If \code{simple=F}, returns a numeric matrix, including the
+If \code{simple = TRUE}, returns a vector of p-values, one for each column
+  of \code{G}. If \code{simple = FALSE}, returns a numeric matrix, including the
   Wald or Score statistic, its standard error, the Z-score, and the p-value.
 }
 \description{
-Applies the rank-based inverse normal transformation (\code{\link{rankNorm}})
+Applies the rank-based inverse normal transformation (\code{\link{RankNorm}})
 to the phenotype \code{y}. Conducts tests of association between the loci in
 \code{G} and transformed phenotype, adjusting for the model matrix \code{X}.
 }
 \examples{
-\dontrun{
-set.seed(100);
+set.seed(100)
 # Design matrix
-X = cbind(1,rnorm(1e3));
+X <- cbind(1, rnorm(1e3))
 # Genotypes
-G = replicate(1e3,rbinom(n=1e3,size=2,prob=0.25));
-storage.mode(G) = "numeric";
+G <- replicate(1e3, rbinom(n = 1e3, size = 2, prob = 0.25))
+storage.mode(G) <- "numeric"
 # Phenotype
-y = exp(as.numeric(X\%*\%c(1,1))+rnorm(1e3));
+y <- exp(as.numeric(X \%*\% c(1, 1)) + rnorm(1e3))
 # Association test
-p = DINT(y=y,G=G,X=X,simple=T);
-}
+p <- DINT(y = y, G = G, X = X)
 }
 \seealso{
-Basic association test \code{\link{BAT}}, indirect INT \code{\link{IINT}}, omnibus INT \code{\link{OINT}}.
+\itemize{
+  \item Basic association test \code{\link{BAT}}.
+  \item Indirect INT test \code{\link{IINT}}.
+  \item Omnibus INT test \code{\link{OINT}}.
+}
 }

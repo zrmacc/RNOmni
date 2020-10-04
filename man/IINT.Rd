@@ -4,50 +4,49 @@
 \alias{IINT}
 \title{Indirect-INT}
 \usage{
-IINT(y, G, X = NULL, k = 3/8, simple = FALSE, parallel = FALSE)
+IINT(y, G, X = NULL, k = 0.375, simple = FALSE)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
 
-\item{G}{Obs by snp genotype matrix.}
+\item{G}{Genotype matrix with observations as rows, SNPs as columns.}
 
 \item{X}{Model matrix of covariates and structure adjustments. Should include
 an intercept. Omit to perform marginal tests of association.}
 
 \item{k}{Offset applied during rank-normalization. See
-\code{\link{rankNorm}}.}
+\code{\link{RankNorm}}.}
 
 \item{simple}{Return the p-values only?}
-
-\item{parallel}{Logical indicating whether to run in parallel. Must register
-parallel backend first.}
 }
 \value{
-If \code{simple=T}, returns a vector of p-values, one for each column
-  of \code{G}. If \code{simple=F}, returns a numeric matrix, including the
+If \code{simple = TRUE}, returns a vector of p-values, one for each column
+  of \code{G}. If \code{simple = FALSE}, returns a numeric matrix, including the
   Wald or Score statistic, its standard error, the Z-score, and the p-value.
 }
 \description{
 Two-stage association testing procedure. In the first stage, phenotype 
 \code{y} and genotype \code{G} are each regressed on the model matrix
 \code{X} to obtain residuals. The phenotypic residuals are transformed
-using \code{\link{rankNorm}}. In the next stage, the INT-transformed
+using \code{\link{RankNorm}}. In the next stage, the INT-transformed
 residuals are regressed on the genotypic residuals.
 }
 \examples{
-\dontrun{
-set.seed(100);
+set.seed(100)
 # Design matrix
-X = cbind(1,rnorm(1e3));
+X <- cbind(1, rnorm(1e3))
 # Genotypes
-G = replicate(1e3,rbinom(n=1e3,size=2,prob=0.25));
-storage.mode(G) = "numeric";
+G <- replicate(1e3, rbinom(n = 1e3, size = 2, prob = 0.25))
+storage.mode(G) <- "numeric"
 # Phenotype
-y = exp(as.numeric(X\%*\%c(1,1))+rnorm(1e3));
+y <- exp(as.numeric(X \%*\% c(1,1)) + rnorm(1e3))
 # Association test
-p = IINT(y=y,G=G,X=X,simple=T);
-};
+p <- IINT(y = y, G = G, X = X)
 }
 \seealso{
-Basic association test \code{\link{BAT}}, direct INT \code{\link{DINT}}, omnibus INT \code{\link{OINT}}.
+\itemize{
+  \item Basic association test \code{\link{BAT}}.
+  \item Direct INT test \code{\link{DINT}}.
+  \item Omnibus INT test \code{\link{OINT}}.
+}
 }
