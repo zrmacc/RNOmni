@@ -10,6 +10,6 @@ This package implements genetic association tests based on the inverse normal tr
 devtools::install_github(repo = 'zrmacc/RNOmni')
 ```
 
-# [Package Vignette
+# Package Vignette
 
 Link to package [vignette](https://htmlpreview.github.io/?https://github.com/zrmacc/RNOmni/blob/master/vignettes/RNOmni.html).

@@ -1,7 +1,7 @@
 Package: RNOmni
 Title: Rank Normal Transformation Omnibus Test
 Version: 1.0.0
-Date: 2019-09-02
+Date: 2020-10-04
 Authors@R: 
     person(given = "Zachary",
            family = "McCaw",
