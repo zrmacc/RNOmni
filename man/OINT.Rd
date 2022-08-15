@@ -4,7 +4,15 @@
 \alias{OINT}
 \title{Omnibus-INT}
 \usage{
-OINT(y, G, X = NULL, k = 0.375, simple = FALSE)
+OINT(
+  y,
+  G,
+  X = NULL,
+  k = 0.375,
+  ties.method = "average",
+  weights = c(1, 1),
+  simple = FALSE
+)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -16,6 +24,10 @@ an intercept. Omit to perform marginal tests of association.}
 
 \item{k}{Offset applied during rank-normalization. See
 \code{\link{RankNorm}}.}
+
+\item{ties.method}{Method of breaking ties, passed to \code{base::rank}.}
+
+\item{weights}{Respective weights to allocate the DINT and IINT tests.}
 
 \item{simple}{Return the OINT p-values only?}
 }

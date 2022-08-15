@@ -13,8 +13,9 @@
 #' \item{V}{Outcome variance.}
 #' \item{Ibb}{Information matrix for beta.}
 #' \item{Resid}{Outcome residuals.}
-fitOLS <- function(y, X) {
-    .Call(`_RNOmni_fitOLS`, y, X)
+#' @export
+FitOLS <- function(y, X) {
+    .Call(`_RNOmni_FitOLS`, y, X)
 }
 
 #' Matrix Inner Product
@@ -24,8 +25,9 @@ fitOLS <- function(y, X) {
 #' @param A Numeric matrix.
 #' @param B Numeric matrix.
 #' @return Numeric matrix.
-matIP <- function(A, B) {
-    .Call(`_RNOmni_matIP`, A, B)
+#' @noRd
+MatIP <- function(A, B) {
+    .Call(`_RNOmni_MatIP`, A, B)
 }
 
 #' Matrix Inverse
@@ -34,8 +36,9 @@ matIP <- function(A, B) {
 #'
 #' @param A Numeric matrix.
 #' @return Numeric matrix. 
-matInv <- function(A) {
-    .Call(`_RNOmni_matInv`, A)
+#' @noRd
+MatInv <- function(A) {
+    .Call(`_RNOmni_MatInv`, A)
 }
 
 #' Schur complement
@@ -46,6 +49,7 @@ matInv <- function(A) {
 #' @param Iaa Information of nuisance parameter
 #' @param Iba Cross information between target and nuisance parameters
 #' @return Numeric matrix. 
+#' @noRd
 SchurC <- function(Ibb, Iaa, Iba) {
     .Call(`_RNOmni_SchurC`, Ibb, Iaa, Iba)
 }

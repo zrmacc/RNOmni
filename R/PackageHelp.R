@@ -1,9 +1,11 @@
 # Purpose: Package documentation
 # Updated: 2020/10/03
 
+
 #' @useDynLib RNOmni, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
 NULL
+
 
 #' RNOmni: Rank-Normal Omnibus Association Testing
 #'

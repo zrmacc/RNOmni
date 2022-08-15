@@ -8,9 +8,13 @@
 //' @param A Numeric matrix.
 //' @param B Numeric matrix.
 //' @return Numeric matrix.
+//' @noRd
 // [[Rcpp::export]]
-SEXP matIP(const arma::mat A, const arma::mat B){
-  const arma::mat AtB = A.t()*B;
+SEXP MatIP(
+  const arma::mat A,
+  const arma::mat B
+) {
+  const arma::mat AtB = A.t() * B;
   return Rcpp::wrap(AtB);
 }
 
@@ -20,8 +24,9 @@ SEXP matIP(const arma::mat A, const arma::mat B){
 //'
 //' @param A Numeric matrix.
 //' @return Numeric matrix. 
+//' @noRd
 // [[Rcpp::export]]
-SEXP matInv(const arma::mat A){
+SEXP MatInv(const arma::mat A) {
   const arma::mat Ai = arma::pinv(A);
   return Rcpp::wrap(Ai);
 }
@@ -34,9 +39,13 @@ SEXP matInv(const arma::mat A){
 //' @param Iaa Information of nuisance parameter
 //' @param Iba Cross information between target and nuisance parameters
 //' @return Numeric matrix. 
+//' @noRd
 // [[Rcpp::export]]
-SEXP SchurC(const arma::mat Ibb, const arma::mat Iaa,
-            const arma::mat Iba){
-  const arma::mat Ibba = Ibb-Iba*arma::solve(Iaa,Iba.t(),arma::solve_opts::likely_sympd);
+SEXP SchurC(
+  const arma::mat Ibb,
+  const arma::mat Iaa,
+  const arma::mat Iba
+) {
+  const arma::mat Ibba = Ibb - Iba * arma::solve(Iaa, Iba.t(), arma::solve_opts::likely_sympd);
   return Rcpp::wrap(Ibba);
 }

@@ -30,12 +30,12 @@ untransformed phenotype \code{y}, adjusting for the model matrix \code{X}.
 \examples{
 set.seed(100)
 # Design matrix
-X <- cbind(1, rnorm(1e3))
+X <- cbind(1, stats::rnorm(1e3))
 # Genotypes
-G <- replicate(1e3, rbinom(n = 1e3, size = 2, prob = 0.25))
+G <- replicate(1e3, stats::rbinom(n = 1e3, size = 2, prob = 0.25))
 storage.mode(G) <- "numeric"
 # Phenotype
-y <- as.numeric(X \%*\% c(1, 1)) + rnorm(1e3)
+y <- as.numeric(X \%*\% c(1, 1)) + stats::rnorm(1e3)
 # Association test
 p <- BAT(y = y, G = G, X = X)
 }

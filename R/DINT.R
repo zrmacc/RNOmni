@@ -1,6 +1,7 @@
 # Purpose: Direct INT-based test
 # Updated: 2020/10/03
 
+
 #' Direct-INT
 #'
 #' Applies the rank-based inverse normal transformation (\code{\link{RankNorm}})
@@ -14,11 +15,11 @@
 #' @param k Offset applied during rank-normalization. See
 #'   \code{\link{RankNorm}}.
 #' @param test Either Score or Wald.
+#' @param ties.method Method of breaking ties, passed to \code{base::rank}.
 #' @param simple Return the p-values only?
 #' @return If \code{simple = TRUE}, returns a vector of p-values, one for each column
 #'   of \code{G}. If \code{simple = FALSE}, returns a numeric matrix, including the
 #'   Wald or Score statistic, its standard error, the Z-score, and the p-value.
-#'
 #' @export
 #' @seealso
 #' \itemize{
@@ -30,16 +31,24 @@
 #' @examples
 #' set.seed(100)
 #' # Design matrix
-#' X <- cbind(1, rnorm(1e3))
+#' X <- cbind(1, stats::rnorm(1e3))
 #' # Genotypes
-#' G <- replicate(1e3, rbinom(n = 1e3, size = 2, prob = 0.25))
+#' G <- replicate(1e3, stats::rbinom(n = 1e3, size = 2, prob = 0.25))
 #' storage.mode(G) <- "numeric"
 #' # Phenotype
-#' y <- exp(as.numeric(X %*% c(1, 1)) + rnorm(1e3))
+#' y <- exp(as.numeric(X %*% c(1, 1)) + stats::rnorm(1e3))
 #' # Association test
 #' p <- DINT(y = y, G = G, X = X)
 
-DINT <- function(y, G, X = NULL, k = 0.375, test = "Score", simple = FALSE) {
+DINT <- function(
+    y,
+    G,
+    X = NULL,
+    k = 0.375,
+    test = "Score",
+    ties.method = "average",
+    simple = FALSE
+) {
   
   # Generate X is omitted.
   if (is.null(X)) {
@@ -50,7 +59,7 @@ DINT <- function(y, G, X = NULL, k = 0.375, test = "Score", simple = FALSE) {
   BasicInputChecks(y, G, X)
 
   # Transform phenotype.
-  z <- RankNorm(u = y, k = k)
+  z <- RankNorm(u = y, k = k, ties.method = ties.method)
   
   # Apply basic association test to transformed phenotype.
   out <- BAT(y = z, G = G, X = X, test = test, simple = simple)

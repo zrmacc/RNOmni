@@ -4,7 +4,7 @@
 \alias{IINT}
 \title{Indirect-INT}
 \usage{
-IINT(y, G, X = NULL, k = 0.375, simple = FALSE)
+IINT(y, G, X = NULL, k = 0.375, ties.method = "average", simple = FALSE)
 }
 \arguments{
 \item{y}{Numeric phenotype vector.}
@@ -16,6 +16,8 @@ an intercept. Omit to perform marginal tests of association.}
 
 \item{k}{Offset applied during rank-normalization. See
 \code{\link{RankNorm}}.}
+
+\item{ties.method}{Method of breaking ties, passed to \code{base::rank}.}
 
 \item{simple}{Return the p-values only?}
 }
@@ -34,12 +36,12 @@ residuals are regressed on the genotypic residuals.
 \examples{
 set.seed(100)
 # Design matrix
-X <- cbind(1, rnorm(1e3))
+X <- cbind(1, stats::rnorm(1e3))
 # Genotypes
-G <- replicate(1e3, rbinom(n = 1e3, size = 2, prob = 0.25))
+G <- replicate(1e3, stats::rbinom(n = 1e3, size = 2, prob = 0.25))
 storage.mode(G) <- "numeric"
 # Phenotype
-y <- exp(as.numeric(X \%*\% c(1,1)) + rnorm(1e3))
+y <- exp(as.numeric(X \%*\% c(1,1)) + stats::rnorm(1e3))
 # Association test
 p <- IINT(y = y, G = G, X = X)
 }

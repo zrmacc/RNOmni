@@ -1,5 +1,6 @@
 # Purpose: Indirect INT-based method
-# Updated: 2020/10/04
+# Updated: 2022-08-15
+
 
 #' Basic Association Score Test
 #' 
@@ -7,6 +8,7 @@
 #' @param G Genotype matrix with observations as rows, SNPs as columns.
 #' @param X Model matrix of covariates.
 #' @param k Offset applied during rank-normalization.
+#' @param ties.method Method of breaking ties, passed to \code{base::rank}.
 #' @return Numeric matrix, with 1 row per SNP, containing these columns:
 #' \itemize{
 #'   \item "score", the score statistic.
@@ -14,22 +16,27 @@
 #'   \item "z", the Z statistic.
 #'   \item "p", the p-value. 
 #' }
-#' @importFrom plyr aaply
-
-IINT.ScoreTest <- function(y, G, X, k) {
+#' @noRd
+IINTScoreTest <- function(
+    y,
+    G,
+    X,
+    k = 0.375,
+    ties.method = "average"
+) {
   
   # Fit null model.
-  fit0 <- fitOLS(y = y, X = X)
+  fit0 <- FitOLS(y = y, X = X)
   
   # Extract model components.
   e <- matrix(
-    RankNorm(u = as.numeric(fit0$Resid), k = k), 
+    RankNorm(u = as.numeric(fit0$Resid), k = k, ties.method = ties.method), 
     ncol = 1
   )
   v <- fit0$V
   
   # Calculate Score Statistic.
-  out <- aaply(.data = G, .margins = 2, .fun = function(g) {
+  out <- plyr::aaply(.data = G, .margins = 2, .fun = function(g) {
     ScoreStat(e = e, g = g, X = X, v = 1)
   })
   
@@ -53,11 +60,11 @@ IINT.ScoreTest <- function(y, G, X, k) {
 #'   an intercept. Omit to perform marginal tests of association. 
 #' @param k Offset applied during rank-normalization. See
 #'   \code{\link{RankNorm}}.
+#' @param ties.method Method of breaking ties, passed to \code{base::rank}.
 #' @param simple Return the p-values only? 
 #' @return If \code{simple = TRUE}, returns a vector of p-values, one for each column
 #'   of \code{G}. If \code{simple = FALSE}, returns a numeric matrix, including the
 #'   Wald or Score statistic, its standard error, the Z-score, and the p-value.
-#' 
 #' @export
 #' @seealso
 #' \itemize{
@@ -69,16 +76,22 @@ IINT.ScoreTest <- function(y, G, X, k) {
 #' @examples
 #' set.seed(100)
 #' # Design matrix
-#' X <- cbind(1, rnorm(1e3))
+#' X <- cbind(1, stats::rnorm(1e3))
 #' # Genotypes
-#' G <- replicate(1e3, rbinom(n = 1e3, size = 2, prob = 0.25))
+#' G <- replicate(1e3, stats::rbinom(n = 1e3, size = 2, prob = 0.25))
 #' storage.mode(G) <- "numeric"
 #' # Phenotype
-#' y <- exp(as.numeric(X %*% c(1,1)) + rnorm(1e3))
+#' y <- exp(as.numeric(X %*% c(1,1)) + stats::rnorm(1e3))
 #' # Association test
 #' p <- IINT(y = y, G = G, X = X)
-
-IINT <- function(y, G, X = NULL, k = 0.375, simple = FALSE) {
+IINT <- function(
+    y,
+    G,
+    X = NULL,
+    k = 0.375,
+    ties.method = "average",
+    simple = FALSE
+) {
 
   # Generate X is omitted.
   if (is.null(X)) {
@@ -89,7 +102,7 @@ IINT <- function(y, G, X = NULL, k = 0.375, simple = FALSE) {
   BasicInputChecks(y, G, X)
 
   # Score statistics
-  out <- IINT.ScoreTest(y = y, G = G, X = X, k = k)
+  out <- IINTScoreTest(y = y, G = G, X = X, k = k, ties.method = ties.method)
   if (!is.matrix(out)) {out <- matrix(out, nrow = 1)}
   
   # Check for genotype names.
@@ -104,6 +117,7 @@ IINT <- function(y, G, X = NULL, k = 0.375, simple = FALSE) {
     names(out) <- gnames
   } else {
     if (!is.matrix(out)) {out <- matrix(out, nrow = 1)}
+    dimnames(out) <- NULL
     colnames(out) <- c("Score", "SE", "Z", "P")
     rownames(out) <- gnames
   }

@@ -4,15 +4,17 @@
 \alias{RankNorm}
 \title{Rank-Normalize}
 \usage{
-RankNorm(u, k = 0.375)
+RankNorm(u, k = 0.375, ties.method = "average")
 }
 \arguments{
 \item{u}{Numeric vector.}
 
-\item{k}{Offset. Defaults to (3/8), correspond to the Blom transform.}
+\item{k}{Offset. Defaults to (3/8), corresponding to the Blom transform.}
+
+\item{ties.method}{Method of breaking ties, passed to \code{base::rank}.}
 }
 \value{
-Numeric vector of rank normalized measurements.
+Numeric vector of rank normalized values.
 }
 \description{
 Applies the rank-based inverse normal transform (INT) to a numeric vector.
@@ -23,11 +25,11 @@ transformed onto the real line, as Z-scores, using the probit function.
 }
 \examples{
 # Draw from chi-1 distribution
-y <- rchisq(n = 1e3, df = 1)
+y <- stats::rchisq(n = 1e3, df = 1)
 # Rank normalize
 z <- RankNorm(y)
 # Plot density of transformed measurement
-plot(density(z))
+plot(stats::density(z))
 }
 \seealso{
 \itemize{

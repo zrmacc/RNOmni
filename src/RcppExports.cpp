@@ -6,38 +6,43 @@
 
 using namespace Rcpp;
 
-// fitOLS
-SEXP fitOLS(const arma::colvec y, const arma::mat X);
-RcppExport SEXP _RNOmni_fitOLS(SEXP ySEXP, SEXP XSEXP) {
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
+// FitOLS
+SEXP FitOLS(const arma::colvec y, const arma::mat X);
+RcppExport SEXP _RNOmni_FitOLS(SEXP ySEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::colvec >::type y(ySEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(fitOLS(y, X));
+    rcpp_result_gen = Rcpp::wrap(FitOLS(y, X));
     return rcpp_result_gen;
 END_RCPP
 }
-// matIP
-SEXP matIP(const arma::mat A, const arma::mat B);
-RcppExport SEXP _RNOmni_matIP(SEXP ASEXP, SEXP BSEXP) {
+// MatIP
+SEXP MatIP(const arma::mat A, const arma::mat B);
+RcppExport SEXP _RNOmni_MatIP(SEXP ASEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat >::type A(ASEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type B(BSEXP);
-    rcpp_result_gen = Rcpp::wrap(matIP(A, B));
+    rcpp_result_gen = Rcpp::wrap(MatIP(A, B));
     return rcpp_result_gen;
 END_RCPP
 }
-// matInv
-SEXP matInv(const arma::mat A);
-RcppExport SEXP _RNOmni_matInv(SEXP ASEXP) {
+// MatInv
+SEXP MatInv(const arma::mat A);
+RcppExport SEXP _RNOmni_MatInv(SEXP ASEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat >::type A(ASEXP);
-    rcpp_result_gen = Rcpp::wrap(matInv(A));
+    rcpp_result_gen = Rcpp::wrap(MatInv(A));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -56,9 +61,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_RNOmni_fitOLS", (DL_FUNC) &_RNOmni_fitOLS, 2},
-    {"_RNOmni_matIP", (DL_FUNC) &_RNOmni_matIP, 2},
-    {"_RNOmni_matInv", (DL_FUNC) &_RNOmni_matInv, 1},
+    {"_RNOmni_FitOLS", (DL_FUNC) &_RNOmni_FitOLS, 2},
+    {"_RNOmni_MatIP", (DL_FUNC) &_RNOmni_MatIP, 2},
+    {"_RNOmni_MatInv", (DL_FUNC) &_RNOmni_MatInv, 1},
     {"_RNOmni_SchurC", (DL_FUNC) &_RNOmni_SchurC, 3},
     {NULL, NULL, 0}
 };
