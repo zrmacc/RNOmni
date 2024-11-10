@@ -1,3 +1,5 @@
+library(RNOmni)
+
 test_that("Test basic association test.", {
   
   # Run checks.
@@ -19,8 +21,8 @@ test_that("Test basic association test.", {
   g <- replicate(1e3, rbinom(n = n, size = 2, prob = 0.25))
   storage.mode(g) <- "numeric"
   y <- as.numeric(x %*% c(1, 1)) + stats::rnorm(n)
-  p_score <- BAT(y = y, G = g, X = x, test = "Score", simple = TRUE)
-  p_wald <- BAT(y = y, G = g, X = x, test = "Wald", simple = TRUE)
+  p_score <- RNOmni::BAT(y = y, G = g, X = x, test = "Score", simple = TRUE)
+  p_wald <- RNOmni::BAT(y = y, G = g, X = x, test = "Wald", simple = TRUE)
   
   # Approximately correct type 1 error.
   t1e_score <- mean(p_score <= 0.05)
