@@ -1,12 +1,3 @@
----
-title: "README"
-author: "Zachary R. McCaw"
-date: "2024-11-09"
-output: 
-  html_document: 
-    keep_md: TRUE
---- 
-
 # Rank Normal Omnibus Association Test
 Zachary R. McCaw <br>
 Updated: 2024-11-09
