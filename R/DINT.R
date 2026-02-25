@@ -11,12 +11,12 @@
 #' @param y Numeric phenotype vector.
 #' @param G Genotype matrix with observations as rows, SNPs as columns.
 #' @param X Model matrix of covariates and structure adjustments. Should include
-#'   an intercept. Omit to perform marginal tests of association.
-#' @param k Offset applied during rank-normalization. See
-#'   \code{\link{RankNorm}}.
-#' @param test Either Score or Wald.
-#' @param ties.method Method of breaking ties, passed to \code{base::rank}.
-#' @param simple Return the p-values only?
+#'   an intercept. Omit or set to \code{NULL} for marginal tests of association.
+#' @param k Offset for rank-normalization; see \code{\link{RankNorm}}.
+#' @param test Character: \code{"Score"} or \code{"Wald"}.
+#' @param ties.method Method for breaking ties, passed to \code{\link[base]{rank}}.
+#' @param simple If \code{TRUE}, return only p-values; if \code{FALSE}, return
+#'   the full matrix of statistic, SE, Z, and p-value.
 #' @return If \code{simple = TRUE}, returns a vector of p-values, one for each column
 #'   of \code{G}. If \code{simple = FALSE}, returns a numeric matrix, including the
 #'   Wald or Score statistic, its standard error, the Z-score, and the p-value.
@@ -50,7 +50,7 @@ DINT <- function(
     simple = FALSE
 ) {
   
-  # Generate X is omitted.
+  # Generate X if omitted.
   if (is.null(X)) {
     X <- array(1, dim = c(length(y), 1))
   }

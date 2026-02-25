@@ -20,9 +20,13 @@
 #' @param k Offset applied during rank-normalization. See
 #'   \code{\link{RankNorm}}.
 #' @param ties.method Method of breaking ties, passed to \code{base::rank}.
-#' @param weights Respective weights to allocate the DINT and IINT tests. 
-#' @param simple Return the OINT p-values only?
-#' @return A numeric matrix of p-values, three for each column of \code{G}.
+#' @param weights Numeric length-2 vector of weights for the D-INT and I-INT
+#'   p-values in the Cauchy combination. Default \code{c(1, 1)} gives equal weight.
+#' @param simple If \code{TRUE}, return only the omnibus p-values; if
+#'   \code{FALSE}, return a matrix with D-INT, I-INT, and OINT p-values.
+#' @return If \code{simple = TRUE}, a named numeric vector of omnibus p-values
+#'   (one per column of \code{G}). If \code{simple = FALSE}, a numeric matrix
+#'   with columns \code{DINT-p}, \code{IINT-p}, \code{OINT-p} and one row per SNP.
 #' @export
 #' @seealso
 #' \itemize{
@@ -52,7 +56,7 @@ OINT <- function(
     simple = FALSE
 ) {
   
-  # Generate X is omitted.
+  # Generate X if omitted.
   if (is.null(X)) {
     X <- array(1, dim = c(length(y), 1))
   }

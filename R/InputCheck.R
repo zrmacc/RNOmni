@@ -1,4 +1,4 @@
-# Purpose: Inputs checks.
+# Purpose: Input checks.
 # Updated: 2022-08-15
 
 
@@ -9,7 +9,7 @@
 #' @param y Numeric phenotype vector.
 #' @param G Genotype matrix with observations as rows, SNPs as columns.
 #' @param X Covariate matrix.
-#' @return None.
+#' @return None; called for side effects (stops on invalid input).
 
 BasicInputChecks <- function(y, G, X) {
   

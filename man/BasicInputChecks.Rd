@@ -14,7 +14,7 @@ BasicInputChecks(y, G, X)
 \item{X}{Covariate matrix.}
 }
 \value{
-None.
+None; called for side effects (stops on invalid input).
 }
 \description{
 Stops evaluation if inputs are improperly formatted.

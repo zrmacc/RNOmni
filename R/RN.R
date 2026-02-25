@@ -4,14 +4,15 @@
 #' Rank-Normalize
 #'
 #' Applies the rank-based inverse normal transform (INT) to a numeric vector.
-#' The INT can be broken down into a two-step procedure. In the first, the
-#' observations are transformed onto the probability scale using the empirical
-#' cumulative distribution function (ECDF). In the second, the observations are
-#' transformed onto the real line, as Z-scores, using the probit function.
-#' @param u Numeric vector.
-#' @param k Offset. Defaults to (3/8), corresponding to the Blom transform.
-#' @param ties.method Method of breaking ties, passed to \code{base::rank}.
-#' @return Numeric vector of rank normalized values.
+#' Observations are first mapped to the (0, 1) scale via the empirical
+#' cumulative distribution function (ECDF), then to the real line via the
+#' probit (inverse normal CDF).
+#'
+#' @param u Numeric vector. Must not contain \code{NA}.
+#' @param k Offset in the probability scale; must be in (0, 0.5). Default
+#'   \code{0.375} corresponds to the Blom transform.
+#' @param ties.method Method for breaking ties, passed to \code{\link[base]{rank}}.
+#' @return Numeric vector of rank-normalized values (same length as \code{u}).
 #' @export
 #' @seealso 
 #' \itemize{

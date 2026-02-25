@@ -1,6 +1,27 @@
-test_that("Test basic association test.", {
+test_that("IINT runs with X=NULL (marginal test)", {
+  n <- 15
+  withr::local_seed(106)
+  y <- stats::rnorm(n)
+  G <- matrix(stats::rbinom(n * 2, 2, 0.25), nrow = n, ncol = 2)
+  expect_error(IINT(y = y, G = G, X = NULL, simple = TRUE), NA)
+  p <- IINT(y = y, G = G, X = NULL, simple = TRUE)
+  expect_length(p, 2)
+  expect_true(all(p >= 0 & p <= 1))
+})
 
-  # Type 1 error.
+test_that("IINT simple=FALSE returns matrix with Score, SE, Z, P", {
+  n <- 20
+  withr::local_seed(107)
+  X <- cbind(1, stats::rnorm(n))
+  G <- matrix(stats::rbinom(n * 2, 2, 0.25), nrow = n, ncol = 2)
+  y <- exp(as.numeric(X %*% c(1, 1)) + stats::rnorm(n))
+  out <- IINT(y = y, G = G, X = X, simple = FALSE)
+  expect_true(is.matrix(out))
+  expect_equal(nrow(out), 2)
+  expect_equal(colnames(out), c("Score", "SE", "Z", "P"))
+})
+
+test_that("IINT type I error approximately 0.05 under null", {
   n <- 1e3
   withr::local_seed(101)
   x <- cbind(1, rnorm(n))
@@ -8,9 +29,5 @@ test_that("Test basic association test.", {
   storage.mode(g) <- "numeric"
   y <- as.numeric(x %*% c(1, 1)) + stats::rnorm(n)
   p <- IINT(y = y, G = g, X = x, simple = TRUE)
-  
-  # Approximately correct type 1 error.
-  t1e <- mean(p <= 0.05)
-  expect_equal(t1e, 0.05, tolerance = 0.05)
-  
+  expect_equal(mean(p <= 0.05), 0.05, tolerance = 0.05)
 })

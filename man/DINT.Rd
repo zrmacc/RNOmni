@@ -20,16 +20,16 @@ DINT(
 \item{G}{Genotype matrix with observations as rows, SNPs as columns.}
 
 \item{X}{Model matrix of covariates and structure adjustments. Should include
-an intercept. Omit to perform marginal tests of association.}
+an intercept. Omit or set to \code{NULL} for marginal tests of association.}
 
-\item{k}{Offset applied during rank-normalization. See
-\code{\link{RankNorm}}.}
+\item{k}{Offset for rank-normalization; see \code{\link{RankNorm}}.}
 
-\item{test}{Either Score or Wald.}
+\item{test}{Character: \code{"Score"} or \code{"Wald"}.}
 
-\item{ties.method}{Method of breaking ties, passed to \code{base::rank}.}
+\item{ties.method}{Method for breaking ties, passed to \code{\link[base]{rank}}.}
 
-\item{simple}{Return the p-values only?}
+\item{simple}{If \code{TRUE}, return only p-values; if \code{FALSE}, return
+the full matrix of statistic, SE, Z, and p-value.}
 }
 \value{
 If \code{simple = TRUE}, returns a vector of p-values, one for each column

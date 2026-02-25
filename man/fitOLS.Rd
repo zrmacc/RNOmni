@@ -2,22 +2,24 @@
 % Please edit documentation in R/RcppExports.R
 \name{FitOLS}
 \alias{FitOLS}
-\title{Ordinary Least Squares}
+\title{Ordinary least squares}
 \usage{
 FitOLS(y, X)
 }
 \arguments{
-\item{y}{Nx1 Numeric vector.}
+\item{y}{Numeric response vector (length \eqn{n}).}
 
-\item{X}{NxP Numeric matrix.}
+\item{X}{Numeric design matrix (\eqn{n \times p}); typically includes an
+intercept column.}
 }
 \value{
-List containing the following:
-\item{Beta}{Regression coefficient.}
-\item{V}{Outcome variance.}
-\item{Ibb}{Information matrix for beta.}
-\item{Resid}{Outcome residuals.}
+A list:
+  \item{Beta}{Estimated coefficient vector \eqn{\hat{\beta}}.}
+  \item{V}{Residual variance \eqn{\hat{\sigma}^2} (residual sum of squares
+    divided by \eqn{n - p}).}
+  \item{Ibb}{Information matrix for \eqn{\beta} (scaled \eqn{X'X}).}
+  \item{Resid}{Residual vector \eqn{y - X \hat{\beta}}.}
 }
 \description{
-Fits the standard OLS model.
+Fits the linear model \eqn{y = X \beta + \epsilon} by OLS.
 }

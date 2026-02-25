@@ -2,10 +2,43 @@
 #' @importFrom Rcpp sourceCpp
 NULL
 
-
-#' @keywords internal
+#' RNOmni: Rank normal transformation omnibus association test
+#'
+#' Genetic association tests based on the rank-based inverse normal
+#' transformation (INT). Recommended for continuous traits with non-normally
+#' distributed residuals.
+#'
+#' @description
+#' INT-based tests control type I error when standard linear regression does
+#' not (e.g. skewed or kurtotic residuals) and typically outperform linear
+#' regression in power. The package provides:
+#' \itemize{
+#'   \item \code{\link{BAT}}: Basic association test (no transformation).
+#'   \item \code{\link{DINT}}: Direct INT (phenotype is rank-normalized).
+#'   \item \code{\link{IINT}}: Indirect INT (phenotypic residuals are
+#'         rank-normalized).
+#'   \item \code{\link{OINT}}: Omnibus test combining D-INT and I-INT via
+#'         Cauchy combination (\code{\link{OmniP}}).
+#' }
+#' Helper functions include \code{\link{RankNorm}} (rank-based INT) and
+#' \code{\link{FitOLS}} (OLS fit).
+#'
+#' @details
+#' Use \code{\link{OINT}} for a single robust test that adapts to the trait
+#' distribution. Use \code{\link{DINT}} when the trait may be a
+#' rank-preserving transform of a normal trait, and \code{\link{IINT}} when
+#' the trait is linear in covariates but has non-normal residuals.
+#'
+#' @references
+#' McCaw ZR, Lane JM, Saxena R, Redline S, Lin X (2020). Operating
+#' characteristics of the rank-based inverse normal transformation for
+#' quantitative trait analysis in genome-wide association studies.
+#' \emph{Biometrics}, \doi{10.1111/biom.13214}.
+#'
+#' @seealso
+#' \code{\link{OINT}}, \code{\link{DINT}}, \code{\link{IINT}}, \code{\link{BAT}},
+#' \code{\link{RankNorm}}, \code{\link{OmniP}}
 "_PACKAGE"
-
 
 ## usethis namespace: start
 ## usethis namespace: end

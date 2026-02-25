@@ -12,11 +12,12 @@ BAT(y, G, X = NULL, test = "Score", simple = FALSE)
 \item{G}{Genotype matrix with observations as rows, SNPs as columns.}
 
 \item{X}{Model matrix of covariates and structure adjustments. Should include
-an intercept. Omit to perform marginal tests of association.}
+an intercept. Omit or set to \code{NULL} for marginal tests of association.}
 
-\item{test}{Either Score or Wald.}
+\item{test}{Character: \code{"Score"} or \code{"Wald"}.}
 
-\item{simple}{Return the p-values only?}
+\item{simple}{If \code{TRUE}, return only the p-values; if \code{FALSE},
+return the full matrix of statistic, SE, Z, and p-value.}
 }
 \value{
 If \code{simple = TRUE}, returns a vector of p-values, one for each column

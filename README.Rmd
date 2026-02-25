@@ -2,25 +2,61 @@
 title: "README"
 author: "Zachary R. McCaw"
 date: "`r Sys.Date()`"
-output: 
-  html_document: 
+output:
+  html_document:
     keep_md: TRUE
---- 
+---
 
-# Rank Normal Omnibus Association Test
+# RNOmni: Rank Normal Omnibus Association Test
+
 Zachary R. McCaw <br>
-Updated: 2024-11-09
+Updated: 2026-02-24
 
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/RNOmni)](https://cran.r-project.org/package=RNOmni)
 [![](https://cranlogs.r-pkg.org/badges/grand-total/RNOmni)](https://CRAN.R-project.org/package=RNOmni)
 
-This package implements genetic association tests based on the inverse normal transform (INT). These tests are recommend for continuous traits with non-normally distributed residuals. INT-based tests robustly control the type I error in settings where standard linear regression does not, as when the residual distribution exhibits excess skew or kurtosis. Moreover, INT-based tests dominate standard linear regression in terms of power. These tests may be classified into two types. In direct INT (D-INT), the phenotype is itself transformed. In indirect INT (I-INT), phenotypic residuals are transformed. The omnibus test (O-INT) adaptively combines D-INT and I-INT into a single robust and statistically powerful approach. See [Operating characteristics of the rank-based inverse normal transformation for quantitative trait analysis in genome-wide association studies](https://doi.org/10.1111/biom.13214).
+Genetic association tests based on the **inverse normal transformation (INT)**. Recommended for continuous traits with non-normally distributed residuals. INT-based tests control type I error when standard linear regression does not (e.g. skewed or kurtotic residuals) and typically **outperform** linear regression in power.
 
-# Installation
-```{R, eval = FALSE}
-devtools::install_github(repo = 'zrmacc/RNOmni')
+- **D-INT** (direct): the phenotype is rank-normalized, then tested.
+- **I-INT** (indirect): phenotypic residuals are rank-normalized, then tested.
+- **O-INT** (omnibus): combines D-INT and I-INT via Cauchy combination for a single robust test.
+
+Reference: [McCaw et al., *Biometrics* (2020)](https://doi.org/10.1111/biom.13214).
+
+## Installation
+
+```{r, eval = FALSE}
+# CRAN.
+install.packages("RNOmni")
+
+# GitHub.
+remotes::install_github("zrmacc/RNOmni", build_vignettes = TRUE)
 ```
 
-# Package Vignette
+## Main functions
 
-Link to package [vignette](https://htmlpreview.github.io/?https://github.com/zrmacc/RNOmni/blob/master/vignettes/RNOmni.html).
+| Function | Description |
+|----------|-------------|
+| `OINT()` | Omnibus INT test |
+| `DINT()` | Direct INT test |
+| `IINT()` | Indirect INT test |
+| `BAT()` | Basic association test (no transformation) |
+| `RankNorm()` | Rank-based inverse normal transform |
+| `OmniP()` | Cauchy combination of p-values |
+
+## Quick example
+
+```{r, eval = FALSE}
+library(RNOmni)
+set.seed(100)
+n <- 500
+X <- cbind(1, rnorm(n))
+G <- replicate(100, rbinom(n, 2, 0.25))
+storage.mode(G) <- "numeric"
+y <- exp(X %*% c(1, 0.5) + rnorm(n))   # skewed phenotype
+p <- OINT(y = y, G = G, X = X, simple = TRUE)
+```
+
+## Vignette
+
+[Package vignette](https://htmlpreview.github.io/?https://github.com/zrmacc/RNOmni/blob/master/vignettes/RNOmni.html).

@@ -2,22 +2,31 @@
 % Please edit documentation in R/CauchyCombination.R
 \name{OmniP}
 \alias{OmniP}
-\title{Omnibus P-value.}
+\title{Omnibus P-value (Cauchy combination)}
 \usage{
 OmniP(p, w = NULL)
 }
 \arguments{
-\item{p}{Numeric vector of p-values.}
+\item{p}{Numeric vector of p-values (each in [0, 1]; cannot mix 0 and 1).}
 
-\item{w}{Numeric weight vector.}
+\item{w}{Optional numeric weight vector of the same length as \code{p}. If
+\code{NULL}, equal weights are used.}
 }
 \value{
-OINT p-value.
+A single numeric p-value.
 }
 \description{
-Obtains an omnibus p-value from a vector of potentially dependent p-values 
-using the method of Cauchy combination. The p-values are converted to Cauchy
-random deviates then averaged. The distribution of the average of these 
-deviates is well-approximated by a Cauchy distribution in the tails. See
-<https://doi.org/10.1080/01621459.2018.1554485>.
+Combines a vector of potentially dependent p-values into a single p-value
+using the Cauchy combination method: p-values are converted to Cauchy
+random deviates, then weighted and summed; the sum is again Cauchy, and is
+converted back to a p-value.
+}
+\references{
+Liu Y, Xie J (2020). Cauchy combination test: a powerful test with
+bimodal distributions. \emph{J Am Stat Assoc},
+\doi{10.1080/01621459.2018.1554485}.
+}
+\seealso{
+\code{\link{OINT}}, which uses \code{OmniP} to combine D-INT and
+  I-INT p-values.
 }
